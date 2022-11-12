@@ -1,0 +1,7 @@
+.env
+node_modules
+src/grabs/*
+src/resources/*
+*cookies.json
+!src/grabs/.gitkeep
+!src/resources/.gitkeep
