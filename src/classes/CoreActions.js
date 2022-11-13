@@ -39,6 +39,9 @@ export default class CoreActions extends ActionList {
 		this.addAction(page, "resetCurrentDir", async (memory, page) => {
 			memory.set("currentDir", path.join(__dirname, '../resources'))
 		})
+		this.addAction(page, "setCookiesDir", async (memory, page) => {
+			memory.set("cookiesDir", path.join(__dirname, '../resources/cookies'))
+		})
 		this.addAction(page, "backToParentDir", async (memory, page) => {
 			memory.set("currentDir", memory.get("currentDir").split('/').slice(0, -1).join('/'))
 		})
@@ -54,38 +57,38 @@ export default class CoreActions extends ActionList {
 			}
 			memory.set("input", content)
 		})
-		// this.addAction(page, "login", async (memory, page) => {
-		// 	const params = memory.get("params")
-		// 	const { 
-		// 		usernameSelector, 
-		// 		username, 
-		// 		passwordSelector, 
-		// 		password, 
-		// 		submitSelector,
-		// 		cookiesFile
-		// 	} = params
-		// 	if (fs.existsSync(`${this.#cookiesDir}/${cookiesFile}.cookies.json`)) {
-		// 		const cookies = JSON.parse(fs.readFileSync(`${this.#cookiesDir}/${cookiesFile}.cookies.json`))
-		// 		await page.setCookie(...cookies)
-		// 		console.log("Cookies loaded...")
-		// 	} else {
-		// 		await this.runAction("goTo", params)
-		// 		console.log("Page loaded...")
-		// 		await page.waitForSelector(usernameSelector, { visible: true })
-		// 		await this.runAction("type", {selector: usernameSelector, text: username})
-		// 		await page.waitForSelector(passwordSelector, { visible: true })
-		// 		await this.runAction("type", {selector: passwordSelector, text: password})
-		// 		console.log("Credentials entered...")
-		// 		await this.runAction("click", {selector: submitSelector})
-		// 		console.log("Login submitted...")
-		// 		await page.waitForNavigation()
-		// 		const cookies = await page.cookies()
-		// 		fs.writeFileSync(`${this.#cookiesDir}/${cookiesFile}.cookies.json}`, JSON.stringify(cookies), (err) => {
-		// 			if (err) throw err
-		// 			console.log("Cookies saved...")
-		// 		})
-		// 	}
-		// })
+		this.addAction(page, "login", async (memory, page) => {
+			const params = memory.get("params")
+			const { 
+				usernameSelector, 
+				username, 
+				passwordSelector, 
+				password, 
+				submitSelector,
+				cookiesFile
+			} = params
+			if (fs.existsSync(`${this.#cookiesDir}/${cookiesFile}.cookies.json`)) {
+				const cookies = JSON.parse(fs.readFileSync(`${this.#cookiesDir}/${cookiesFile}.cookies.json`))
+				await page.setCookie(...cookies)
+				console.log("Cookies loaded...")
+			} else {
+				await this.runAction("goTo", params)
+				console.log("Page loaded...")
+				await page.waitForSelector(usernameSelector, { visible: true })
+				await this.runAction("type", {selector: usernameSelector, text: username})
+				await page.waitForSelector(passwordSelector, { visible: true })
+				await this.runAction("type", {selector: passwordSelector, text: password})
+				console.log("Credentials entered...")
+				await this.runAction("click", {selector: submitSelector})
+				console.log("Login submitted...")
+				await page.waitForNavigation()
+				const cookies = await page.cookies()
+				fs.writeFileSync(`${this.#cookiesDir}/${cookiesFile}.cookies.json}`, JSON.stringify(cookies), (err) => {
+					if (err) throw err
+					console.log("Cookies saved...")
+				})
+			}
+		})
 		this.addAction(page, "createDir", async (memory, page) => {
 			const params = memory.get("params")
 			let { dir } = params
