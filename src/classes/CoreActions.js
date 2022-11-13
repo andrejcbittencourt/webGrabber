@@ -13,7 +13,7 @@ export default class CoreActions extends ActionList {
 		super()
 	}
 
-	async load() {
+	load() {
 		this.addAction('setVariable', async (memory) => {
 			const params = memory.get('params')
 			const { key, value } = params

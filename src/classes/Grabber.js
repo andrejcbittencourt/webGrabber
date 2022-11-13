@@ -32,7 +32,7 @@ export default class Grabber {
 		this.#memory = new Memory()
 	}
 
-	async addCustomAction(name, action) {
+	addCustomAction(name, action) {
 		this.#customActions.add(name, action)
 	}
 

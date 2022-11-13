@@ -8,14 +8,14 @@ export default class CustomActions extends ActionList {
 		this.#actions = []
 	}
 
-	async load() {
+	load() {
 		// for each custom action
 		this.#actions.forEach(action => {
 			this.addAction(action[0], action[1])
 		})
 	}
 
-	async add(name, action) {
+	add(name, action) {
 		this.#actions.push([name, action])
 	}
 }
