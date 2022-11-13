@@ -28,8 +28,8 @@ export default class ActionList {
 	}
 
 	async runAction(name, memory) {
-		const input = memory.get("input")
-		console.log(`Running action: ${name}${input ? `, with input:` : ''}`)
+		const input = memory.get('input')
+		console.log(`Running action: ${name}${input ? ', with input:' : ''}`)
 		if (input) console.log(input)
 		await this.#list[name].run(memory)
 	}

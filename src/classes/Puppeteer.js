@@ -1,6 +1,6 @@
-import puppeteer from "puppeteer-extra"
-import StealthPlugin from "puppeteer-extra-plugin-stealth"
-import AdblockerPlugin from "puppeteer-extra-plugin-adblocker"
+import puppeteer from 'puppeteer-extra'
+import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 
 export default class Puppeteer {
 	#headless
