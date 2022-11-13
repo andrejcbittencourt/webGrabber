@@ -8,10 +8,10 @@ export default class CustomActions extends ActionList {
 		this.#actions = []
 	}
 
-	async load(page) {
+	async load() {
 		// for each custom action
 		this.#actions.forEach(action => {
-			this.addAction(page, action[0], action[1])
+			this.addAction(action[0], action[1])
 		})
 	}
 

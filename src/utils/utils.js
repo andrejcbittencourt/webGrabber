@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 // get all grab configs from grabs folder
-export const GetGrabList = () => {
+export const getGrabList = () => {
 	const files = fs.readdirSync(path.join(__dirname, '/../grabs'))
 	const grabList = []
 	files.forEach(file => {
@@ -19,7 +19,7 @@ export const GetGrabList = () => {
 	return grabList
 }
 
-export const Interpolation = async (params) => {
+export const interpolation = async (params) => {
 	const regex = /{{(.*?)}}/g
   
 	// for each param
