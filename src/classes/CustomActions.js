@@ -1,4 +1,4 @@
-import ActionList from "./ActionList.js"
+import ActionList from './ActionList.js'
 
 export default class CustomActions extends ActionList {
 	#actions

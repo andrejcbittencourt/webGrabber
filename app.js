@@ -1,5 +1,5 @@
-import "dotenv/config"
-import Grabber from "./src/Entities/Grabber.js"
+import 'dotenv/config'
+import Grabber from './src/Entities/Grabber.js'
 
 const main = async () => {
 	const grabber = new Grabber()

@@ -1,8 +1,8 @@
-import GrabList from "./GrabList.js"
-import Puppeteer from "./Puppeteer.js"
-import CoreActions from "./CoreActions.js"
-import CustomActions from "./CustomActions.js"
-import { GetGrabList } from "../utils/utils.js"
+import GrabList from './GrabList.js'
+import Puppeteer from './Puppeteer.js'
+import CoreActions from './CoreActions.js'
+import CustomActions from './CustomActions.js'
+import { GetGrabList } from '../utils/utils.js'
 
 class Memory {
 	#memory
@@ -38,19 +38,19 @@ export default class Grabber {
 
 	async grab() {
 		try {
-			console.log("Grabber started")
+			console.log('Grabber started')
 			await this.#puppeteer.launch()
 			GetGrabList().forEach(grab => this.#grabList.addGrab(grab))
-			console.log("Grab configs loaded...")
+			console.log('Grab configs loaded...')
 			this.#coreActions.load(this.#puppeteer.page)
 			this.#customActions.load(this.#puppeteer.page)
-			await this.#coreActions.runAction("setCookiesDir", this.#memory)
-			console.log("Actions loaded...")
+			await this.#coreActions.runAction('setCookiesDir', this.#memory)
+			console.log('Actions loaded...')
 			for (const grab of this.#grabList.list) {
-				await this.#coreActions.runAction("resetCurrentDir", this.#memory)
-				this.#memory.set("params", { dir: grab.name })
-				await this.#coreActions.runAction("createDir", this.#memory)
-				await this.#coreActions.runAction("setCurrentDir", this.#memory)
+				await this.#coreActions.runAction('resetCurrentDir', this.#memory)
+				this.#memory.set('params', { dir: grab.name })
+				await this.#coreActions.runAction('createDir', this.#memory)
+				await this.#coreActions.runAction('setCurrentDir', this.#memory)
 				// for (const action of grab.actions) {
 				// 	this.#memory.set("input", null)
 				// 	this.#memory.set("params", action.params)
@@ -64,7 +64,7 @@ export default class Grabber {
 				// }
 			}
 		} catch (error) {
-			console.log("Error: ", error)
+			console.log('Error: ', error)
 		}
 		await this.#puppeteer.close()
 	}
