@@ -88,7 +88,7 @@ export default class CoreActions extends ActionList {
 				console.log('Login submitted...')
 				await page.waitForNavigation()
 				const cookies = await page.cookies()
-				fs.writeFileSync(`${cookiesDir}/${cookiesFile}.cookies.json}`, JSON.stringify(cookies), (err) => {
+				fs.writeFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`, JSON.stringify(cookies), (err) => {
 					if (err) throw err
 					console.log('Cookies saved...')
 				})
