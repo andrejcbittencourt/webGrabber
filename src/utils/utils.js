@@ -23,9 +23,7 @@ export const interpolation = async (params) => {
 	const regex = /{{(.*?)}}/g
   
 	// for each param
-	/*global structuredCloneJSON*/
-	const cloneParams = structuredCloneJSON.parse(JSON.stringify(params))
-	for (const [key, value] of Object.entries(cloneParams)) {
+	for (const [key, value] of Object.entries(params)) {
 		// if it's a string
 		if (typeof value === 'string') {
 			// replace env vars
@@ -33,10 +31,10 @@ export const interpolation = async (params) => {
 			if (match) {
 				match.forEach(string => {
 					const expression = string.replace('{{', '').replace('}}', '')
-					cloneParams[key] = eval(expression)
+					params[key] = eval(expression)
 				})
 			}
 		}
 	}
-	return cloneParams
+	return params
 }
