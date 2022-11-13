@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -14,39 +13,39 @@ export default class CoreActions extends ActionList {
 		super()
 	}
 
-	async load(page) {
-		this.addAction(page, 'setVariable', async (memory, _page) => {
+	async load() {
+		this.addAction('setVariable', async (memory) => {
 			const params = memory.get('params')
 			const { key, value } = params
 			memory.set(key, value)
 		})
-		this.addAction(page, 'getVariable', async (memory, _page) => {
+		this.addAction('getVariable', async (memory) => {
 			const params = memory.get('params')
-			const { key, index } = params
+			const { key } = params
 			memory.set('input', memory.get(key))
 		})
-		this.addAction(page, 'goTo', async (memory, page) => {
+		this.addAction('goTo', async (memory, page) => {
 			const params = memory.get('params')
 			const { url } = params
 			await page.goto(url, {
 				waitUntil: 'networkidle2',
 			})
 		})
-		this.addAction(page, 'setCurrentDir', async (memory, _page) => {
+		this.addAction('setCurrentDir', async (memory) => {
 			const params = memory.get('params')
 			const { dir } = params
 			memory.set('currentDir', path.join(memory.get('currentDir'), dir))
 		})
-		this.addAction(page, 'resetCurrentDir', async (memory, _page) => {
+		this.addAction('resetCurrentDir', async (memory) => {
 			memory.set('currentDir', path.join(__dirname, '../resources'))
 		})
-		this.addAction(page, 'setCookiesDir', async (memory, _page) => {
-			memory.set('cookiesDir', path.join(__dirname, '../resources/cookies'))
+		this.addAction('setCookiesDir', async (memory) => {
+			memory.set('cookiesDir', path.join(__dirname, '../cookies'))
 		})
-		this.addAction(page, 'backToParentDir', async (memory, _page) => {
+		this.addAction('backToParentDir', async (memory) => {
 			memory.set('currentDir', memory.get('currentDir').split('/').slice(0, -1).join('/'))
 		})
-		this.addAction(page, 'getElements', async (memory, page) => {
+		this.addAction('getElements', async (memory, page) => {
 			const params = memory.get('params')
 			const { selector } = params
 			const elements = await page.$$(selector)
@@ -58,7 +57,7 @@ export default class CoreActions extends ActionList {
 			}
 			memory.set('input', content)
 		})
-		this.addAction(page, 'login', async (memory, page) => {
+		this.addAction('login', async (memory, page) => {
 			const params = memory.get('params')
 			const { 
 				usernameSelector, 
@@ -74,14 +73,18 @@ export default class CoreActions extends ActionList {
 				await page.setCookie(...cookies)
 				console.log('Cookies loaded...')
 			} else {
-				await this.runAction('goTo', params)
+				await this.runAction('goTo', memory, page)
 				console.log('Page loaded...')
 				await page.waitForSelector(usernameSelector, { visible: true })
-				await this.runAction('type', {selector: usernameSelector, text: username})
+				memory.set('params', {selector: usernameSelector, text: username})
+				await this.runAction('type', memory, page)
 				await page.waitForSelector(passwordSelector, { visible: true })
-				await this.runAction('type', {selector: passwordSelector, text: password})
+				memory.set('params', {selector: passwordSelector, text: password})
+				await this.runAction('type', memory, page)
 				console.log('Credentials entered...')
-				await this.runAction('click', {selector: submitSelector})
+				await page.waitForSelector(submitSelector, { visible: true })
+				memory.set('params', {selector: submitSelector})
+				await this.runAction('click', memory, page)
 				console.log('Login submitted...')
 				await page.waitForNavigation()
 				const cookies = await page.cookies()
@@ -91,40 +94,36 @@ export default class CoreActions extends ActionList {
 				})
 			}
 		})
-		this.addAction(page, 'createDir', async (memory, _page) => {
+		this.addAction('createDir', async (memory) => {
 			const params = memory.get('params')
 			let { dir } = params
 			dir = dir.replace(/[^a-zA-Z0-9 ]/g, '').replace(/(^\s+|\s+$)/g, '').replace(/\s+/g, '-')
 			if (!fs.existsSync(`${memory.get('currentDir')}/${dir}`))
 				fs.mkdirSync(`${memory.get('currentDir')}/${dir}`)
 		})
-		// this.addAction(page, "type", async (memory, page) => {
-		// 	const { selector, text } = params
-		// 	await page.waitForSelector(selector, { visible: true })
-		// 	await page.type(selector, text)
-		// })
-		// this.addAction(page, "click", async (memory, page) => {
-		// 	const { selector } = params
-		// 	await page.waitForSelector(selector, { visible: true })
-		// 	await page.click(selector)
-		// })
-		// this.addAction(page, "dowloadResource", async (memory, page) => {
-		// 	const { url, filename } = params
-		// 	const response = await fetch(url)
-		// 	const buffer = await response.buffer()
-		// 	fs.writeFileSync(`${this.currentDir}/${filename}`, buffer)
-		// })
-		// this.addAction(page, "testLog", async (memory, page) => {
-		// 	const { text } = params
-		// 	console.log(text)
-		// })
-		// // for each input variable run action
-		// this.addAction(page, "forEach", async (memory, page) => {
-		// 	const { inputVariable, action } = params
-		// 	const input = await this.runAction("getVariable", { key: inputVariable })
-		// 	for (let i = 0; i < input.length; i++) {
-		// 		await this.runAction(action.name, action.memory[i])
-		// 	}
-		// })
+		this.addAction('type', async (memory, page) => {
+			const params = memory.get('params')
+			const { selector, text } = params
+			await page.waitForSelector(selector, { visible: true })
+			await page.type(selector, text)
+		})
+		this.addAction('click', async (memory, page) => {
+			const params = memory.get('params')
+			const { selector } = params
+			await page.waitForSelector(selector, { visible: true })
+			await page.click(selector)
+		})
+		this.addAction('dowloadResource', async (memory) => {
+			const params = memory.get('params')
+			const { url, filename } = params
+			const response = await fetch(url)
+			const buffer = await response.buffer()
+			fs.writeFileSync(`${memory.get('currentDir')}/${filename}`, buffer)
+		})
+		this.addAction('testLog', async (memory) => {
+			const params = memory.get('params')
+			const { text } = params
+			console.log(text)
+		})
 	}
 }

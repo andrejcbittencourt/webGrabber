@@ -1,14 +1,12 @@
 class Action {
 	#action
-	#page
 
-	constructor(action, page) {
+	constructor(action) {
 		this.#action = action
-		this.#page = page
 	}
 
-	async run(memory) {
-		await this.#action(memory, this.#page)
+	async run(memory, page) {
+		await this.#action(memory, page)
 	}
 }
 
@@ -19,18 +17,18 @@ export default class ActionList {
 		this.#list = {}
 	}
 
-	addAction(page, name, action) {
-		this.#list[name] = new Action(action, page)
+	addAction(name, action) {
+		this.#list[name] = new Action(action)
 	}
 
 	hasAction(name) {
 		return this.#list[name] ? true : false
 	}
 
-	async runAction(name, memory) {
+	async runAction(name, memory, page) {
 		const input = memory.get('input')
 		console.log(`Running action: ${name}${input ? ', with input:' : ''}`)
 		if (input) console.log(input)
-		await this.#list[name].run(memory)
+		await this.#list[name].run(memory, page)
 	}
 }
