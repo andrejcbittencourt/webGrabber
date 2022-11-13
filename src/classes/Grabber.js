@@ -44,6 +44,7 @@ export default class Grabber {
 			console.log("Grab configs loaded...")
 			this.#coreActions.load(this.#puppeteer.page)
 			this.#customActions.load(this.#puppeteer.page)
+			await this.#coreActions.runAction("setCookiesDir", this.#memory)
 			console.log("Actions loaded...")
 			for (const grab of this.#grabList.list) {
 				await this.#coreActions.runAction("resetCurrentDir", this.#memory)
