@@ -1,3 +1,5 @@
+import Chalk from './Chalk.js'
+
 class Action {
 	#action
 
@@ -26,9 +28,10 @@ export default class ActionList {
 	}
 
 	async runAction(name, memory, page) {
-		const input = memory.get('input')
-		console.log(`Running action: ${name}${input ? ', with input:' : ''}`)
-		if (input) console.log(input)
+		Chalk.write(Chalk.create([
+			{text:'Running action: ', color:'blue', style:'bold'},
+			{text: name, color: 'yellow'}
+		]))
 		await this.#list[name].run(memory, page)
 	}
 }

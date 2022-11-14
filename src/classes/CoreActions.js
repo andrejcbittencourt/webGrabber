@@ -3,6 +3,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import ActionList from './ActionList.js'
+import Chalk from './Chalk.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -71,26 +72,36 @@ export default class CoreActions extends ActionList {
 			if (fs.existsSync(`${cookiesDir}/${cookiesFile}.cookies.json`)) {
 				const cookies = JSON.parse(fs.readFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`))
 				await page.setCookie(...cookies)
-				console.log('Cookies loaded...')
+				Chalk.write(Chalk.create([
+					{text:': Cookies loaded', style:'italic'}
+				]))
 			} else {
 				await this.runAction('goTo', memory, page)
-				console.log('Page loaded...')
+				Chalk.write(Chalk.create([
+					{text:': Page loaded', style:'italic'}
+				]))
 				await page.waitForSelector(usernameSelector, { visible: true })
 				memory.set('params', {selector: usernameSelector, text: username})
 				await this.runAction('type', memory, page)
 				await page.waitForSelector(passwordSelector, { visible: true })
 				memory.set('params', {selector: passwordSelector, text: password})
 				await this.runAction('type', memory, page)
-				console.log('Credentials entered...')
+				Chalk.write(Chalk.create([
+					{text:': Credentials entered', style:'italic'}
+				]))
 				await page.waitForSelector(submitSelector, { visible: true })
 				memory.set('params', {selector: submitSelector})
 				await this.runAction('click', memory, page)
-				console.log('Login submitted...')
+				Chalk.write(Chalk.create([
+					{text:': Login submitted', style:'italic'}
+				]))
 				await page.waitForNavigation()
 				const cookies = await page.cookies()
 				fs.writeFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`, JSON.stringify(cookies), (err) => {
 					if (err) throw err
-					console.log('Cookies saved...')
+					Chalk.write(Chalk.create([
+						{text:': Cookies saved', style:'italic'}
+					]))
 				})
 			}
 		})
@@ -120,10 +131,20 @@ export default class CoreActions extends ActionList {
 			const buffer = await response.buffer()
 			fs.writeFileSync(`${memory.get('currentDir')}/${filename}`, buffer)
 		})
-		this.addAction('testLog', async (memory) => {
+		this.addAction('log', async (memory) => {
 			const params = memory.get('params')
-			const { text } = params
-			console.log(text)
+			const { text, color, background, style } = params
+			Chalk.write(Chalk.create([
+				{ text:`: ${text}`, color, background, style }
+			]))
+		})
+		this.addAction('forEach', async (memory) => {
+			const params = memory.get('params')
+			const { array, action } = params
+			for (let i = 0; i < array.length; i++) {
+				memory.set('params', array[i])
+				await this.runAction(action, memory)
+			}
 		})
 	}
 }

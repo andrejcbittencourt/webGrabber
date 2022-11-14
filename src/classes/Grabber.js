@@ -3,6 +3,7 @@ import Puppeteer from './Puppeteer.js'
 import CoreActions from './CoreActions.js'
 import CustomActions from './CustomActions.js'
 import { getGrabList, interpolation } from '../utils/utils.js'
+import Chalk from './Chalk.js'
 
 class Memory {
 	#memory
@@ -38,13 +39,19 @@ export default class Grabber {
 
 	async grab() {
 		try {
-			console.log('Grabber started')
+			Chalk.write(Chalk.create([
+				{text:'Grabber started', color:'green', style:'bold'}
+			]))
 			await this.#puppeteer.launch()
 			getGrabList().forEach(grab => this.#grabList.addGrab(grab))
-			console.log('Grab configs loaded...')
+			Chalk.write(Chalk.create([
+				{text:'Grab configs loaded', color:'green', style:'bold'}
+			]))
 			this.#coreActions.load()
 			this.#customActions.load()
-			console.log('Actions loaded...')
+			Chalk.write(Chalk.create([
+				{text:'Actions loaded', color:'green', style:'bold'}
+			]))
 			await this.#coreActions.runAction('setCookiesDir', this.#memory)
 			for (const grab of this.#grabList.list) {
 				await this.#coreActions.runAction('resetCurrentDir', this.#memory)
@@ -64,8 +71,13 @@ export default class Grabber {
 				}
 			}
 		} catch (error) {
-			console.log('Error: ', error)
+			Chalk.write(Chalk.create([
+				{text:error.message, color:'red', style:'bold'}
+			]))
 		}
 		await this.#puppeteer.close()
+		Chalk.write(Chalk.create([
+			{text:'Grabber closed', color:'green', style:'bold'}
+		]))
 	}
 }

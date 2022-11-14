@@ -17,6 +17,7 @@
   "author": "André Bittencourt",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^5.1.2",
     "dotenv": "^16.0.3",
     "puppeteer": "^15.5.0",
     "puppeteer-extra": "^3.3.4",
