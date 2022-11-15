@@ -25,6 +25,11 @@ export default class CoreActions extends ActionList {
 			const { key } = params
 			memory.set('input', memory.get(key))
 		})
+		this.addAction('deleteVariable', async (memory) => {
+			const params = memory.get('params')
+			const { key } = params
+			memory.delete(key)
+		})
 		this.addAction('goTo', async (memory, page) => {
 			const params = memory.get('params')
 			const { url } = params
@@ -133,16 +138,21 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('log', async (memory) => {
 			const params = memory.get('params')
-			const { text, color, background, style } = params
+			const { text, color, background } = params
+			// sanitize text
+			let sanitizedText = text.replace(/(^\s+|\s+$)/g, '')
 			Chalk.write(Chalk.create([
-				{ text:`: ${text}`, color, background, style }
+				{ text:`: ${sanitizedText}`, color, background, style:'italic' }
 			]))
 		})
 		this.addAction('forEach', async (memory) => {
 			const params = memory.get('params')
-			const { variable, action } = params
-			const value = memory.get(variable)
+			const { key, action } = params
+			const value = memory.get(key)
 			for (let i = 0; i < value.length; i++) {
+				Chalk.write(Chalk.create([
+					{text:`: ${key}[${i+1}]`, color:'yellow', style:'italic'}
+				]))
 				memory.set('input', value[i])
 				memory.set('params', action.params)
 				await this.runAction(action.name, memory)
