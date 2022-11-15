@@ -1,5 +1,5 @@
 import Chalk from './Chalk.js'
-import { interpolation } from './utils/utils.js'
+import { interpolation } from '../utils/utils.js'
 
 class Action {
 	#action
@@ -33,7 +33,10 @@ export default class ActionList {
 			{text:'Running action: ', color:'blue', style:'bold'},
 			{text: name, color: 'yellow'}
 		]))
-		memory.set('params', await interpolation(memory.get('params'), memory))
+		// if params in memory is not undefined or null
+		if (memory.get('params')) {
+			memory.set('params', await interpolation(memory.get('params'), memory))
+		}
 		await this.#list[name].run(memory, page)
 	}
 }
