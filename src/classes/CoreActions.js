@@ -140,10 +140,12 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('forEach', async (memory) => {
 			const params = memory.get('params')
-			const { array, action } = params
-			for (let i = 0; i < array.length; i++) {
-				memory.set('params', array[i])
-				await this.runAction(action, memory)
+			const { variable, action } = params
+			const value = memory.get(variable)
+			for (let i = 0; i < value.length; i++) {
+				memory.set('input', value[i])
+				memory.set('params', action.params)
+				await this.runAction(action.name, memory)
 			}
 		})
 	}
