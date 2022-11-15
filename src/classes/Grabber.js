@@ -39,6 +39,14 @@ export default class Grabber {
 
 	async grab() {
 		try {
+			// for each process.env add to memory
+			// eslint-disable-next-line no-undef
+			for (const [key, value] of Object.entries(process.env)) {
+				// if starts with GRABBER_ add to memory but remove GRABBER_
+				if (key.startsWith('GRABBER_')) {
+					this.#memory.set(key.replace('GRABBER_', ''), value)
+				}
+			}
 			Chalk.write(Chalk.create([
 				{text:'Grabber started', color:'green', style:'bold'}
 			]))
@@ -60,7 +68,7 @@ export default class Grabber {
 				await this.#coreActions.runAction('setCurrentDir', this.#memory)
 				for (const action of grab.actions) {
 					this.#memory.set('input', null)
-					this.#memory.set('params', await interpolation(action.params))
+					this.#memory.set('params', await interpolation(action.params, this.#memory))
 					if (this.#coreActions.hasAction(action.name)) {
 						await this.#coreActions.runAction(action.name, this.#memory, this.#puppeteer.page)
 					} else if (this.#customActions.hasAction(action.name)) {

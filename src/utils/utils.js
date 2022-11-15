@@ -19,19 +19,17 @@ export const getGrabList = () => {
 	return grabList
 }
 
-export const interpolation = async (params) => {
-	const regex = /{{(.*?)}}/g
-  
+export const interpolation = async (params, memory) => {
 	// for each param
 	for (const [key, value] of Object.entries(params)) {
 		// if it's a string
 		if (typeof value === 'string') {
-			// replace env vars
+			const regex = /{{(.*?)}}/g
 			const match = value.match(regex)
 			if (match) {
 				match.forEach(string => {
-					const expression = string.replace('{{', '').replace('}}', '')
-					params[key] = eval(expression)
+					const variable = string.replace('{{', '').replace('}}', '')
+					params[key] = memory.get(variable)
 				})
 			}
 		}
