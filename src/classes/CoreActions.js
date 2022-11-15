@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import ActionList from './ActionList.js'
 import Chalk from './Chalk.js'
+import { sanitizeString } from '../utils/utils.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -140,7 +141,7 @@ export default class CoreActions extends ActionList {
 			const params = memory.get('params')
 			const { text, color, background } = params
 			// sanitize text
-			let sanitizedText = text.replace(/(^\s+|\s+$)/g, '')
+			let sanitizedText = sanitizeString(text)
 			Chalk.write(Chalk.create([
 				{ text:`: ${sanitizedText}`, color, background, style:'italic' }
 			]))
@@ -151,7 +152,8 @@ export default class CoreActions extends ActionList {
 			const value = memory.get(key)
 			for (let i = 0; i < value.length; i++) {
 				Chalk.write(Chalk.create([
-					{text:`: ${key}[${i+1}]`, color:'yellow', style:'italic'}
+					{text:`: ${key}[${i+1}]`, color:'yellow', style:'italic'},
+					{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
 				]))
 				memory.set('input', value[i])
 				memory.set('params', action.params)

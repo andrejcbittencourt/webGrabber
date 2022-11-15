@@ -19,7 +19,11 @@ export const getGrabList = () => {
 	return grabList
 }
 
-export const interpolation = async (params, memory) => {
+export const sanitizeString = (string) => {
+	return string.replace(/(^\s+|\s+$)/g, '')
+}
+
+export const interpolation = (params, memory) => {
 	// for each param
 	for (const [key, value] of Object.entries(params)) {
 		// if it's a string

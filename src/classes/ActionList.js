@@ -30,12 +30,12 @@ export default class ActionList {
 
 	async runAction(name, memory, page) {
 		Chalk.write(Chalk.create([
-			{text:'Running action: ', color:'blue', style:'bold'},
+			{text:'Running action:', color:'blue', style:'bold'},
 			{text: name, color: 'yellow'}
 		]))
 		// if params in memory is not undefined or null
 		if (memory.get('params')) {
-			memory.set('params', await interpolation(memory.get('params'), memory))
+			memory.set('params', interpolation(memory.get('params'), memory))
 		}
 		await this.#list[name].run(memory, page)
 	}
