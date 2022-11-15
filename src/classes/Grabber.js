@@ -2,7 +2,7 @@ import GrabList from './GrabList.js'
 import Puppeteer from './Puppeteer.js'
 import CoreActions from './CoreActions.js'
 import CustomActions from './CustomActions.js'
-import { getGrabList, interpolation } from '../utils/utils.js'
+import { getGrabList } from '../utils/utils.js'
 import Chalk from './Chalk.js'
 
 class Memory {
@@ -68,7 +68,7 @@ export default class Grabber {
 				await this.#coreActions.runAction('setCurrentDir', this.#memory)
 				for (const action of grab.actions) {
 					this.#memory.set('input', null)
-					this.#memory.set('params', await interpolation(action.params, this.#memory))
+					this.#memory.set('params', action.params)
 					if (this.#coreActions.hasAction(action.name)) {
 						await this.#coreActions.runAction(action.name, this.#memory, this.#puppeteer.page)
 					} else if (this.#customActions.hasAction(action.name)) {
