@@ -11,10 +11,18 @@ class Memory {
 		this.#memory = {}
 	}
 	set(key, value) {
-		this.#memory[key] = value
+		// if value is an object then don't reference it
+		if (typeof value === 'object') {
+			this.#memory[key] = JSON.parse(JSON.stringify(value))
+		} else {
+			this.#memory[key] = value
+		}
 	}
 	get(key) {
 		return this.#memory[key]
+	}
+	delete(key) {
+		delete this.#memory[key]
 	}
 }
 
@@ -67,7 +75,6 @@ export default class Grabber {
 				await this.#coreActions.runAction('createDir', this.#memory)
 				await this.#coreActions.runAction('setCurrentDir', this.#memory)
 				for (const action of grab.actions) {
-					this.#memory.set('input', null)
 					this.#memory.set('params', action.params)
 					if (this.#coreActions.hasAction(action.name)) {
 						await this.#coreActions.runAction(action.name, this.#memory, this.#puppeteer.page)
