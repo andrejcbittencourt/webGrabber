@@ -87,7 +87,7 @@ export default class Grabber {
 			}
 		} catch (error) {
 			Chalk.write(Chalk.create([
-				{text:error.message, color:'red', style:'bold'}
+				{text:`Error : ${error.message}`, color:'red', style:'bold'}
 			]))
 		}
 		await this.#puppeteer.close()
