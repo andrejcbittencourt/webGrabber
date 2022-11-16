@@ -11,7 +11,7 @@ class Memory {
 		this.#memory = {}
 	}
 	set(key, value) {
-		// if value is an object then don't reference it
+		// if value is an object then don't reference
 		if (typeof value === 'object') {
 			this.#memory[key] = JSON.parse(JSON.stringify(value))
 		} else {
