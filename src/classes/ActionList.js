@@ -30,8 +30,8 @@ export default class ActionList {
 
 	async runAction(name, memory, page) {
 		Chalk.write(Chalk.create([
-			{text:'Running action:', color:'blue', style:'bold'},
-			{text: name, color: 'yellow'}
+			{text:'Running action :', color:'blue', style:'bold'},
+			{text: name, color: 'white'}
 		]))
 		// if params in memory is not undefined or null
 		if (memory.get('params')) {
