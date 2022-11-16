@@ -148,16 +148,18 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('forEach', async (memory) => {
 			const params = memory.get('params')
-			const { key, action } = params
+			const { key, actions } = params
 			const value = memory.get(key)
-			for (let i = 0; i < value.length; i++) {
-				Chalk.write(Chalk.create([
-					{text:`: ${key}[${i+1}]`, color:'yellow', style:'italic'},
-					{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
-				]))
-				memory.set('input', value[i])
-				memory.set('params', action.params)
-				await this.runAction(action.name, memory)
+			for(let i = 0; i < value.length; i++) {
+				for(let action of actions) {
+					Chalk.write(Chalk.create([
+						{text:`: ${key}[${i+1}]`, color:'yellow', style:'italic'},
+						{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
+					]))
+					memory.set('input', value[i])
+					memory.set('params', action.params)
+					await this.runAction(action.name, memory)
+				}
 			}
 		})
 	}
