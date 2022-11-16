@@ -36,17 +36,17 @@ export default class ActionList {
 	async runAction(name, memory, page) {
 		if(!this.hasAction(name) && ((this.#customActions && !this.#customActions.hasAction(name)) || !this.#customActions))
 			throw new Error(`Action ${name} not found`)
-		Chalk.write(Chalk.create([
-			{text:'Running action :', color:'blue', style:'bold'},
-			{text: name, color: 'white'}
-		]))
-		// if params in memory is not undefined or null
-		if(memory.get('params'))
-			memory.set('params', interpolation(memory.get('params'), memory))
 
-		if(this.hasAction(name))
+		if(this.hasAction(name)) {
+			Chalk.write(Chalk.create([
+				{text:'Running action :', color:'blue', style:'bold'},
+				{text: name, color: 'white'}
+			]))
+			// if params in memory is not undefined or null
+			if(memory.get('params'))
+				memory.set('params', interpolation(memory.get('params'), memory))
 			await this.#list[name].run(memory, page)
-		else
+		} else
 			await this.#customActions.runAction(name, memory, page)
 	}
 }
