@@ -12,11 +12,10 @@ class Memory {
 	}
 	set(key, value) {
 		// if value is an object then don't reference
-		if (typeof value === 'object') {
+		if (typeof value === 'object')
 			this.#memory[key] = JSON.parse(JSON.stringify(value))
-		} else {
+		else
 			this.#memory[key] = value
-		}
 	}
 	get(key) {
 		return this.#memory[key]
@@ -51,9 +50,8 @@ export default class Grabber {
 			// eslint-disable-next-line no-undef
 			for (const [key, value] of Object.entries(process.env)) {
 				// if starts with GRABBER_ add to memory but remove GRABBER_
-				if (key.startsWith('GRABBER_')) {
+				if (key.startsWith('GRABBER_'))
 					this.#memory.set(key.replace('GRABBER_', ''), value)
-				}
 			}
 			Chalk.write(Chalk.create([
 				{text:'Grabber started', color:'green', style:'bold'}
@@ -65,6 +63,7 @@ export default class Grabber {
 			]))
 			this.#coreActions.load()
 			this.#customActions.load()
+			this.#coreActions.addCustomActions(this.#customActions)
 			Chalk.write(Chalk.create([
 				{text:'Actions loaded', color:'green', style:'bold'}
 			]))
@@ -76,13 +75,7 @@ export default class Grabber {
 				await this.#coreActions.runAction('setCurrentDir', this.#memory)
 				for (const action of grab.actions) {
 					this.#memory.set('params', action.params)
-					if (this.#coreActions.hasAction(action.name)) {
-						await this.#coreActions.runAction(action.name, this.#memory, this.#puppeteer.page)
-					} else if (this.#customActions.hasAction(action.name)) {
-						await this.#customActions.runAction(action.name, this.#memory, this.#puppeteer.page)
-					} else {
-						throw new Error(`Action ${action.name} not found`)
-					}
+					await this.#coreActions.runAction(action.name, this.#memory, this.#puppeteer.page)
 				}
 			}
 		} catch (error) {
