@@ -49,6 +49,9 @@ An example of how to add custom actions is found in the [app](app.js)
 Environment variables can be set in a *.env* file in the root of the project<br>
 All variables appended with *GRABBER_* will be loaded into the memory and can be accessed in the config files
 
+## Memory Interpolation
+The memory can be accessed in the config files using the *{{variable}}* syntax
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
 
