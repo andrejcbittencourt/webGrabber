@@ -7,7 +7,7 @@ Config based web crawler
 npm install
 ```
 
-## chromium on Mac
+## Chromium on Mac
 
 If you have trouble with chromium on Mac, you can try to install it using homebrew with no quarantine option:
 
@@ -44,6 +44,10 @@ A full list of actions can be found in the [CoreActions](src/classes/CoreActions
 
 ## Custom Actions
 An example of how to add custom actions is found in the [app](app.js)
+
+## Environment Variables
+Environment variables can be set in a *.env* file in the root of the project<br>
+All variables appended with *GRABBER_* will be loaded into the memory and can be accessed in the config files
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
