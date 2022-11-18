@@ -27,6 +27,10 @@ export default class GrabList {
 		return this.#list
 	}
 
+	isEmpty() {
+		return this.#list.length === 0
+	}
+
 	addGrab(grab) {
 		this.#list.push(new Grab(grab.name, grab.actions))
 	}
