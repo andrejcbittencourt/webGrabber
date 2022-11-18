@@ -52,6 +52,13 @@ All variables appended with *GRABBER_* will be loaded into the memory and can be
 ## Memory Interpolation
 The memory can be accessed in the config files using the *{{variable}}* syntax
 
+## Reserved Variable Names
+The following variable names are reserved and should be used in the config files with caution:
+- *INPUT*
+- *PARAMS*
+- *CURRENT_DIR*
+- *COOKIES_DIR*
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
 
