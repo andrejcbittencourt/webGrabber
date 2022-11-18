@@ -1,6 +1,7 @@
 import https from 'https'
 import fs from 'fs'
 import path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import ActionList from './ActionList.js'
@@ -56,6 +57,9 @@ export default class CoreActions extends ActionList {
 			const minNumber = Number(min)
 			const maxNumber = Number(max)
 			memory.set('INPUT', Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber)
+		})
+		this.addAction('uuid', async (memory) => {
+			memory.set('INPUT', uuidv4())
 		})
 		this.addAction('screenshot', async (memory, page) => {
 			const { name, type } = memory.get('PARAMS')
@@ -167,10 +171,8 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('log', async (memory) => {
 			const { text, color, background } = memory.get('PARAMS')
-			// sanitize text
-			let sanitizedText = sanitizeString(text)
 			Chalk.write(Chalk.create([
-				{ text:`: ${sanitizedText}`, color, background, style:'italic' }
+				{ text:`: ${text}`, color, background, style:'italic' }
 			]))
 		})
 		this.addAction('forEach', async (memory) => {
