@@ -52,7 +52,10 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('random', async (memory) => {
 			const { min, max } = memory.get('PARAMS')
-			memory.set('INPUT', Math.floor(Math.random() * (max - min + 1)) + min)
+			// convert to number
+			const minNumber = Number(min)
+			const maxNumber = Number(max)
+			memory.set('INPUT', Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber)
 		})
 		this.addAction('screenshot', async (memory, page) => {
 			const { name, type } = memory.get('PARAMS')

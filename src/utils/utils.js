@@ -34,8 +34,8 @@ export const interpolation = (params, memory) => {
 			if (match) {
 				match.forEach(string => {
 					const variable = string.match(/{{(.*?)}}/)[1]
-					// replace variable with value from memory if it is not string
-					if (typeof memory.get(variable) !== 'string')
+					// if is array or object
+					if (typeof memory.get(variable) === 'object' || Array.isArray(memory.get(variable)))
 						params[key] = memory.get(variable)
 					else
 						params[key] = value.replace(string, memory.get(variable))
