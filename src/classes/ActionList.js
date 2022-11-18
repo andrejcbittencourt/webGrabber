@@ -42,9 +42,9 @@ export default class ActionList {
 				{text:'Running action :', color:'blue', style:'bold'},
 				{text: name, color: 'white'}
 			]))
-			// if params in memory is not undefined or null
-			if(memory.get('params'))
-				memory.set('params', interpolation(memory.get('params'), memory))
+			// if PARAMS in memory is not undefined or null
+			if(memory.get('PARAMS'))
+				memory.set('PARAMS', interpolation(memory.get('PARAMS'), memory))
 			await this.#list[name].run(memory, page)
 		} else
 			await this.#customActions.runAction(name, memory, page)
