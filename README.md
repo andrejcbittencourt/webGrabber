@@ -34,12 +34,16 @@ Hello World example: *hello-world.json*
 }
 ```
 
+Run the app: 
 ```bash
 npm run start
 ```
 
 ## Actions
 A full list of actions can be found in the [CoreActions](src/classes/CoreActions.js) class
+
+## Custom Actions
+An example of how to add custom actions is found in the [app](app.js)
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
