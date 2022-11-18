@@ -20,8 +20,8 @@ export const getGrabList = () => {
 }
 
 export const sanitizeString = (string) => {
-	// remove all non-alphanumeric characters except dots and dashes
-	return string.replace(/[^a-zA-Z0-9.-]/g, '')
+	// remove all non-alphanumeric characters except dots, dashes, underscores and spaces but remove spaces at the beginning and end
+	return string.replace(/[^a-zA-Z0-9.-_ ]/g, '').trim()
 }
 
 export const interpolation = (params, memory) => {
