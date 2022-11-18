@@ -52,7 +52,7 @@ All variables prepended with *GRABBER_* will be loaded into the memory and can b
 ## Memory Interpolation
 The memory can be accessed in the config files using the *{{variable}}* syntax
 
-## Return from an action
+## Return From Action
 An action can return a value that can be used in the next action by using the *INPUT* keyword
 
 ## Reserved Variable Names
