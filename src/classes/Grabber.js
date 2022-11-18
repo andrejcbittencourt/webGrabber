@@ -69,6 +69,9 @@ export default class Grabber {
 			]))
 			await this.#coreActions.runAction('setCookiesDir', this.#memory)
 			for (const grab of this.#grabList.list) {
+				Chalk.write(Chalk.create([
+					{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}
+				]))
 				await this.#coreActions.runAction('resetCurrentDir', this.#memory)
 				this.#memory.set('PARAMS', { dir: grab.name })
 				await this.#coreActions.runAction('createDir', this.#memory)
