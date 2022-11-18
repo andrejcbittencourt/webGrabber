@@ -34,7 +34,7 @@ export const interpolation = (params, memory) => {
 			if (match) {
 				match.forEach(string => {
 					const variable = string.match(/{{(.*?)}}/)[1]
-					// if is array or object
+					// if it's an array or object
 					if (typeof memory.get(variable) === 'object' || Array.isArray(memory.get(variable)))
 						params[key] = memory.get(variable)
 					else
