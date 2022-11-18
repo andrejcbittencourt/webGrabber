@@ -57,7 +57,10 @@ export default class Grabber {
 				{text:'Grabber started', color:'green', style:'bold'}
 			]))
 			await this.#puppeteer.launch()
+			// if grabList is empty then throw error
 			getGrabList().forEach(grab => this.#grabList.addGrab(grab))
+			if (this.#grabList.isEmpty())
+				throw new Error('No grabs found')
 			Chalk.write(Chalk.create([
 				{text:'Grab configs loaded', color:'green', style:'bold'}
 			]))
