@@ -40,16 +40,16 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('setCurrentDir', async (memory) => {
 			const { dir } = memory.get('PARAMS')
-			memory.set('currentDir', path.join(memory.get('currentDir'), dir))
+			memory.set('CURRENT_DIR', path.join(memory.get('CURRENT_DIR'), dir))
 		})
 		this.addAction('resetCurrentDir', async (memory) => {
-			memory.set('currentDir', path.join(__dirname, '../resources'))
+			memory.set('CURRENT_DIR', path.join(__dirname, '../resources'))
 		})
 		this.addAction('setCookiesDir', async (memory) => {
-			memory.set('cookiesDir', path.join(__dirname, '../cookies'))
+			memory.set('COOKIES_DIR', path.join(__dirname, '../cookies'))
 		})
 		this.addAction('backToParentDir', async (memory) => {
-			memory.set('currentDir', memory.get('currentDir').split('/').slice(0, -1).join('/'))
+			memory.set('CURRENT_DIR', memory.get('CURRENT_DIR').split('/').slice(0, -1).join('/'))
 		})
 		this.addAction('random', async (memory) => {
 			const { min, max } = memory.get('PARAMS')
@@ -65,7 +65,7 @@ export default class CoreActions extends ActionList {
 			const { name, type } = memory.get('PARAMS')
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
-			const filePath = path.join(memory.get('currentDir'), sanitizeString(filename))
+			const filePath = path.join(memory.get('CURRENT_DIR'), sanitizeString(filename))
 			await page.screenshot({
 				path: filePath,
 				type: validatedType,
@@ -94,7 +94,7 @@ export default class CoreActions extends ActionList {
 				submitSelector,
 				cookiesFile
 			} = memory.get('PARAMS')
-			const cookiesDir = memory.get('cookiesDir')
+			const cookiesDir = memory.get('COOKIES_DIR')
 			if (fs.existsSync(`${cookiesDir}/${cookiesFile}.cookies.json`)) {
 				const cookies = JSON.parse(fs.readFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`))
 				await page.setCookie(...cookies)
@@ -134,8 +134,8 @@ export default class CoreActions extends ActionList {
 		this.addAction('createDir', async (memory) => {
 			let { dir } = memory.get('PARAMS')
 			dir = sanitizeString(dir)
-			if (!fs.existsSync(`${memory.get('currentDir')}/${dir}`))
-				fs.mkdirSync(`${memory.get('currentDir')}/${dir}`)
+			if (!fs.existsSync(`${memory.get('CURRENT_DIR')}/${dir}`))
+				fs.mkdirSync(`${memory.get('CURRENT_DIR')}/${dir}`)
 		})
 		this.addAction('type', async (memory, page) => {
 			const { selector, text } = memory.get('PARAMS')
@@ -151,7 +151,7 @@ export default class CoreActions extends ActionList {
 			const { url, filename, host } = memory.get('PARAMS')
 			const sanitizedFilename = sanitizeString(filename)
 			await new Promise((resolve, reject) => {
-				const file = fs.createWriteStream(`${memory.get('currentDir')}/${sanitizedFilename}`)
+				const file = fs.createWriteStream(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
 				// if url is a relative path, add the host
 				https.get(url.startsWith('http') || url.startsWith('https') ? url : `${host}${url}`, (response) => {
 					response.pipe(file)
@@ -164,7 +164,7 @@ export default class CoreActions extends ActionList {
 						resolve()
 					})
 				}).on('error', (err) => {
-					fs.unlink(`${memory.get('currentDir')}/${sanitizedFilename}`)
+					fs.unlink(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
 					reject(err)
 				})
 			})
