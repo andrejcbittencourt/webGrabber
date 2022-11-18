@@ -20,7 +20,8 @@ export const getGrabList = () => {
 }
 
 export const sanitizeString = (string) => {
-	return string.replace(/(^\s+|\s+$)/g, '')
+	// remove all non-alphanumeric characters except dots and dashes
+	return string.replace(/[^a-zA-Z0-9.-]/g, '')
 }
 
 export const interpolation = (params, memory) => {
@@ -32,8 +33,12 @@ export const interpolation = (params, memory) => {
 			const match = value.match(regex)
 			if (match) {
 				match.forEach(string => {
-					const variable = string.replace('{{', '').replace('}}', '')
-					params[key] = memory.get(variable)
+					const variable = string.match(/{{(.*?)}}/)[1]
+					// replace variable with value from memory if it is not string
+					if (typeof memory.get(variable) !== 'string')
+						params[key] = memory.get(variable)
+					else
+						params[key] = value.replace(string, memory.get(variable))
 				})
 			}
 		}

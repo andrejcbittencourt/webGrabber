@@ -70,11 +70,11 @@ export default class Grabber {
 			await this.#coreActions.runAction('setCookiesDir', this.#memory)
 			for (const grab of this.#grabList.list) {
 				await this.#coreActions.runAction('resetCurrentDir', this.#memory)
-				this.#memory.set('params', { dir: grab.name })
+				this.#memory.set('PARAMS', { dir: grab.name })
 				await this.#coreActions.runAction('createDir', this.#memory)
 				await this.#coreActions.runAction('setCurrentDir', this.#memory)
 				for (const action of grab.actions) {
-					this.#memory.set('params', action.params)
+					this.#memory.set('PARAMS', action.params)
 					await this.#coreActions.runAction(action.name, this.#memory, this.#puppeteer.page)
 				}
 			}
