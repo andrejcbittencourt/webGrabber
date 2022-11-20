@@ -22,15 +22,15 @@ Hello World example: *hello-world.json*
 
 ```json
 {
-	"name": "hello-world",
-	"actions" : [
-		{
-			"name" : "log",
-			"params" : {
-				"text" : "Hello World!"
-			}
-		}
-	]
+  "name": "hello-world",
+  "actions" : [
+    {
+      "name" : "log",
+      "params" : {
+        "text" : "Hello World!"
+      }
+    }
+  ]
 }
 ```
 
