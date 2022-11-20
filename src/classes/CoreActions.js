@@ -195,9 +195,10 @@ export default class CoreActions extends ActionList {
 		this.addAction('forEach', async (memory, page) => {
 			const { key, actions } = memory.get('PARAMS')
 			const value = memory.get(key)
+			const valueLength = value.length
 			for(let i = 0; i < value.length; i++) {
 				Chalk.write(Chalk.create([
-					{text:`: ${key}[${i+1}]`, color:'yellow', style:'italic'},
+					{text:`: ${key}[${i+1}/${valueLength}]`, color:'yellow', style:'italic'},
 					{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
 				]))
 				memory.set('FOREACH_INPUT', value[i])
