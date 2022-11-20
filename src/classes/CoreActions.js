@@ -44,7 +44,8 @@ export default class CoreActions extends ActionList {
 			if (count === undefined || isNaN(count))
 				count = 0
 			else
-				memory.set(key, count + 1)
+				count++
+			memory.set(key, count)
 		})
 		this.addAction('setCurrentDir', async (memory) => {
 			const { dir } = memory.get('PARAMS')
