@@ -33,7 +33,6 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('goTo', async (memory, page) => {
 			const { url, timeout } = memory.get('PARAMS')
-			console.log(url)
 			await page.goto(url, {
 				waitUntil: 'networkidle0',
 				timeout: timeout ? timeout : 30000
