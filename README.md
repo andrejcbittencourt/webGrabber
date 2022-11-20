@@ -1,5 +1,5 @@
 # webGrabber
-Config based web crawler
+Config based web scraper
 
 ## Installation
 
