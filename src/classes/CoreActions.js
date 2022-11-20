@@ -33,6 +33,7 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('goTo', async (memory, page) => {
 			const { url, timeout } = memory.get('PARAMS')
+			console.log(url)
 			await page.goto(url, {
 				waitUntil: 'networkidle0',
 				timeout: timeout ? timeout : 30000
@@ -48,7 +49,8 @@ export default class CoreActions extends ActionList {
 			memory.set(key, count)
 		})
 		this.addAction('setCurrentDir', async (memory) => {
-			const { dir } = memory.get('PARAMS')
+			let { dir } = memory.get('PARAMS')
+			dir = sanitizeString(dir)
 			memory.set('CURRENT_DIR', path.join(memory.get('CURRENT_DIR'), dir))
 		})
 		this.addAction('resetCurrentDir', async (memory) => {
@@ -184,7 +186,7 @@ export default class CoreActions extends ActionList {
 				{ text:`: ${text}`, color, background, style:'italic' }
 			]))
 		})
-		this.addAction('forEach', async (memory) => {
+		this.addAction('forEach', async (memory, page) => {
 			const { key, actions } = memory.get('PARAMS')
 			const value = memory.get(key)
 			for(let i = 0; i < value.length; i++) {
@@ -192,10 +194,10 @@ export default class CoreActions extends ActionList {
 					{text:`: ${key}[${i+1}]`, color:'yellow', style:'italic'},
 					{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
 				]))
+				memory.set('FOREACH_INPUT', value[i])
 				for(let action of actions) {
-					memory.set('INPUT', value[i])
 					memory.set('PARAMS', action.params)
-					await this.runAction(action.name, memory)
+					await this.runAction(action.name, memory, page)
 				}
 			}
 		})
