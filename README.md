@@ -41,7 +41,7 @@ name: hello-world
 actions:
   - name: log
     params:
-      text: Hello World!
+      text: "Hello World!"
 ```
 
 Run the app: 
