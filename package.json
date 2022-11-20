@@ -19,6 +19,7 @@
   "dependencies": {
     "chalk": "^5.1.2",
     "dotenv": "^16.0.3",
+    "js-yaml": "^4.1.0",
     "puppeteer": "^15.5.0",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-adblocker": "^2.13.5",

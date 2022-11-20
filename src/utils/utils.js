@@ -1,3 +1,4 @@
+import yaml from 'js-yaml'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -12,8 +13,18 @@ export const getGrabList = () => {
 	const grabList = []
 	files.forEach(file => {
 		if(file !== '.gitkeep') {
-			const rawdata = fs.readFileSync(path.join(__dirname, `/../grabs/${file}`))
-			grabList.push(JSON.parse(rawdata))
+			try {
+				let doc
+				// if file has .yml extension
+				if(file.split('.').pop() === 'yml' || file.split('.').pop() === 'yaml')
+					doc = yaml.load(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
+				// if file has .json extension
+				else 
+					doc = fs.readFileSync(path.join(__dirname, `/../grabs/${file}`))
+				grabList.push(doc)
+			} catch (e) {
+				console.log(e)
+			}
 		}
 	})
 	return grabList
