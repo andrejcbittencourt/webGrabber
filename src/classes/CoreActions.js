@@ -38,6 +38,14 @@ export default class CoreActions extends ActionList {
 				timeout: timeout ? timeout : 30000
 			})
 		})
+		this.addAction('count', async (memory) => {
+			const { key } = memory.get('PARAMS')
+			let count = memory.get(key)
+			if (count === undefined || isNaN(count))
+				count = 0
+			else
+				memory.set(key, count + 1)
+		})
 		this.addAction('setCurrentDir', async (memory) => {
 			const { dir } = memory.get('PARAMS')
 			memory.set('CURRENT_DIR', path.join(memory.get('CURRENT_DIR'), dir))
@@ -179,11 +187,11 @@ export default class CoreActions extends ActionList {
 			const { key, actions } = memory.get('PARAMS')
 			const value = memory.get(key)
 			for(let i = 0; i < value.length; i++) {
+				Chalk.write(Chalk.create([
+					{text:`: ${key}[${i+1}]`, color:'yellow', style:'italic'},
+					{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
+				]))
 				for(let action of actions) {
-					Chalk.write(Chalk.create([
-						{text:`: ${key}[${i+1}]`, color:'yellow', style:'italic'},
-						{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
-					]))
 					memory.set('INPUT', value[i])
 					memory.set('PARAMS', action.params)
 					await this.runAction(action.name, memory)

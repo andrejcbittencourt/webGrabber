@@ -16,7 +16,7 @@ brew install chromium --no-quarantine
 ```
 
 ## Usage
-create a grab config json file in the *src/grabs* directory of the project
+Create a grab config json file in the *src/grabs* directory of the project
 
 Hello World example: *hello-world.json*
 
