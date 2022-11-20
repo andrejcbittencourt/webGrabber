@@ -32,8 +32,8 @@ export default class Grabber {
 	#customActions
 	#memory
 
-	constructor(headless = true, stealth = true, adblocker = true) {
-		this.#puppeteer = new Puppeteer(headless, stealth, adblocker)
+	constructor(options) {
+		this.#puppeteer = new Puppeteer(options)
 		this.#coreActions = new CoreActions()
 		this.#customActions = new CustomActions()
 		this.#grabList = new GrabList()
