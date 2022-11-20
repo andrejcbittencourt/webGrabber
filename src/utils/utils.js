@@ -32,13 +32,13 @@ export const interpolation = (params, memory) => {
 			const regex = /{{(.*?)}}/g
 			const match = value.match(regex)
 			if (match) {
-				match.forEach(string => {
-					const variable = string.match(/{{(.*?)}}/)[1]
+				match.forEach(m => {
+					const variable = m.match(/{{(.*?)}}/)[1]
 					// if it's an array or object
 					if (typeof memory.get(variable) === 'object' || Array.isArray(memory.get(variable)))
 						params[key] = memory.get(variable)
 					else
-						params[key] = value.replace(string, memory.get(variable))
+						params[key] = params[key].replace(m, memory.get(variable))
 				})
 			}
 		}
