@@ -68,7 +68,6 @@ An action can return a value that can be used in the next action by using the *I
 ## Reserved Variable Names
 The following variable names are reserved and should be used in the config files with caution:
 - *INPUT*
-- *FOREACH_INPUT*
 - *PARAMS*
 - *CURRENT_DIR*
 - *COOKIES_DIR*

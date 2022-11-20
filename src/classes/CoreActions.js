@@ -201,7 +201,7 @@ export default class CoreActions extends ActionList {
 					{text:`: ${key}[${i+1}/${valueLength}]`, color:'yellow', style:'italic'},
 					{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
 				]))
-				memory.set('FOREACH_INPUT', value[i])
+				memory.set('INPUT', value[i])
 				for(let action of actions) {
 					memory.set('PARAMS', action.params)
 					await this.runAction(action.name, memory, page)
