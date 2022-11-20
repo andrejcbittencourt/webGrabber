@@ -39,9 +39,9 @@ Hello World example: *hello-world.yml*
 ```yml
 name: hello-world
 actions:
-	- name: log
-		params:
-			text: Hello World!
+  - name: log
+    params:
+      text: Hello World!
 ```
 
 Run the app: 
