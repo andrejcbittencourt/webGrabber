@@ -47,7 +47,6 @@ export default class CoreActions extends ActionList {
 				count++
 			memory.set(key, count)
 		})
-		// wait for ms milliseconds
 		this.addAction('wait', async (memory) => {
 			const { ms } = memory.get('PARAMS')
 			Chalk.write(Chalk.create([
