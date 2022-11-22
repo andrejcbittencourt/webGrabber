@@ -102,6 +102,14 @@ export default class CoreActions extends ActionList {
 			}
 			memory.set('INPUT', content)
 		})
+		this.addAction('appendToVariable', async (memory) => {
+			const { key, value } = memory.get('PARAMS')
+			let content = memory.get(key)
+			if (content === undefined)
+				content = []
+			content.push(value)
+			memory.set(key, content)
+		})
 		this.addAction('login', async (memory, page) => {
 			const { 
 				usernameSelector, 
@@ -163,6 +171,21 @@ export default class CoreActions extends ActionList {
 			const { selector } = memory.get('PARAMS')
 			await page.waitForSelector(selector, { visible: true })
 			await page.click(selector)
+		})
+		this.addAction('clickAll', async (memory, page) => {
+			const { selector } = memory.get('PARAMS')
+			const elements = await page.$$(selector)
+			for (let i = 0; i < elements.length; i++) {
+				const element = elements[i]
+				// wait for element to be visible
+				await page.waitForFunction((element) => {
+					// scroll to element
+					element.scrollIntoView()
+					const { top, left, bottom, right } = element.getBoundingClientRect()
+					return top >= 0 && left >= 0 && bottom <= (window.innerHeight || document.documentElement.clientHeight) && right <= (window.innerWidth || document.documentElement.clientWidth)
+				}, {}, element)
+				await element.click()
+			}
 		})
 		this.addAction('download', async (memory) => {
 			const { url, filename, host } = memory.get('PARAMS')

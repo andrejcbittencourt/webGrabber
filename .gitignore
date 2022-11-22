@@ -5,3 +5,4 @@ src/resources/*
 *cookies.json
 !src/grabs/.gitkeep
 !src/resources/.gitkeep
+.DS_Store
