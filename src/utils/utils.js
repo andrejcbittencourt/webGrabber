@@ -12,7 +12,7 @@ export const getGrabList = () => {
 	const files = fs.readdirSync(path.join(__dirname, '/../grabs'))
 	const grabList = []
 	files.forEach(file => {
-		if(file !== '.gitkeep') {
+		if(file !== '.gitkeep' && file !== '.DS_Store') {
 			try {
 				let doc
 				// if file has .yml extension
