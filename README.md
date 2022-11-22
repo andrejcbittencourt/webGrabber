@@ -1,5 +1,5 @@
 # webGrabber
-Config based web scraper
+Config based web scraper & browser automation
 
 ## Installation
 
