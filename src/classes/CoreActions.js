@@ -1,4 +1,5 @@
 import https from 'https'
+import http from 'http'
 import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
@@ -174,6 +175,15 @@ export default class CoreActions extends ActionList {
 				type: validatedType,
 				fullPage: true
 			})
+		})
+		this.addAction('match', async (memory) => {
+			const { regex, string } = memory.get('PARAMS')
+			const regexMatch = new RegExp(regex, 'g')
+			const match = regexMatch.exec(string)
+			if (match)
+				memory.set('INPUT', match[1])
+			else
+				memory.set('INPUT', '')
 		})
 		this.addAction('getChildren', async (memory, page) => {
 			const { selectorParent, selectorChild, attribute } = memory.get('PARAMS')
@@ -407,24 +417,39 @@ export default class CoreActions extends ActionList {
 			await new Promise((resolve, reject) => {
 				const file = fs.createWriteStream(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
 				// if url is a relative path, add the host
-				https.get(url.startsWith('http') || url.startsWith('https') ? url : `${host}${url}`, (response) => {
+				// use https and http depending on the host
+				// log a progress bar
+				const needsHost = !url.startsWith('http')
+				const requestProtocol = needsHost ? (host.startsWith('https') ? https : http) : (url.startsWith('https') ? https : http)
+				const request = requestProtocol.get(needsHost ? `${host}${url}` : url, (response) => {
 					response.pipe(file)
-					file.on('finish', () => {
+					let len = parseInt(response.headers['content-length'], 10)
+					let cur = 0
+					let total = len / 1048576
+					response.on('data', (chunk) => {
+						cur += chunk.length
 						Chalk.write(Chalk.create([
 							{text: ' '.repeat(memory.get('IDENTATION'))},
-							{text: ': Downloaded ', color: 'white', style:'italic'},
+							{text: ': Downloading ', color: 'white', style:'italic'},
+							{text: filename, color: 'gray', style:'italic'},
+							{text: ` ${Math.round(100.0 * cur / len)}% (${(cur / 1048576).toFixed(2)}MB/${total.toFixed(2)}MB)`, color: 'gray', style:'italic'}
+						]))
+					})
+					response.on('end', () => {
+						Chalk.write(Chalk.create([
+							{text: ' '.repeat(memory.get('IDENTATION'))},
+							{text: ': Downloaded ', color: 'green', style:'italic'},
 							{text: filename, color: 'gray', style:'italic'}
 						]))
-						file.close()
 						resolve()
 					})
-				}).on('error', (err) => {
+				})
+				request.on('error', (err) => {
 					Chalk.write(Chalk.create([
 						{text: ' '.repeat(memory.get('IDENTATION'))},
 						{text: ': Error downloading ', color: 'red', style:'italic'},
 						{text: filename, color: 'gray', style:'italic'}
 					]))
-					fs.unlink(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
 					reject(err)
 				})
 			})
