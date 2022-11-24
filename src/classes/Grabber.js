@@ -79,6 +79,7 @@ export default class Grabber {
 				this.#memory.set('PARAMS', { dir: grab.name })
 				await this.#coreActions.runAction('createDir', this.#memory)
 				await this.#coreActions.runAction('setCurrentDir', this.#memory)
+				this.#memory.set('IDENTATION', 0)
 				for (const action of grab.actions) {
 					this.#memory.set('PARAMS', action.params)
 					await this.#coreActions.runAction(action.name, this.#memory, this.#puppeteer.page)

@@ -39,8 +39,9 @@ export default class ActionList {
 
 		if(this.hasAction(name)) {
 			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text:'Running action :', color:'blue', style:'bold'},
-				{text: name, color: 'white'}
+				{text: name, color: 'whiteBright'}
 			]))
 			if(memory.get('PARAMS'))
 				memory.set('PARAMS', interpolation(memory.get('PARAMS'), memory))

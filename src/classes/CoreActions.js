@@ -10,6 +10,8 @@ import { sanitizeString } from '../utils/utils.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+const TABSIZE = 2
+const WAITUNTIL = 'networkidle0'
 
 export default class CoreActions extends ActionList {
 
@@ -20,43 +22,109 @@ export default class CoreActions extends ActionList {
 	load() {
 		this.addAction('setVariable', async (memory) => {
 			const { key, value } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Setting variable ', color: 'white', style:'italic'},
+				{text: key, color: 'gray', style:'italic'}
+			]))
 			memory.set(key, value)
 		})
 		this.addAction('getVariable', async (memory) => {
 			const { key, index } = memory.get('PARAMS')
 			const value = memory.get(key)
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Getting variable ', color: 'white', style:'italic'},
+				{text: key, color: 'gray', style:'italic'}
+			]))
 			memory.set('INPUT', index ? value[index] : value)
 		})
 		this.addAction('deleteVariable', async (memory) => {
 			const { key } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Deleting variable ', color: 'white', style:'italic'},
+				{text: key, color: 'gray', style:'italic'}
+			]))
 			memory.delete(key)
 		})
 		this.addAction('goTo', async (memory, page) => {
-			const { url, timeout } = memory.get('PARAMS')
+			const { url } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Going to ', color: 'white', style:'italic'},
+				{text: url, color: 'gray', style:'italic'}
+			]))
 			await page.goto(url, {
-				waitUntil: 'networkidle0',
-				timeout: timeout ? timeout : 30000
+				waitUntil: WAITUNTIL
 			})
 		})
-		this.addAction('count', async (memory) => {
-			const { key } = memory.get('PARAMS')
-			let count = memory.get(key)
-			if (count === undefined || isNaN(count))
-				count = 0
+		this.addAction('countStart', async (memory) => {
+			const { key, value } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Starting count ', color: 'white', style:'italic'},
+				{text: key, color: 'gray', style:'italic'},
+				{text: ' with value ', color: 'white', style:'italic'},
+				{text: value?value:0, color: 'gray', style:'italic'}
+			]))
+			if(!value)
+				memory.set(key, 0)
 			else
-				count++
+				memory.set(key, value)
+		})
+		this.addAction('countIncrement', async (memory) => {
+			const { key } = memory.get('PARAMS')
+			const count = memory.get(key) + 1
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Incrementing count ', color: 'white', style:'italic'},
+				{text: key, color: 'gray', style:'italic'},
+				{text: ' to ', color: 'white', style:'italic'},
+				{text: count, color: 'gray', style:'italic'}
+			]))
 			memory.set(key, count)
 		})
-		this.addAction('wait', async (memory) => {
+		this.addAction('countDecrement', async (memory) => {
+			const { key } = memory.get('PARAMS')
+			const count = memory.get(key) - 1
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Decrementing count ', color: 'white', style:'italic'},
+				{text: key, color: 'gray', style:'italic'},
+				{text: ' to ', color: 'white', style:'italic'},
+				{text: count, color: 'gray', style:'italic'}
+			]))
+			memory.set(key, count)
+		})
+		this.addAction('waitForPageTimeout', async (memory, page) => {
 			const { ms } = memory.get('PARAMS')
 			Chalk.write(Chalk.create([
-				{text:`: Waiting ${ms} ms`, style:'italic'}
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Waiting for ', color: 'white', style:'italic'},
+				{text: ms, color: 'gray', style:'italic'},
+				{text: ' ms', color: 'white', style:'italic'}
+			]))
+			await page.waitForTimeout(ms)
+		})
+		this.addAction('sleep', async (memory) => {
+			const { ms } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Sleeping ', color: 'white', style:'italic'},
+				{text: ms, color: 'gray', style:'italic'},
+				{text: ' ms', color: 'white', style:'italic'}
 			]))
 			await new Promise(resolve => setTimeout(resolve, ms))
 		})
 		this.addAction('setCurrentDir', async (memory) => {
 			let { dir } = memory.get('PARAMS')
 			dir = sanitizeString(dir)
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Setting current dir to ', color: 'white', style:'italic'},
+				{text: dir, color: 'gray', style:'italic'}
+			]))
 			memory.set('CURRENT_DIR', path.join(memory.get('CURRENT_DIR'), dir))
 		})
 		this.addAction('resetCurrentDir', async (memory) => {
@@ -73,29 +141,67 @@ export default class CoreActions extends ActionList {
 			// convert to number
 			const minNumber = Number(min)
 			const maxNumber = Number(max)
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Generating random number between ', color: 'white', style:'italic'},
+				{text: minNumber, color: 'gray', style:'italic'},
+				{text: ' and ', color: 'white', style:'italic'},
+				{text: maxNumber, color: 'gray', style:'italic'}
+			]))
 			memory.set('INPUT', Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber)
 		})
 		this.addAction('uuid', async (memory) => {
-			memory.set('INPUT', uuidv4())
+			const uuid = uuidv4()
+			memory.set('INPUT', uuid)
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Generating uuid ', color: 'white', style:'italic'},
+				{text: uuid, color: 'gray', style:'italic'}
+			]))
 		})
 		this.addAction('screenshot', async (memory, page) => {
 			const { name, type } = memory.get('PARAMS')
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
 			const filePath = path.join(memory.get('CURRENT_DIR'), sanitizeString(filename))
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Taking screenshot ', color: 'white', style:'italic'},
+				{text: name, color: 'gray', style:'italic'}
+			]))
 			await page.screenshot({
 				path: filePath,
 				type: validatedType,
-				fullPage: true,
+				fullPage: true
 			})
+		})
+		this.addAction('getChildren', async (memory, page) => {
+			const { selectorParent, selectorChild, attribute } = memory.get('PARAMS')
+			// get children of parents that match selector
+			const parents = await page.$$(selectorParent)
+			const result = []
+			for (const parent of parents) {
+				const parentChildren = await parent.$$(selectorChild)
+				if (parentChildren) {
+					const children = []
+					for (const child of parentChildren) {
+						if(attribute)
+							children.push(await page.evaluate((element, attribute) => element.getAttribute(attribute), child, attribute))
+						else
+							children.push(await page.evaluate((element) => element.textContent, child))
+					}
+					result.push(children)
+				}
+			}
+			memory.set('INPUT', result)
 		})
 		this.addAction('getElements', async (memory, page) => {
 			const { selector, attribute } = memory.get('PARAMS')
-			const elements = await page.$$(selector)
 			let content = []
+			const elements = await page.$$(selector)
 			for (let i = 0; i < elements.length; i++) {
 				const element = elements[i]
-				if (attribute)
+				if(attribute)
 					content.push(await page.evaluate((element, attribute) => element.getAttribute(attribute), element, attribute))
 				else
 					content.push(await page.evaluate((element) => element.textContent, element))
@@ -105,9 +211,14 @@ export default class CoreActions extends ActionList {
 		this.addAction('appendToVariable', async (memory) => {
 			const { key, value } = memory.get('PARAMS')
 			let content = memory.get(key)
-			if (content === undefined)
+			if(content === undefined)
 				content = []
 			content.push(value)
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Appending to variable ', color: 'white', style:'italic'},
+				{text: key, color: 'gray', style:'italic'}
+			]))
 			memory.set(key, content)
 		})
 		this.addAction('login', async (memory, page) => {
@@ -120,15 +231,17 @@ export default class CoreActions extends ActionList {
 				cookiesFile
 			} = memory.get('PARAMS')
 			const cookiesDir = memory.get('COOKIES_DIR')
-			if (fs.existsSync(`${cookiesDir}/${cookiesFile}.cookies.json`)) {
+			if(fs.existsSync(`${cookiesDir}/${cookiesFile}.cookies.json`)) {
 				const cookies = JSON.parse(fs.readFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`))
 				await page.setCookie(...cookies)
 				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
 					{text:': Cookies loaded', style:'italic'}
 				]))
 			} else {
 				await this.runAction('goTo', memory, page)
 				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
 					{text:': Page loaded', style:'italic'}
 				]))
 				await page.waitForSelector(usernameSelector, { visible: true })
@@ -138,19 +251,24 @@ export default class CoreActions extends ActionList {
 				memory.set('PARAMS', {selector: passwordSelector, text: password})
 				await this.runAction('type', memory, page)
 				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
 					{text:': Credentials entered', style:'italic'}
 				]))
 				await page.waitForSelector(submitSelector, { visible: true })
 				memory.set('PARAMS', {selector: submitSelector})
 				await this.runAction('click', memory, page)
 				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
 					{text:': Login submitted', style:'italic'}
 				]))
-				await page.waitForNavigation({ waitUntil: 'networkidle2' })
+				await page.waitForNavigation({
+					waitUntil: WAITUNTIL
+				})
 				const cookies = await page.cookies()
 				fs.writeFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`, JSON.stringify(cookies), (err) => {
-					if (err) throw err
+					if(err) throw err
 					Chalk.write(Chalk.create([
+						{text: ' '.repeat(memory.get('IDENTATION'))},
 						{text:': Cookies saved', style:'italic'}
 					]))
 				})
@@ -159,18 +277,79 @@ export default class CoreActions extends ActionList {
 		this.addAction('createDir', async (memory) => {
 			let { dir } = memory.get('PARAMS')
 			dir = sanitizeString(dir)
-			if (!fs.existsSync(`${memory.get('CURRENT_DIR')}/${dir}`))
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Creating directory ', color: 'white', style:'italic'},
+				{text: dir, color: 'gray', style:'italic'}
+			]))
+			if(!fs.existsSync(`${memory.get('CURRENT_DIR')}/${dir}`))
 				fs.mkdirSync(`${memory.get('CURRENT_DIR')}/${dir}`)
 		})
 		this.addAction('type', async (memory, page) => {
 			const { selector, text } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Typing ', color: 'white', style:'italic'},
+				{text: text, color: 'gray', style:'italic'}
+			]))
 			await page.waitForSelector(selector, { visible: true })
 			await page.type(selector, text)
 		})
+		this.addAction('if', async (memory, page) => {
+			const { condition, actions } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Condition: ', style:'italic'},
+				{text:condition, style:'bold'}
+			]))
+			if(eval(condition)) {
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text:': Condition is true', style:'italic'}
+				]))
+				memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+				for(let i = 0; i < actions.length; i++) {
+					const action = actions[i]
+					memory.set('PARAMS', action.params)
+					await this.runAction(action.name, memory, page)
+				}
+				memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text:': End of if', style:'italic'}
+				]))
+			} else {
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text:': Condition is false', style:'italic'}
+				]))
+			}
+		})
+		this.addAction('setDefaultTimeout', async (memory, page) => {
+			const { timeout } = memory.get('PARAMS')
+			page.setDefaultNavigationTimeout(0)
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Timeout set to ', style:'italic'},
+				{text:timeout, style:'bold'}
+			]))
+		})
 		this.addAction('click', async (memory, page) => {
-			const { selector } = memory.get('PARAMS')
-			await page.waitForSelector(selector, { visible: true })
-			await page.click(selector)
+			const { selector, text } = memory.get('PARAMS')
+			if(text) {
+				const elements = await page.$$(selector)
+				for(let i = 0; i < elements.length; i++) {
+					const element = elements[i]
+					const content = await page.evaluate((element) => element.textContent, element)
+					if(content === text) {
+						await element.click()
+						break
+					}
+				}
+			} else {
+				await page.waitForSelector(selector, { visible: true })
+				await page.click(selector)
+			}
 		})
 		this.addAction('clickAll', async (memory, page) => {
 			const { selector } = memory.get('PARAMS')
@@ -187,9 +366,44 @@ export default class CoreActions extends ActionList {
 				await element.click()
 			}
 		})
+		this.addAction('saveToText', async (memory) => {
+			const { key, filename } = memory.get('PARAMS')
+			const content = memory.get(key)
+			if(content) {
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ': Saving ', color: 'white', style:'italic'},
+					{text: filename, color: 'gray', style:'italic'}
+				]))
+				if(Array.isArray(content))
+					fs.writeFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
+				else
+					fs.writeFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content)
+			}
+		})
+		this.addAction('appendToText', async (memory) => {
+			const { key, filename } = memory.get('PARAMS')
+			const content = memory.get(key)
+			if(content) {
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ': Appending to ', color: 'white', style:'italic'},
+					{text: filename, color: 'gray', style:'italic'}
+				]))
+				if(Array.isArray(content))
+					fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
+				else
+					fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content)
+			}
+		})
 		this.addAction('download', async (memory) => {
 			const { url, filename, host } = memory.get('PARAMS')
 			const sanitizedFilename = sanitizeString(filename)
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Downloading ', color: 'white', style:'italic'},
+				{text: filename, color: 'gray', style:'italic'}
+			]))
 			await new Promise((resolve, reject) => {
 				const file = fs.createWriteStream(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
 				// if url is a relative path, add the host
@@ -197,13 +411,19 @@ export default class CoreActions extends ActionList {
 					response.pipe(file)
 					file.on('finish', () => {
 						Chalk.write(Chalk.create([
-							{text:': Downloaded ->', style:'italic'},
-							{text:sanitizedFilename}
+							{text: ' '.repeat(memory.get('IDENTATION'))},
+							{text: ': Downloaded ', color: 'white', style:'italic'},
+							{text: filename, color: 'gray', style:'italic'}
 						]))
 						file.close()
 						resolve()
 					})
 				}).on('error', (err) => {
+					Chalk.write(Chalk.create([
+						{text: ' '.repeat(memory.get('IDENTATION'))},
+						{text: ': Error downloading ', color: 'red', style:'italic'},
+						{text: filename, color: 'gray', style:'italic'}
+					]))
 					fs.unlink(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
 					reject(err)
 				})
@@ -212,6 +432,7 @@ export default class CoreActions extends ActionList {
 		this.addAction('log', async (memory) => {
 			const { text, color, background } = memory.get('PARAMS')
 			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{ text:`: ${text}`, color, background, style:'italic' }
 			]))
 		})
@@ -219,8 +440,10 @@ export default class CoreActions extends ActionList {
 			const { key, actions } = memory.get('PARAMS')
 			const value = memory.get(key)
 			const valueLength = value.length
+			memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
 			for(let i = 0; i < value.length; i++) {
 				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION') - 1)},
 					{text:`: ${key}[${i+1}/${valueLength}]`, color:'yellow', style:'italic'},
 					{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
 				]))
@@ -230,6 +453,11 @@ export default class CoreActions extends ActionList {
 					await this.runAction(action.name, memory, page)
 				}
 			}
+			memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': End of forEach', color:'yellow', style:'italic'}
+			]))
 		})
 	}
 }
