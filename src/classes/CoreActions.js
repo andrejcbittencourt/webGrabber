@@ -38,7 +38,7 @@ export default class CoreActions extends ActionList {
 				{text: ': Getting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			]))
-			memory.set('INPUT', index ? value[index] : value)
+			memory.set('INPUT', index !== undefined ? value[index] : value)
 		})
 		this.addAction('deleteVariable', async (memory) => {
 			const { key } = memory.get('PARAMS')
@@ -121,6 +121,9 @@ export default class CoreActions extends ActionList {
 		this.addAction('setCurrentDir', async (memory) => {
 			let { dir } = memory.get('PARAMS')
 			dir = sanitizeString(dir)
+			// check if dir exists
+			if(!fs.existsSync(path.join(memory.get('CURRENT_DIR'), dir)))
+				throw new Error(`Directory ${dir} does not exist`)
 			Chalk.write(Chalk.create([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text: ': Setting current dir to ', color: 'white', style:'italic'},
@@ -354,15 +357,23 @@ export default class CoreActions extends ActionList {
 			]))
 		})
 		this.addAction('click', async (memory, page) => {
-			const { selector, text } = memory.get('PARAMS')
-			if(text) {
+			const { selector, attribute, text } = memory.get('PARAMS')
+			if(attribute || text) {
 				const elements = await page.$$(selector)
 				for(let i = 0; i < elements.length; i++) {
 					const element = elements[i]
-					const content = await page.evaluate((element) => element.textContent, element)
-					if(content === text) {
-						await element.click()
-						break
+					if(attribute && text) {
+						const content = await page.evaluate((element, attribute) => element.getAttribute(attribute), element, attribute)
+						if(content === text) {
+							await element.click()
+							break
+						}
+					} else if(text) {
+						const content = await page.evaluate((element) => element.textContent, element)
+						if(content === text) {
+							await element.click()
+							break
+						}
 					}
 				}
 			} else {
