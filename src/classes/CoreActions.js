@@ -197,6 +197,20 @@ export default class CoreActions extends ActionList {
 			else
 				memory.set('INPUT', '')
 		})
+		this.addAction('getDownloadableResources', async (memory, page) => {
+			const { selector, regex } = memory.get('PARAMS')
+			const regexMatch = new RegExp(regex, 'g')
+			const urls = await page.$$eval(selector, (elements, regex) => {
+				const urls = []
+				elements.forEach(element => {
+					const url = element.getAttribute('href')
+					if (url && url.match(regex))
+						urls.push(url)
+				})
+				return urls
+			}, regexMatch)
+			memory.set('INPUT', urls)
+		})
 		this.addAction('getChildren', async (memory, page) => {
 			const { selectorParent, selectorChild, attribute } = memory.get('PARAMS')
 			// get children of parents that match selector
