@@ -6,15 +6,17 @@ export default class Puppeteer {
 	#headless
 	#stealth
 	#adblocker
-	#viewPort
+	#viewport
 	#page
 	#browser
+	#executablePath
 
 	constructor(options) {
 		this.#headless = options?.headless ?? true
 		this.#stealth = options?.stealth ?? true
 		this.#adblocker = options?.adblocker ?? true
-		this.#viewPort = options?.viewPort ?? null
+		this.#viewport = options?.viewport ?? null
+		this.#executablePath = options?.executablePath ?? null
 	}
 
 	async launch() {
@@ -22,10 +24,13 @@ export default class Puppeteer {
 			puppeteer.use(StealthPlugin())
 		if (this.#adblocker === true)
 			puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
-		this.#browser = await puppeteer.launch({ headless: this.#headless })
+		const launchOptions = { headless: this.#headless }
+		if (this.#executablePath !== null)
+			launchOptions.executablePath = this.#executablePath
+		this.#browser = await puppeteer.launch(launchOptions)
 		this.#page = await this.#browser.newPage()
-		if(this.#viewPort !== undefined && this.#viewPort !== null)
-			await this.#page.setViewport(this.#viewPort)
+		if(this.#viewport !== undefined && this.#viewport !== null)
+			await this.#page.setViewport(this.#viewport)
 	}
 
 	async close() {

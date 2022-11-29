@@ -160,6 +160,15 @@ export default class CoreActions extends ActionList {
 				{text: uuid, color: 'gray', style:'italic'}
 			]))
 		})
+		this.addAction('setUserAgent', async (memory, page) => {
+			const { userAgent } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Setting user agent to ', color: 'white', style:'italic'},
+				{text: userAgent, color: 'gray', style:'italic'}
+			]))
+			await page.setUserAgent(userAgent)
+		})
 		this.addAction('screenshot', async (memory, page) => {
 			const { name, type } = memory.get('PARAMS')
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'

@@ -15,6 +15,14 @@ If you have trouble with chromium on Mac, you can try to install it using homebr
 brew install chromium --no-quarantine
 ```
 
+Or you can add the executable path to Chrome in the options passed to Grabber:
+
+```js
+const grabber = new Grabber({
+  executablePath: '/path/to/Chrome'
+})
+```
+
 ## Usage
 Create a grab config (json|yml|yaml) file in the *src/grabs* directory of the project
 
