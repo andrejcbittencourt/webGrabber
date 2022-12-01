@@ -56,7 +56,7 @@ export default class CoreActions extends ActionList {
 				{text: ': Going to ', color: 'white', style:'italic'},
 				{text: url, color: 'gray', style:'italic'}
 			]))
-			await page.goto(url, {
+			await page.goto(`${url}`, {
 				waitUntil: WAITUNTIL
 			})
 		})
@@ -199,17 +199,16 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('getDownloadableResources', async (memory, page) => {
 			const { selector, regex } = memory.get('PARAMS')
+			const html = await page.$eval(selector, el => el.innerHTML)
 			const regexMatch = new RegExp(regex, 'g')
-			const urls = await page.$$eval(selector, (elements, regex) => {
-				const urls = []
-				elements.forEach(element => {
-					const url = element.getAttribute('href')
-					if (url && url.match(regex))
-						urls.push(url)
-				})
-				return urls
-			}, regexMatch)
-			memory.set('INPUT', urls)
+			const matches = []
+			let match = regexMatch.exec(html)
+			while (match) {
+				matches.push(match[0])
+				console.log(match[0])
+				match = regexMatch.exec(html)
+			}
+			memory.set('INPUT', matches)
 		})
 		this.addAction('getChildren', async (memory, page) => {
 			const { selectorParent, selectorChild, attribute } = memory.get('PARAMS')
@@ -442,11 +441,13 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('download', async (memory) => {
 			const { url, filename, host } = memory.get('PARAMS')
-			const sanitizedFilename = sanitizeString(filename)
+			// if not filename, use the last part of the url
+			const name = filename || url.split('/').pop()
+			const sanitizedFilename = sanitizeString(name)
 			Chalk.write(Chalk.create([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text: ': Downloading ', color: 'white', style:'italic'},
-				{text: filename, color: 'gray', style:'italic'}
+				{text: sanitizedFilename, color: 'gray', style:'italic'}
 			]))
 			await new Promise((resolve, reject) => {
 				const file = fs.createWriteStream(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
@@ -465,7 +466,7 @@ export default class CoreActions extends ActionList {
 						Chalk.write(Chalk.create([
 							{text: ' '.repeat(memory.get('IDENTATION'))},
 							{text: ': Downloading ', color: 'white', style:'italic'},
-							{text: filename, color: 'gray', style:'italic'},
+							{text: sanitizedFilename, color: 'gray', style:'italic'},
 							{text: ` ${Math.round(100.0 * cur / len)}% (${(cur / 1048576).toFixed(2)}MB/${total.toFixed(2)}MB)`, color: 'gray', style:'italic'}
 						]))
 					})
@@ -473,7 +474,7 @@ export default class CoreActions extends ActionList {
 						Chalk.write(Chalk.create([
 							{text: ' '.repeat(memory.get('IDENTATION'))},
 							{text: ': Downloaded ', color: 'green', style:'italic'},
-							{text: filename, color: 'gray', style:'italic'}
+							{text: sanitizedFilename, color: 'gray', style:'italic'}
 						]))
 						resolve()
 					})
@@ -482,7 +483,7 @@ export default class CoreActions extends ActionList {
 					Chalk.write(Chalk.create([
 						{text: ' '.repeat(memory.get('IDENTATION'))},
 						{text: ': Error downloading ', color: 'red', style:'italic'},
-						{text: filename, color: 'gray', style:'italic'}
+						{text: sanitizedFilename, color: 'gray', style:'italic'}
 					]))
 					reject(err)
 				})
@@ -502,7 +503,7 @@ export default class CoreActions extends ActionList {
 			memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
 			for(let i = 0; i < value.length; i++) {
 				Chalk.write(Chalk.create([
-					{text: ' '.repeat(memory.get('IDENTATION') - 1)},
+					{text: ' '.repeat(memory.get('IDENTATION'))},
 					{text:`: ${key}[${i+1}/${valueLength}]`, color:'yellow', style:'italic'},
 					{text:`: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
 				]))
@@ -516,6 +517,26 @@ export default class CoreActions extends ActionList {
 			Chalk.write(Chalk.create([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text:': End of forEach', color:'yellow', style:'italic'}
+			]))
+		})
+		this.addAction('for', async (memory, page) => {
+			const { from, until, step, actions } = memory.get('PARAMS')
+			memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+			for(let i = from; i <= until; i+=step) {
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text:`: [${i}/${until}]`, color:'yellow', style:'italic'}
+				]))
+				memory.set('INPUT', i)
+				for(let action of actions) {
+					memory.set('PARAMS', action.params)
+					await this.runAction(action.name, memory, page)
+				}
+			}
+			memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': End of for loop', color:'yellow', style:'italic'}
 			]))
 		})
 	}
