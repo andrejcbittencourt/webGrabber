@@ -205,7 +205,6 @@ export default class CoreActions extends ActionList {
 			let match = regexMatch.exec(html)
 			while (match) {
 				matches.push(match[0])
-				console.log(match[0])
 				match = regexMatch.exec(html)
 			}
 			memory.set('INPUT', matches)
