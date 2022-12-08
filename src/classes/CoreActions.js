@@ -188,7 +188,7 @@ export default class CoreActions extends ActionList {
 				fullPage: true
 			})
 		})
-		this.addAction('match', async (memory) => {
+		this.addAction('matchFromString', async (memory) => {
 			const { regex, string } = memory.get('PARAMS')
 			const regexMatch = new RegExp(regex, 'g')
 			const match = regexMatch.exec(string)
@@ -197,7 +197,7 @@ export default class CoreActions extends ActionList {
 			else
 				memory.set('INPUT', '')
 		})
-		this.addAction('getDownloadableResources', async (memory, page) => {
+		this.addAction('matchFromSelector', async (memory, page) => {
 			const { selector, regex } = memory.get('PARAMS')
 			const html = await page.$eval(selector, el => el.innerHTML)
 			const regexMatch = new RegExp(regex, 'g')
