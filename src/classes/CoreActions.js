@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import https from 'https'
 import http from 'http'
 import fs from 'fs'
@@ -8,6 +9,8 @@ import { dirname } from 'path'
 import ActionList from './ActionList.js'
 import Chalk from './Chalk.js'
 import { sanitizeString } from '../utils/utils.js'
+import robot from 'robotjs'
+import readline from 'readline'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -74,6 +77,30 @@ export default class CoreActions extends ActionList {
 			else
 				memory.set(key, value)
 		})
+		this.addAction('getStringInput', async (memory) => {
+			const { query } = memory.get('PARAMS')
+			const rl = readline.createInterface({
+				input: process.stdin,
+				output: process.stdout
+			})
+	
+			const prompt = (query) => new Promise((resolve) => rl.question(query, resolve))
+			
+			await (async() => {
+				try {
+					const input = await prompt(' '.repeat(memory.get('IDENTATION')) + query)
+					memory.set('INPUT', input)
+					rl.close()
+				} catch (e) {
+					throw new Error(e)
+				}
+			})()
+		})
+		this.addAction('getExtension', async (memory) => {
+			const { string } = memory.get('PARAMS')
+			const extension = path.extname(string)
+			memory.set('INPUT', extension)
+		})
 		this.addAction('countIncrement', async (memory) => {
 			const { key } = memory.get('PARAMS')
 			const count = memory.get(key) + 1
@@ -139,6 +166,10 @@ export default class CoreActions extends ActionList {
 		})
 		this.addAction('backToParentDir', async (memory) => {
 			memory.set('CURRENT_DIR', memory.get('CURRENT_DIR').split('/').slice(0, -1).join('/'))
+		})
+		this.addAction('sanitizeString', async (memory) => {
+			const { string } = memory.get('PARAMS')
+			memory.set('INPUT', sanitizeString(string))
 		})
 		this.addAction('random', async (memory) => {
 			const { min, max } = memory.get('PARAMS')
@@ -208,6 +239,11 @@ export default class CoreActions extends ActionList {
 				match = regexMatch.exec(html)
 			}
 			memory.set('INPUT', matches)
+		})
+		this.addAction('elementExists', async (memory, page) => {
+			const { selector } = memory.get('PARAMS')
+			const element = await page.$(selector)
+			memory.set('INPUT', element ? true : false)
 		})
 		this.addAction('getChildren', async (memory, page) => {
 			const { selectorParent, selectorChild, attribute } = memory.get('PARAMS')
@@ -359,6 +395,56 @@ export default class CoreActions extends ActionList {
 				]))
 			}
 		})
+		this.addAction('ifElse', async (memory, page) => {
+			const { condition, actions, elseActions } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Condition: ', style:'italic'},
+				{text:condition, style:'bold'}
+			]))
+			if(eval(condition)) {
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text:': Condition is true', style:'italic'}
+				]))
+				memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+				for(let i = 0; i < actions.length; i++) {
+					const action = actions[i]
+					memory.set('PARAMS', action.params)
+					await this.runAction(action.name, memory, page)
+				}
+				memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text:': End of if', style:'italic'}
+				]))
+			} else {
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text:': Condition is false', style:'italic'}
+				]))
+				memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+				for(let i = 0; i < elseActions.length; i++) {
+					const action = elseActions[i]
+					memory.set('PARAMS', action.params)
+					await this.runAction(action.name, memory, page)
+				}
+				memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+				Chalk.write(Chalk.create([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text:': End of if', style:'italic'}
+				]))
+			}
+		})
+		this.addAction('createFile', async (memory) => {
+			const { filename } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Creating file ', style:'italic'},
+				{text:`${memory.get('CURRENT_DIR')}/${filename}.txt`, style:'bold'}
+			]))
+			fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, '')
+		})
 		this.addAction('setDefaultTimeout', async (memory, page) => {
 			const { timeout } = memory.get('PARAMS')
 			page.setDefaultNavigationTimeout(0)
@@ -408,6 +494,67 @@ export default class CoreActions extends ActionList {
 				await element.click()
 			}
 		})
+		this.addAction('readFromText', async (memory) => {
+			const { key, filename } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Reading from file ', style:'italic'},
+				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+			]))
+			const content = fs.readFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, 'utf8')
+			memory.set(key, content)
+		})
+		this.addAction('fileExists', async (memory) => {
+			const { filename } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Checking if file exists ', style:'italic'},
+				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+			]))
+			const exists = fs.existsSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`)
+			memory.set('INPUT', exists)
+		})
+		this.addAction('deleteFile', async (memory) => {
+			const { filename } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Deleting file ', style:'italic'},
+				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+			]))
+			// if file exists, delete it
+			if(fs.existsSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`))
+				fs.unlinkSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`)
+		})
+		this.addAction('deleteFolder', async (memory) => {
+			const { foldername } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Deleting folder ', style:'italic'},
+				{text: `${memory.get('CURRENT_DIR')}/${foldername}`, color: 'gray', style:'italic'}
+			]))
+			// if folder exists, delete it along with all its content
+			if(fs.existsSync(`${memory.get('CURRENT_DIR')}/${foldername}`))
+				fs.rmdirSync(`${memory.get('CURRENT_DIR')}/${foldername}`, { recursive: true })
+		})
+		this.addAction('moveMouse', async (memory) => {
+			const { x, y } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Moving mouse to ', style:'italic'},
+				{text: `${x}, ${y}`, color: 'gray', style:'italic'}
+			]))
+			robot.moveMouse(x, y)
+		})
+		this.addAction('checkStringInFile', async (memory) => {
+			const { filename, string } = memory.get('PARAMS')
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Checking if string is in file ', style:'italic'},
+				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+			]))
+			const content = fs.readFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, 'utf8')
+			memory.set('INPUT', content.includes(string))
+		})
 		this.addAction('saveToText', async (memory) => {
 			const { key, filename } = memory.get('PARAMS')
 			const content = memory.get(key)
@@ -415,7 +562,7 @@ export default class CoreActions extends ActionList {
 				Chalk.write(Chalk.create([
 					{text: ' '.repeat(memory.get('IDENTATION'))},
 					{text: ': Saving ', color: 'white', style:'italic'},
-					{text: filename, color: 'gray', style:'italic'}
+					{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 				]))
 				if(Array.isArray(content))
 					fs.writeFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
@@ -430,12 +577,12 @@ export default class CoreActions extends ActionList {
 				Chalk.write(Chalk.create([
 					{text: ' '.repeat(memory.get('IDENTATION'))},
 					{text: ': Appending to ', color: 'white', style:'italic'},
-					{text: filename, color: 'gray', style:'italic'}
+					{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 				]))
 				if(Array.isArray(content))
 					fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
 				else
-					fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content)
+					fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content+'\n')
 			}
 		})
 		this.addAction('download', async (memory) => {
