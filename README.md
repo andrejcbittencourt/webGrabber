@@ -52,9 +52,14 @@ actions:
       text: "Hello World!"
 ```
 
-Run the app: 
+Run the app and all the grabs in the *src/grabs* directory will be executed: 
 ```bash
 npm run start
+```
+
+Run a specific grab:
+```bash
+npm run start hello-world
 ```
 
 ## Actions
