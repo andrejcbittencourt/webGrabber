@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import GrabList from './GrabList.js'
 import Puppeteer from './Puppeteer.js'
 import CoreActions from './CoreActions.js'
@@ -47,7 +48,6 @@ export default class Grabber {
 	async grab() {
 		try {
 			// for each process.env add to memory
-			// eslint-disable-next-line no-undef
 			for (const [key, value] of Object.entries(process.env)) {
 				// if starts with GRABBER_ add to memory but remove GRABBER_
 				if (key.startsWith('GRABBER_'))
@@ -72,6 +72,9 @@ export default class Grabber {
 			]))
 			await this.#coreActions.runAction('setCookiesDir', this.#memory)
 			for (const grab of this.#grabList.list) {
+				const argv = process.argv.slice(2)[0]
+				if (argv && argv !== grab.name)
+					continue
 				Chalk.write(Chalk.create([
 					{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}
 				]))
