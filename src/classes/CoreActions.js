@@ -77,7 +77,7 @@ export default class CoreActions extends ActionList {
 			else
 				memory.set(key, value)
 		})
-		this.addAction('getStringInput', async (memory) => {
+		this.addAction('userInput', async (memory) => {
 			const { query } = memory.get('PARAMS')
 			const rl = readline.createInterface({
 				input: process.stdin,
