@@ -88,7 +88,7 @@ export default class CoreActions extends ActionList {
 			
 			await (async() => {
 				try {
-					const input = await prompt(' '.repeat(memory.get('IDENTATION')) + query)
+					const input = await prompt(query)
 					memory.set('INPUT', input)
 					rl.close()
 				} catch (e) {
@@ -478,6 +478,10 @@ export default class CoreActions extends ActionList {
 				await page.waitForSelector(selector, { visible: true })
 				await page.click(selector)
 			}
+		})
+		this.addAction('waitForSelector', async (memory, page) => {
+			const { selector } = memory.get('PARAMS')
+			await page.waitForSelector(selector, { visible: true })
 		})
 		this.addAction('clickAll', async (memory, page) => {
 			const { selector } = memory.get('PARAMS')
