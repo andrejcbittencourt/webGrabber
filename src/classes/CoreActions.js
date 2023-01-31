@@ -88,7 +88,7 @@ export default class CoreActions extends ActionList {
 			
 			await (async() => {
 				try {
-					const input = await prompt(query)
+					const input = await prompt(' '.repeat(memory.get('IDENTATION')) + query)
 					memory.set('INPUT', input)
 					rl.close()
 				} catch (e) {
@@ -479,10 +479,6 @@ export default class CoreActions extends ActionList {
 				await page.click(selector)
 			}
 		})
-		this.addAction('waitForSelector', async (memory, page) => {
-			const { selector } = memory.get('PARAMS')
-			await page.waitForSelector(selector, { visible: true })
-		})
 		this.addAction('clickAll', async (memory, page) => {
 			const { selector } = memory.get('PARAMS')
 			const elements = await page.$$(selector)
@@ -499,14 +495,14 @@ export default class CoreActions extends ActionList {
 			}
 		})
 		this.addAction('readFromText', async (memory) => {
-			const { key, filename } = memory.get('PARAMS')
+			const { filename } = memory.get('PARAMS')
 			Chalk.write(Chalk.create([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text:': Reading from file ', style:'italic'},
 				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			]))
 			const content = fs.readFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, 'utf8')
-			memory.set(key, content)
+			memory.set('INPUT', content)
 		})
 		this.addAction('fileExists', async (memory) => {
 			const { filename } = memory.get('PARAMS')
@@ -539,6 +535,17 @@ export default class CoreActions extends ActionList {
 			// if folder exists, delete it along with all its content
 			if(fs.existsSync(`${memory.get('CURRENT_DIR')}/${foldername}`))
 				fs.rmdirSync(`${memory.get('CURRENT_DIR')}/${foldername}`, { recursive: true })
+		})
+		this.addAction('listFolders', async (memory) => {
+			Chalk.write(Chalk.create([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text:': Listing folders ', style:'italic'},
+				{text: `${memory.get('CURRENT_DIR')}`, color: 'gray', style:'italic'}
+			]))
+			const folders = fs.readdirSync(memory.get('CURRENT_DIR'), { withFileTypes: true })
+				.filter(dirent => dirent.isDirectory())
+				.map(dirent => dirent.name)
+			memory.set('INPUT', folders)
 		})
 		this.addAction('moveMouse', async (memory) => {
 			const { x, y } = memory.get('PARAMS')
