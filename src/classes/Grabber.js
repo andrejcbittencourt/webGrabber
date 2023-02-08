@@ -14,7 +14,7 @@ class Memory {
 	}
 	set(key, value) {
 		// if value is an object then don't reference
-		if (typeof value === 'object')
+		if(typeof value === 'object')
 			this.#memory[key] = JSON.parse(JSON.stringify(value))
 		else
 			this.#memory[key] = value
@@ -45,32 +45,37 @@ export default class Grabber {
 	}
 
 	addCustomAction(name, action) {
+		if(typeof action !== 'function')
+			throw new Error('Action must be a function')
+		if(this.#coreActionList.has(name) || this.#customActionList.has(name))
+			throw new Error(`Action ${name} already exists`)
+		if(!this.#actionListContainer.isEmpty())
+			this.#actionListContainer.clear()
 		this.#customActionList.add(name, action)
 	}
 
 	async grab() {
 		try {
 			// for each process.env add to memory
-			for (const [key, value] of Object.entries(process.env)) {
+			for(const [key, value] of Object.entries(process.env)) {
 				// if starts with GRABBER_ add to memory but remove GRABBER_
-				if (key.startsWith('GRABBER_'))
+				if(key.startsWith('GRABBER_'))
 					this.#memory.set(key.replace('GRABBER_', ''), value)
 			}
 			Chalk.write([{text:'Grabber started', color:'green', style:'bold'}])
 			await this.#puppeteer.launch()
 			getGrabList().forEach(grab => this.#grabList.add(grab))
 			// if grabList is empty then throw error
-			if (this.#grabList.isEmpty())
+			if(this.#grabList.isEmpty())
 				throw new Error('No grabs found')
 			Chalk.write([{text:'Grab configs loaded', color:'green', style:'bold'}])
-			this.#coreActionList.load()
 			this.#actionListContainer.add(this.#coreActionList)
 			this.#actionListContainer.add(this.#customActionList)
 			Chalk.write([{text:'Actions loaded', color:'green', style:'bold'}])
 			await this.#actionListContainer.run('setCookiesDir', this.#memory)
-			for (const grab of this.#grabList.list) {
+			for(const grab of this.#grabList.list) {
 				const argv = process.argv.slice(2)[0]
-				if (argv && argv !== grab.name)
+				if(argv && argv !== grab.name)
 					continue
 				Chalk.write([{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}])
 				await this.#actionListContainer.run('resetCurrentDir', this.#memory)
@@ -78,7 +83,7 @@ export default class Grabber {
 				await this.#actionListContainer.run('createDir', this.#memory)
 				await this.#actionListContainer.run('setCurrentDir', this.#memory)
 				this.#memory.set('IDENTATION', 0)
-				for (const action of grab.actions) {
+				for(const action of grab.actions) {
 					this.#memory.set('PARAMS', action.params)
 					await this.#actionListContainer.run(action.name, this.#memory, this.#puppeteer.page)
 				}

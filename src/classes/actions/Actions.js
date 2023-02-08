@@ -57,6 +57,14 @@ export class ActionListContainer {
 		this.#container.push(actionList)
 	}
 
+	isEmpty() {
+		return this.#container.length === 0 ? true : false
+	}
+
+	clear() {
+		this.#container = []
+	}
+
 	async run(name, memory, page) {
 		for (const actionList of this.#container) {
 			if (actionList.has(name)) {
