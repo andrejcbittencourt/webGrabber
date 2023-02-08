@@ -21,6 +21,7 @@ export default class CoreActionList extends ActionList {
 
 	constructor() {
 		super()
+		this.load()
 	}
 
 	load() {
