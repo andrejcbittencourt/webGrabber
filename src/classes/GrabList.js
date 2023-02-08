@@ -31,7 +31,7 @@ export default class GrabList {
 		return this.#list.length === 0
 	}
 
-	addGrab(grab) {
+	add(grab) {
 		this.#list.push(new Grab(grab.name, grab.actions))
 	}
 }

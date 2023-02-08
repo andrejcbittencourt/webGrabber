@@ -22,7 +22,7 @@ export default class Chalk {
 		return chalkText
 	}
 	
-	static write(chalkText) {
-		console.log(chalkText)
+	static write(templateArray) {
+		console.log(Chalk.create(templateArray))
 	}
 }
