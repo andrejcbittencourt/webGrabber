@@ -44,14 +44,23 @@ export default class Grabber {
 		this.#customActionList = new CustomActionList()
 	}
 
+	displayError(error) {
+		Chalk.write([{text:error.message, color:'red', style:'bold'}])
+	}
+
 	addCustomAction(name, action) {
-		if(typeof action !== 'function')
-			throw new Error('Action must be a function')
-		if(this.#coreActionList.has(name) || this.#customActionList.has(name))
-			throw new Error(`Action ${name} already exists`)
-		if(!this.#actionListContainer.isEmpty())
-			this.#actionListContainer.clear()
-		this.#customActionList.add(name, action)
+		try {
+			if(typeof action !== 'function')
+				throw new Error(`Action ${name} must be a function`)
+			if(this.#coreActionList.has(name) || this.#customActionList.has(name))
+				throw new Error(`Action ${name} already exists`)
+			if(!this.#actionListContainer.isEmpty())
+				this.#actionListContainer.clear()
+			this.#customActionList.add(name, action)
+		} catch (error) {
+			this.displayError(error)
+			process.exit(1)
+		}
 	}
 
 	async grab() {
@@ -89,7 +98,7 @@ export default class Grabber {
 				}
 			}
 		} catch (error) {
-			Chalk.write([{text:`Error : ${error.message}`, color:'red', style:'bold'}])
+			this.displayError(error)
 		}
 		await this.#puppeteer.close()
 		Chalk.write([{text:'Grabber closed', color:'green', style:'bold'}])
