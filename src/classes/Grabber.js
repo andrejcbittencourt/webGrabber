@@ -1,10 +1,11 @@
 /* eslint-disable no-undef */
 import GrabList from './GrabList.js'
-import Puppeteer from './Puppeteer.js'
-import CoreActions from './CoreActions.js'
-import CustomActions from './CustomActions.js'
+import Puppeteer from './wrappers/Puppeteer.js'
+import { ActionListContainer } from './actions/Actions.js'
+import CoreActionList from './actions/CoreActionList.js'
+import CustomActionList from './actions/CustomActionList.js'
 import { getGrabList } from '../utils/utils.js'
-import Chalk from './Chalk.js'
+import Chalk from './wrappers/Chalk.js'
 
 class Memory {
 	#memory
@@ -29,20 +30,22 @@ class Memory {
 export default class Grabber {
 	#grabList
 	#puppeteer
-	#coreActions
-	#customActions
+	#actionListContainer
+	#coreActionList
+	#customActionList
 	#memory
 
 	constructor(options) {
-		this.#puppeteer = new Puppeteer(options)
-		this.#coreActions = new CoreActions()
-		this.#customActions = new CustomActions()
-		this.#grabList = new GrabList()
 		this.#memory = new Memory()
+		this.#puppeteer = new Puppeteer(options)
+		this.#grabList = new GrabList()
+		this.#actionListContainer = new ActionListContainer()
+		this.#coreActionList = new CoreActionList()
+		this.#customActionList = new CustomActionList()
 	}
 
 	addCustomAction(name, action) {
-		this.#customActions.add(name, action)
+		this.#customActionList.add(name, action)
 	}
 
 	async grab() {
@@ -53,49 +56,37 @@ export default class Grabber {
 				if (key.startsWith('GRABBER_'))
 					this.#memory.set(key.replace('GRABBER_', ''), value)
 			}
-			Chalk.write(Chalk.create([
-				{text:'Grabber started', color:'green', style:'bold'}
-			]))
+			Chalk.write([{text:'Grabber started', color:'green', style:'bold'}])
 			await this.#puppeteer.launch()
+			getGrabList().forEach(grab => this.#grabList.add(grab))
 			// if grabList is empty then throw error
-			getGrabList().forEach(grab => this.#grabList.addGrab(grab))
 			if (this.#grabList.isEmpty())
 				throw new Error('No grabs found')
-			Chalk.write(Chalk.create([
-				{text:'Grab configs loaded', color:'green', style:'bold'}
-			]))
-			this.#coreActions.load()
-			this.#customActions.load()
-			this.#coreActions.addCustomActions(this.#customActions)
-			Chalk.write(Chalk.create([
-				{text:'Actions loaded', color:'green', style:'bold'}
-			]))
-			await this.#coreActions.runAction('setCookiesDir', this.#memory)
+			Chalk.write([{text:'Grab configs loaded', color:'green', style:'bold'}])
+			this.#coreActionList.load()
+			this.#actionListContainer.add(this.#coreActionList)
+			this.#actionListContainer.add(this.#customActionList)
+			Chalk.write([{text:'Actions loaded', color:'green', style:'bold'}])
+			await this.#actionListContainer.run('setCookiesDir', this.#memory)
 			for (const grab of this.#grabList.list) {
 				const argv = process.argv.slice(2)[0]
 				if (argv && argv !== grab.name)
 					continue
-				Chalk.write(Chalk.create([
-					{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}
-				]))
-				await this.#coreActions.runAction('resetCurrentDir', this.#memory)
+				Chalk.write([{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}])
+				await this.#actionListContainer.run('resetCurrentDir', this.#memory)
 				this.#memory.set('PARAMS', { dir: grab.name })
-				await this.#coreActions.runAction('createDir', this.#memory)
-				await this.#coreActions.runAction('setCurrentDir', this.#memory)
+				await this.#actionListContainer.run('createDir', this.#memory)
+				await this.#actionListContainer.run('setCurrentDir', this.#memory)
 				this.#memory.set('IDENTATION', 0)
 				for (const action of grab.actions) {
 					this.#memory.set('PARAMS', action.params)
-					await this.#coreActions.runAction(action.name, this.#memory, this.#puppeteer.page)
+					await this.#actionListContainer.run(action.name, this.#memory, this.#puppeteer.page)
 				}
 			}
 		} catch (error) {
-			Chalk.write(Chalk.create([
-				{text:`Error : ${error.message}`, color:'red', style:'bold'}
-			]))
+			Chalk.write([{text:`Error : ${error.message}`, color:'red', style:'bold'}])
 		}
 		await this.#puppeteer.close()
-		Chalk.write(Chalk.create([
-			{text:'Grabber closed', color:'green', style:'bold'}
-		]))
+		Chalk.write([{text:'Grabber closed', color:'green', style:'bold'}])
 	}
 }
