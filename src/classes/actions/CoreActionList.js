@@ -224,7 +224,7 @@ export default class CoreActionList extends ActionList {
 			const { regex, string } = memory.get('PARAMS')
 			const regexMatch = new RegExp(regex, 'g')
 			const match = regexMatch.exec(string)
-			if (match)
+			if(match)
 				memory.set('INPUT', match[1])
 			else
 				memory.set('INPUT', '')
@@ -251,11 +251,11 @@ export default class CoreActionList extends ActionList {
 			// get children of parents that match selector
 			const parents = await page.$$(selectorParent)
 			const result = []
-			for (const parent of parents) {
+			for(const parent of parents) {
 				const parentChildren = await parent.$$(selectorChild)
-				if (parentChildren) {
+				if(parentChildren) {
 					const children = []
-					for (const child of parentChildren) {
+					for(const child of parentChildren) {
 						if(attribute)
 							children.push(await page.evaluate((element, attribute) => element.getAttribute(attribute), child, attribute))
 						else
@@ -270,7 +270,7 @@ export default class CoreActionList extends ActionList {
 			const { selector, attribute } = memory.get('PARAMS')
 			let content = []
 			const elements = await page.$$(selector)
-			for (let i = 0; i < elements.length; i++) {
+			for(let i = 0; i < elements.length; i++) {
 				const element = elements[i]
 				if(attribute)
 					content.push(await page.evaluate((element, attribute) => element.getAttribute(attribute), element, attribute))
@@ -483,7 +483,7 @@ export default class CoreActionList extends ActionList {
 		super.add('clickAll', async (memory, page) => {
 			const { selector } = memory.get('PARAMS')
 			const elements = await page.$$(selector)
-			for (let i = 0; i < elements.length; i++) {
+			for(let i = 0; i < elements.length; i++) {
 				const element = elements[i]
 				// wait for element to be visible
 				await page.waitForFunction((element) => {
