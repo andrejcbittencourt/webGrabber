@@ -54,8 +54,6 @@ export default class Grabber {
 				throw new Error(`Action ${name} must be a function`)
 			if(this.#coreActionList.has(name) || this.#customActionList.has(name))
 				throw new Error(`Action ${name} already exists`)
-			if(!this.#actionListContainer.isEmpty())
-				this.#actionListContainer.clear()
 			this.#customActionList.add(name, action)
 		} catch (error) {
 			this.displayError(error)
@@ -78,6 +76,8 @@ export default class Grabber {
 			if(this.#grabList.isEmpty())
 				throw new Error('No grabs found')
 			Chalk.write([{text:'Grab configs loaded', color:'green', style:'bold'}])
+			if(!this.#actionListContainer.isEmpty())
+				this.#actionListContainer.clear()
 			this.#actionListContainer.add(this.#coreActionList)
 			this.#actionListContainer.add(this.#customActionList)
 			Chalk.write([{text:'Actions loaded', color:'green', style:'bold'}])
@@ -93,7 +93,7 @@ export default class Grabber {
 				await this.#actionListContainer.run('setCurrentDir', this.#memory)
 				this.#memory.set('IDENTATION', 0)
 				for(const action of grab.actions) {
-					this.#memory.set('PARAMS', action.params)
+					this.#memory.set('PARAMS', action.params || {})
 					await this.#actionListContainer.run(action.name, this.#memory, this.#puppeteer.page)
 				}
 			}
