@@ -319,7 +319,7 @@ export default class CoreActionList extends ActionList {
 				memory.set('PARAMS', {selector: usernameSelector, text: username})
 				await this.run('type', memory, page)
 				await page.waitForSelector(passwordSelector, { visible: true })
-				memory.set('PARAMS', {selector: passwordSelector, text: password})
+				memory.set('PARAMS', {selector: passwordSelector, text: password, secret: true})
 				await this.run('type', memory, page)
 				Chalk.write([
 					{text: ' '.repeat(memory.get('IDENTATION'))},
@@ -357,11 +357,11 @@ export default class CoreActionList extends ActionList {
 				fs.mkdirSync(`${memory.get('CURRENT_DIR')}/${dir}`)
 		})
 		super.add('type', async (memory, page) => {
-			const { selector, text } = memory.get('PARAMS')
+			const { selector, text, secret = false } = memory.get('PARAMS')
 			Chalk.write([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text: ': Typing ', color: 'white', style:'italic'},
-				{text: text, color: 'gray', style:'italic'}
+				{text: secret ? '•••••' : text, color: 'gray', style:'italic'},
 			])
 			await page.waitForSelector(selector, { visible: true })
 			await page.type(selector, text)
