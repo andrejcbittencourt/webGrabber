@@ -1,7 +1,7 @@
 {
-  "name": "webgrabber",
-  "version": "1.0.0",
-  "description": "web grabber",
+  "name": "@andrejcbittencourt/webgrabber",
+  "version": "1.1.0",
+  "description": "Config based web scraper & browser automation",
   "main": "app.js",
   "type": "module",
   "scripts": {
