@@ -23,7 +23,7 @@
 - **if(condition, actions)**: Executes a block of code if a given condition is true.
 - **ifElse(condition, actions, elseActions)**: Executes one block of code if a given condition is true, and another block of code if it is false.
 - **listFolders()**: Lists all folders in a given directory.
-- **login(usernameSelector, username, passwordSelector, password, submitSelector cookiesFile)**: Logs in to a website or app using a given set of credentials.
+- **login(usernameSelector, username, passwordSelector, password, submitSelector, cookiesFile)**: Logs in to a website or app using a given set of credentials.
 - **log(text, color, background)**: Logs a message to the console.
 - **matchFromSelector(selector, regex)**: Searches for a given pattern in a page element using a CSS selector.
 - **matchFromString(regex, string)**: Searches for a given pattern in a string.
