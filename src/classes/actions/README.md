@@ -1,0 +1,45 @@
+- **appendToText(key, filename)**: Appends a given string to the end of an existing text file.
+- **appendToVariable(key, value)**: Appends a value to the end of an existing variable.
+- **backToParentDir()**: Moves up one level in the directory structure.
+- **checkStringInFile(filename, string)**: Checks if a given string exists in a text file.
+- **click(selector, attribute, text)**: Clicks on a specified page element.
+- **clickAll(selector)**: Clicks on all elements that match a given CSS selector.
+- **countDecrement(key)**: Decrements the value of a count variable by a given amount.
+- **countIncrement(key)**: Increments the value of a count variable by a given amount.
+- **createDir(dir)**: Creates a new directory in the current path.
+- **createFile(filename)**: Creates a new file in the current path with a given name.
+- **deleteFile(filename)**: Deletes a file in the current path.
+- **deleteFolder(foldername)**: Deletes a folder in the current path.
+- **download(url, filename, host)**: Downloads a file from a given URL to the current path.
+- **elementExists(selector)**: Checks if a page element exists on the current page.
+- **fileExists(filename)**: Checks if a file exists in the current path.
+- **forEach(key, actions)**: Executes a block of code for each element in an array or list.
+- **for(from, until, step, actions)**: Executes a block of code a specified number of times.
+- **getChildren(selectorParent, selectorChild, attribute)**: Retrieves the child elements of a given parent element.
+- **getElements(selector, attribute)**: Retrieves all elements that match a given CSS selector.
+- **getExtension(string)**: Returns the file extension of a given file path or name.
+- **getVariable(key, index)**: Retrieves the value of a variable and returns it.
+- **goTo(url)**: Navigates to a given URL or page within the app.
+- **if(condition, actions)**: Executes a block of code if a given condition is true.
+- **ifElse(condition, actions, elseActions)**: Executes one block of code if a given condition is true, and another block of code if it is false.
+- **listFolders()**: Lists all folders in a given directory.
+- **login(usernameSelector, username, passwordSelector, password, submitSelector cookiesFile)**: Logs in to a website or app using a given set of credentials.
+- **log(text, color, background)**: Logs a message to the console.
+- **matchFromSelector(selector, regex)**: Searches for a given pattern in a page element using a CSS selector.
+- **matchFromString(regex, string)**: Searches for a given pattern in a string.
+- **moveMouse(x, y)**: Moves the mouse to a specified location on the screen.
+- **random(min, max)**: Generates a random number.
+- **readFromText(filename)**: Reads the contents of a text file.
+- **resetCurrentDir()**: Resets the current working directory to its default value.
+- **saveToText(key, filename)**: Saves a given string to a text file in the current path.
+- **screenshot(name, type)**: Takes a screenshot of the current page.
+- **sanitizeString(string)**: Removes any unwanted characters or formatting from a given string.
+- **setCurrentDir(dir)**: Sets the current working directory to a given directory path.
+- **setCookiesDir()**: Sets the directory where cookies are stored.
+- **setDefaultTimeout(timeout)**: Sets a default timeout for page loads and other actions.
+- **setVariable(key, value)**: Sets the value of a variable to a given value.
+- **sleep(ms)**: Pauses the execution of the script for a given amount of time.
+- **type(selector, text, secret)**: Types a given string or value into a specified field or element on the page.
+- **userInput(query)**: Accepts input from the user.
+- **uuid()**: Generates a unique identifier.
+- **waitForPageTimeout(ms)**: Waits for a given amount of time for a page to load.

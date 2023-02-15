@@ -63,7 +63,7 @@ npm run start hello-world
 ```
 
 ## Actions
-A full list of actions can be found in the [CoreActionList](src/classes/actions/CoreActionList.js) class
+A full list of actions can be found in actions [Actions](src/classes/actions/README.md)
 
 ## Custom Actions
 An example of how to add custom actions is found in the [app](app.js)
