@@ -19,7 +19,7 @@
 - **getElements(selector, attribute)**: Retrieves all elements that match a given CSS selector.
 - **getExtension(string)**: Returns the file extension of a given file path or name.
 - **getVariable(key, index)**: Retrieves the value of a variable and returns it.
-- **goTo(url)**: Navigates to a given URL or page within the app.
+- **goTo(url)**: Navigates to a given URL.
 - **if(condition, actions)**: Executes a block of code if a given condition is true.
 - **ifElse(condition, actions, elseActions)**: Executes one block of code if a given condition is true, and another block of code if it is false.
 - **listFolders()**: Lists all folders in a given directory.
