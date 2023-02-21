@@ -208,7 +208,7 @@ export default class CoreActionList extends ActionList {
 			const { name, type } = memory.get('PARAMS')
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
-			const filePath = path.join(memory.get('CURRENT_DIR'), sanitizeString(filename))
+			const filePath = path.join(memory.get('CURRENT_DIR'), filename)
 			Chalk.write([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text: ': Taking screenshot ', color: 'white', style:'italic'},
