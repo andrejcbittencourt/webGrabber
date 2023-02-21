@@ -20,7 +20,7 @@
     "chalk": "^5.2.0",
     "dotenv": "^16.0.3",
     "js-yaml": "^4.1.0",
-    "puppeteer": "^15.5.0",
+    "puppeteer": "^19.7.2",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-adblocker": "^2.13.5",
     "puppeteer-extra-plugin-stealth": "^2.11.1",
