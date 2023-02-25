@@ -205,7 +205,7 @@ export default class CoreActionList extends ActionList {
 			await page.setUserAgent(userAgent)
 		})
 		super.add('screenshot', async (memory, page) => {
-			const { name, type } = memory.get('PARAMS')
+			const { name, type, fullPage } = memory.get('PARAMS')
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
 			const filePath = path.join(memory.get('CURRENT_DIR'), filename)
@@ -217,7 +217,36 @@ export default class CoreActionList extends ActionList {
 			await page.screenshot({
 				path: filePath,
 				type: validatedType,
-				fullPage: true
+				fullPage: fullPage ? fullPage : true
+			})
+		})
+		super.add('screenshotElement', async (memory, page) => {
+			const { name, type, selector } = memory.get('PARAMS')
+			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
+			const filename = `${sanitizeString(name)}.${validatedType}`
+			const filePath = path.join(memory.get('CURRENT_DIR'), filename)
+			Chalk.write([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Taking screenshot of element ', color: 'white', style:'italic'},
+				{text: name, color: 'gray', style:'italic'}
+			])
+			const elementHandle = await page.$(selector)
+
+			const boxModel = await elementHandle.boxModel()
+			const paddingLeft = boxModel.border[3].x - boxModel.margin[3].x
+			const paddingRight = boxModel.margin[1].x - boxModel.border[1].x
+			const paddingTop = boxModel.border[0].y - boxModel.margin[0].y
+			const paddingBottom = boxModel.margin[2].y - boxModel.border[2].y
+			const totalHeight = boxModel.height + paddingTop + paddingBottom
+
+			await elementHandle.screenshot({
+				path: filePath,
+				clip: {
+					x: boxModel.border[0].x,
+					y: boxModel.border[0].y,
+					width: boxModel.width - paddingLeft - paddingRight,
+					height: totalHeight
+				},
 			})
 		})
 		super.add('matchFromString', async (memory) => {
