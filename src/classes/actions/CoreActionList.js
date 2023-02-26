@@ -11,6 +11,7 @@ import Chalk from '../wrappers/Chalk.js'
 import { sanitizeString } from '../../utils/utils.js'
 import robot from 'robotjs'
 import readline from 'readline'
+import { TextEncoder } from 'util'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -249,12 +250,16 @@ export default class CoreActionList extends ActionList {
 				},
 			})
 		})
+		super.add('replaceString', async (memory) => {
+			const { string, search, replace } = memory.get('PARAMS')
+			memory.set('INPUT', string.replace(search, replace))
+		})
 		super.add('matchFromString', async (memory) => {
 			const { regex, string } = memory.get('PARAMS')
 			const regexMatch = new RegExp(regex, 'g')
 			const match = regexMatch.exec(string)
 			if(match)
-				memory.set('INPUT', match[1])
+				memory.set('INPUT', match[0])
 			else
 				memory.set('INPUT', '')
 		})
@@ -629,6 +634,7 @@ export default class CoreActionList extends ActionList {
 		super.add('download', async (memory) => {
 			const { url, filename, host } = memory.get('PARAMS')
 			// if not filename, use the last part of the url
+			const encoder = new TextEncoder()
 			const name = filename || url.split('/').pop()
 			const sanitizedFilename = sanitizeString(name)
 			Chalk.write([
@@ -644,20 +650,21 @@ export default class CoreActionList extends ActionList {
 				const needsHost = !url.startsWith('http')
 				const requestProtocol = needsHost ? (host.startsWith('https') ? https : http) : (url.startsWith('https') ? https : http)
 				const request = requestProtocol.get(needsHost ? `${host}${url}` : url, (response) => {
-					response.pipe(file)
-					let len = parseInt(response.headers['content-length'], 10)
-					let cur = 0
-					let total = len / 1048576
+					const contentLength = parseInt(response.headers['content-length'], 10)
+					let downloadedSize = 0
 					response.on('data', (chunk) => {
-						cur += chunk.length
-						Chalk.write([
-							{text: ' '.repeat(memory.get('IDENTATION'))},
-							{text: ': Downloading ', color: 'white', style:'italic'},
-							{text: sanitizedFilename, color: 'gray', style:'italic'},
-							{text: ` ${Math.round(100.0 * cur / len)}% (${(cur / 1048576).toFixed(2)}MB/${total.toFixed(2)}MB)`, color: 'gray', style:'italic'}
-						])
+						downloadedSize += chunk.length
+						const percent = (100 * downloadedSize / contentLength).toFixed(2)
+						const filledLength = Math.round(percent / 100 * 40)
+						const progress = '█'.repeat(filledLength) + '░'.repeat(40 - filledLength)
+						const downloaded = (downloadedSize / 1048576).toFixed(2)
+						const total = (contentLength / 1048576).toFixed(2)
+
+						process.stdout.write(encoder.encode(`\r${' '.repeat(memory.get('IDENTATION'))}|${progress}| ${percent}% (${downloaded}MB/${total}MB)`))
 					})
 					response.on('end', () => {
+						process.stdout.write('\n')
+						file.end()
 						Chalk.write([
 							{text: ' '.repeat(memory.get('IDENTATION'))},
 							{text: ': Downloaded ', color: 'green', style:'italic'},
@@ -665,6 +672,7 @@ export default class CoreActionList extends ActionList {
 						])
 						resolve()
 					})
+					response.pipe(file)
 				})
 				request.on('error', (err) => {
 					Chalk.write([
