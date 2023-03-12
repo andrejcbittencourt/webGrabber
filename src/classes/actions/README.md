@@ -19,7 +19,6 @@
 - **getElements(selector, attribute)**: Retrieves all elements that match a given CSS selector.
 - **getExtension(string)**: Returns the file extension of a given file path or name.
 - **getVariable(key, index)**: Retrieves the value of a variable and returns it.
-- **goTo(url)**: Navigates to a given URL.
 - **if(condition, actions)**: Executes a block of code if a given condition is true.
 - **ifElse(condition, actions, elseActions)**: Executes one block of code if a given condition is true, and another block of code if it is false.
 - **listFolders()**: Lists all folders in a given directory.
@@ -27,19 +26,21 @@
 - **log(text, color, background)**: Logs a message to the console.
 - **matchFromSelector(selector, regex)**: Searches for a given pattern in a page element using a CSS selector.
 - **matchFromString(regex, string)**: Searches for a given pattern in a string.
-- **moveMouse(x, y)**: Moves the mouse to a specified location on the screen.
+- **puppeteer**: A proxy action that enables direct interaction with the headless Chrome browser through the Puppeteer library.
 - **random(min, max)**: Generates a random number.
 - **readFromText(filename)**: Reads the contents of a text file.
+- **replaceString(string, search, replace)**: Replaces a given string with another string.
 - **resetCurrentDir()**: Resets the current working directory to its default value.
+- **robotjs**: A proxy action that enables direct interaction with keyboard and mouse input emulation through the RobotJS library.
 - **saveToText(key, filename)**: Saves a given string to a text file in the current path.
 - **screenshot(name, type)**: Takes a screenshot of the current page.
+- **screenshotElement(selector, name, type)**: Takes a screenshot of a specified page element.
 - **sanitizeString(string)**: Removes any unwanted characters or formatting from a given string.
 - **setCurrentDir(dir)**: Sets the current working directory to a given directory path.
 - **setCookiesDir()**: Sets the directory where cookies are stored.
-- **setDefaultTimeout(timeout)**: Sets a default timeout for page loads and other actions.
 - **setVariable(key, value)**: Sets the value of a variable to a given value.
 - **sleep(ms)**: Pauses the execution of the script for a given amount of time.
 - **type(selector, text, secret)**: Types a given string or value into a specified field or element on the page.
 - **userInput(query)**: Accepts input from the user.
 - **uuid()**: Generates a unique identifier.
-- **waitForPageTimeout(ms)**: Waits for a given amount of time for a page to load.
+- **while(condition, actions)**: Executes a block of code while a given condition is true.
