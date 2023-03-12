@@ -336,7 +336,8 @@ export default class CoreActionList extends ActionList {
 					{text: ': Cookies loaded', style:'italic'}
 				])
 			} else {
-				await this.run('goTo', memory, page)
+				memory.set('PARAMS', {url: url, func: 'goto', options: {waitUntil: WAITUNTIL}})
+				await this.run('puppeteer', memory, page)
 				Chalk.write([
 					{text: ' '.repeat(memory.get('IDENTATION'))},
 					{text: ': Page loaded', style:'italic'}
