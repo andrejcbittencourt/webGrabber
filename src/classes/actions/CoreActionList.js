@@ -54,16 +54,30 @@ export default class CoreActionList extends ActionList {
 			])
 			memory.delete(key)
 		})
-		super.add('goTo', async (memory, page) => {
-			const { url } = memory.get('PARAMS')
+		super.add('puppeteer', async (memory, page) => {
+			const { func, func2, ...params } = memory.get('PARAMS')
 			Chalk.write([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
-				{text: ': Going to ', color: 'white', style:'italic'},
-				{text: url, color: 'gray', style:'italic'}
+				{text: ': Puppeteer ', color: 'white', style:'italic'},
+				{text: func, color: 'gray', style:'italic'},
+				{text: func2 ? '.' + func2 : '', color: 'gray', style:'italic'}
 			])
-			await page.goto(`${url}`, {
-				waitUntil: WAITUNTIL
-			})
+			let result
+			if(func2)
+				result = await page[func][func2](...Object.values(params))
+			else
+				result = await page[func](...Object.values(params))
+			memory.set('INPUT', result)
+		})
+		super.add('robotjs', async (memory) => {
+			const { func, ...params } = memory.get('PARAMS')
+			Chalk.write([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Robotjs ', color: 'white', style:'italic'},
+				{text: func, color: 'gray', style:'italic'}
+			])
+			const result = await robot[func](...Object.values(params))
+			memory.set('INPUT', result)
 		})
 		super.add('countStart', async (memory) => {
 			const { key, value } = memory.get('PARAMS')
@@ -127,16 +141,6 @@ export default class CoreActionList extends ActionList {
 			])
 			memory.set(key, count)
 		})
-		super.add('waitForPageTimeout', async (memory, page) => {
-			const { ms } = memory.get('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
-				{text: ': Waiting for ', color: 'white', style:'italic'},
-				{text: ms, color: 'gray', style:'italic'},
-				{text: ' ms', color: 'white', style:'italic'}
-			])
-			await page.waitForTimeout(ms)
-		})
 		super.add('sleep', async (memory) => {
 			const { ms } = memory.get('PARAMS')
 			Chalk.write([
@@ -150,7 +154,6 @@ export default class CoreActionList extends ActionList {
 		super.add('setCurrentDir', async (memory) => {
 			let { dir } = memory.get('PARAMS')
 			dir = sanitizeString(dir)
-			// check if dir exists
 			if(!fs.existsSync(path.join(memory.get('CURRENT_DIR'), dir)))
 				throw new Error(`Directory ${dir} does not exist`)
 			Chalk.write([
@@ -175,7 +178,6 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('random', async (memory) => {
 			const { min, max } = memory.get('PARAMS')
-			// convert to number
 			const minNumber = Number(min)
 			const maxNumber = Number(max)
 			Chalk.write([
@@ -195,15 +197,6 @@ export default class CoreActionList extends ActionList {
 				{text: ': Generating uuid ', color: 'white', style:'italic'},
 				{text: uuid, color: 'gray', style:'italic'}
 			])
-		})
-		super.add('setUserAgent', async (memory, page) => {
-			const { userAgent } = memory.get('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
-				{text: ': Setting user agent to ', color: 'white', style:'italic'},
-				{text: userAgent, color: 'gray', style:'italic'}
-			])
-			await page.setUserAgent(userAgent)
 		})
 		super.add('screenshot', async (memory, page) => {
 			const { name, type, fullPage } = memory.get('PARAMS')
@@ -282,7 +275,6 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('getChildren', async (memory, page) => {
 			const { selectorParent, selectorChild, attribute } = memory.get('PARAMS')
-			// get children of parents that match selector
 			const parents = await page.$$(selectorParent)
 			const result = []
 			for(const parent of parents) {
@@ -480,15 +472,6 @@ export default class CoreActionList extends ActionList {
 			])
 			fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, '')
 		})
-		super.add('setDefaultTimeout', async (memory, page) => {
-			const { timeout } = memory.get('PARAMS')
-			page.setDefaultNavigationTimeout(0)
-			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
-				{text: ': Timeout set to ', style:'italic'},
-				{text: timeout, style:'bold'}
-			])
-		})
 		super.add('click', async (memory, page) => {
 			const { selector, attribute, text } = memory.get('PARAMS')
 			if(attribute || text) {
@@ -519,9 +502,7 @@ export default class CoreActionList extends ActionList {
 			const elements = await page.$$(selector)
 			for(let i = 0; i < elements.length; i++) {
 				const element = elements[i]
-				// wait for element to be visible
 				await page.waitForFunction((element) => {
-					// scroll to element
 					element.scrollIntoView()
 					const { top, left, bottom, right } = element.getBoundingClientRect()
 					return top >= 0 && left >= 0 && bottom <= (window.innerHeight || document.documentElement.clientHeight) && right <= (window.innerWidth || document.documentElement.clientWidth)
@@ -556,7 +537,6 @@ export default class CoreActionList extends ActionList {
 				{text: ': Deleting file ', style:'italic'},
 				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			])
-			// if file exists, delete it
 			if(fs.existsSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`))
 				fs.unlinkSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`)
 		})
@@ -567,7 +547,6 @@ export default class CoreActionList extends ActionList {
 				{text: ': Deleting folder ', style:'italic'},
 				{text: `${memory.get('CURRENT_DIR')}/${foldername}`, color: 'gray', style:'italic'}
 			])
-			// if folder exists, delete it along with all its content
 			if(fs.existsSync(`${memory.get('CURRENT_DIR')}/${foldername}`))
 				fs.rmdirSync(`${memory.get('CURRENT_DIR')}/${foldername}`, { recursive: true })
 		})
@@ -581,15 +560,6 @@ export default class CoreActionList extends ActionList {
 				.filter(dirent => dirent.isDirectory())
 				.map(dirent => dirent.name)
 			memory.set('INPUT', folders)
-		})
-		super.add('moveMouse', async (memory) => {
-			const { x, y } = memory.get('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
-				{text: ': Moving mouse to ', style:'italic'},
-				{text: `${x}, ${y}`, color: 'gray', style:'italic'}
-			])
-			robot.moveMouse(x, y)
 		})
 		super.add('checkStringInFile', async (memory) => {
 			const { filename, string } = memory.get('PARAMS')
@@ -633,7 +603,6 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('download', async (memory) => {
 			const { url, filename, host } = memory.get('PARAMS')
-			// if not filename, use the last part of the url
 			const encoder = new TextEncoder()
 			const name = filename || url.split('/').pop()
 			const sanitizedFilename = sanitizeString(name)
@@ -644,9 +613,6 @@ export default class CoreActionList extends ActionList {
 			])
 			await new Promise((resolve, reject) => {
 				const file = fs.createWriteStream(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
-				// if url is a relative path, add the host
-				// use https and http depending on the host
-				// log a progress bar
 				const needsHost = !url.startsWith('http')
 				const requestProtocol = needsHost ? (host.startsWith('https') ? https : http) : (url.startsWith('https') ? https : http)
 				const request = requestProtocol.get(needsHost ? `${host}${url}` : url, (response) => {
@@ -732,6 +698,21 @@ export default class CoreActionList extends ActionList {
 			Chalk.write([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text: ': End of for loop', color:'yellow', style:'italic'}
+			])
+		})
+		super.add('while', async (memory, page) => {
+			const { condition, actions } = memory.get('PARAMS')
+			memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+			while(eval(condition)) {
+				for(let action of actions) {
+					memory.set('PARAMS', action.params)
+					await this.run(action.name, memory, page)
+				}
+			}
+			memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+			Chalk.write([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': End of while loop', color:'yellow', style:'italic'}
 			])
 		})
 	}
