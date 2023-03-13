@@ -320,6 +320,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('login', async (memory, page) => {
 			const { 
+				url,
 				usernameSelector, 
 				username, 
 				passwordSelector, 
