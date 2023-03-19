@@ -513,14 +513,20 @@ export default class CoreActionList extends ActionList {
 			}
 		})
 		super.add('readFromText', async (memory) => {
-			const { filename } = memory.get('PARAMS')
+			const { filename, breakLine = false } = memory.get('PARAMS')
 			Chalk.write([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text: ': Reading from file ', style:'italic'},
 				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			])
 			const content = fs.readFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, 'utf8')
-			memory.set('INPUT', content)
+			if(breakLine) {
+				// add to memory using an array
+				memory.set('INPUT', content.split('\n'))
+			} else {
+				// add to memory using a string
+				memory.set('INPUT', content)
+			}
 		})
 		super.add('fileExists', async (memory) => {
 			const { filename } = memory.get('PARAMS')
