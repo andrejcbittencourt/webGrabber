@@ -170,6 +170,8 @@ export default class CoreActionList extends ActionList {
 			memory.set('COOKIES_DIR', path.join(__dirname, '../../cookies'))
 		})
 		super.add('backToParentDir', async (memory) => {
+			if(memory.get('CURRENT_DIR') === path.join(__dirname, '../../resources'))
+				return
 			memory.set('CURRENT_DIR', memory.get('CURRENT_DIR').split('/').slice(0, -1).join('/'))
 		})
 		super.add('sanitizeString', async (memory) => {
