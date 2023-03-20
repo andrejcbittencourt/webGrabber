@@ -35,6 +35,18 @@ export default class CoreActionList extends ActionList {
 			])
 			memory.set(key, value)
 		})
+		super.add('transferVariable', async (memory) => {
+			const { from, index, to } = memory.get('PARAMS')
+			const value = memory.get(from)
+			Chalk.write([
+				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ': Transferring variable ', color: 'white', style:'italic'},
+				{text: from, color: 'gray', style:'italic'},
+				{text: ' to ', color: 'white', style:'italic'},
+				{text: to, color: 'gray', style:'italic'}
+			])
+			memory.set(to, index !== undefined ? value[index] : value)
+		})
 		super.add('getVariable', async (memory) => {
 			const { key, index } = memory.get('PARAMS')
 			const value = memory.get(key)
