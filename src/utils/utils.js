@@ -45,6 +45,8 @@ export const interpolation = (params, memory) => {
 			if (match) {
 				match.forEach(m => {
 					const variable = m.match(/{{(.*?)}}/)[1]
+					// remove trailing and leading spaces
+					variable.trim()
 					// if it's an array or object
 					if (typeof memory.get(variable) === 'object' || Array.isArray(memory.get(variable)))
 						params[key] = memory.get(variable)
