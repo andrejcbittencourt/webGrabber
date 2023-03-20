@@ -40,6 +40,7 @@
 - **setCookiesDir()**: Sets the directory where cookies are stored.
 - **setVariable(key, value)**: Sets the value of a variable to a given value.
 - **sleep(ms)**: Pauses the execution of the script for a given amount of time.
+- **transferVariable(from, index, to)**: Transfers a value from one variable to another considering the index if an array.
 - **type(selector, text, secret)**: Types a given string or value into a specified field or element on the page.
 - **userInput(query)**: Accepts input from the user.
 - **uuid()**: Generates a unique identifier.
