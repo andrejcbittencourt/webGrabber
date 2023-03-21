@@ -272,7 +272,15 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('matchFromSelector', async (memory, page) => {
 			const { selector, regex } = memory.get('PARAMS')
-			const html = await page.$eval(selector, el => el.innerHTML)
+			let html = ''
+			try {
+				html = await page.$eval(selector, el => el.innerHTML)
+			} catch(e) {
+				Chalk.write([
+					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ': No element found', color: 'gray', style:'italic'}
+				])
+			}
 			const regexMatch = new RegExp(regex, 'g')
 			const matches = []
 			let match = regexMatch.exec(html)
