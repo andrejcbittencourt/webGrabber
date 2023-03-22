@@ -1,6 +1,4 @@
 /* eslint-disable no-undef */
-import https from 'https'
-import http from 'http'
 import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
@@ -11,7 +9,8 @@ import Chalk from '../wrappers/Chalk.js'
 import { sanitizeString } from '../../utils/utils.js'
 import robot from 'robotjs'
 import readline from 'readline'
-import { TextEncoder } from 'util'
+import axios from 'axios'
+import cliProgress from 'cli-progress'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -633,51 +632,48 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('download', async (memory) => {
 			const { url, filename, host } = memory.get('PARAMS')
-			const encoder = new TextEncoder()
-			const name = filename || url.split('/').pop()
+			const name = filename ?? url.split('/').pop()
 			const sanitizedFilename = sanitizeString(name)
+			const needsHost = !url.startsWith('http')
+
 			Chalk.write([
 				{text: ' '.repeat(memory.get('IDENTATION'))},
 				{text: ': Downloading ', color: 'white', style:'italic'},
-				{text: sanitizedFilename, color: 'gray', style:'italic'}
+				{text: name, color: 'gray', style:'italic'}
 			])
-			await new Promise((resolve, reject) => {
-				const file = fs.createWriteStream(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
-				const needsHost = !url.startsWith('http')
-				const requestProtocol = needsHost ? (host.startsWith('https') ? https : http) : (url.startsWith('https') ? https : http)
-				const request = requestProtocol.get(needsHost ? `${host}${url}` : url, (response) => {
-					const contentLength = parseInt(response.headers['content-length'], 10)
-					let downloadedSize = 0
-					response.on('data', (chunk) => {
-						downloadedSize += chunk.length
-						const percent = (100 * downloadedSize / contentLength).toFixed(2)
-						const filledLength = Math.round(percent / 100 * 40)
-						const progress = '█'.repeat(filledLength) + '░'.repeat(40 - filledLength)
-						const downloaded = (downloadedSize / 1048576).toFixed(2)
-						const total = (contentLength / 1048576).toFixed(2)
+			const response = await axios({
+				url: needsHost ? `${host}${url}` : url,
+				method: 'GET',
+				responseType: 'stream'
+			})
 
-						process.stdout.write(encoder.encode(`\r${' '.repeat(memory.get('IDENTATION'))}|${progress}| ${percent}% (${downloaded}MB/${total}MB)`))
-					})
-					response.on('end', () => {
-						process.stdout.write('\n')
-						file.end()
-						Chalk.write([
-							{text: ' '.repeat(memory.get('IDENTATION'))},
-							{text: ': Downloaded ', color: 'green', style:'italic'},
-							{text: sanitizedFilename, color: 'gray', style:'italic'}
-						])
-						resolve()
-					})
-					response.pipe(file)
+			const writer = fs.createWriteStream(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
+
+			const progressBar = new cliProgress.SingleBar({
+				format: ' {bar} {percentage}% | {value}/{total} MB',
+				barCompleteChar: '\u2588',
+				barIncompleteChar: '\u2591',
+				hideCursor: true,
+				gracefulExit: true
+			}, cliProgress.Presets.shades_classic)
+
+			let current = 0
+
+			progressBar.start(parseInt(response.headers['content-length'] / (1024 * 1024)), current)
+
+			response.data.on('data', (chunk) => {
+				current += (chunk.length / (1024 * 1024))
+				progressBar.update(parseInt(current))
+			})
+
+			response.data.pipe(writer)
+
+			return new Promise((resolve, reject) => {
+				writer.on('finish', () => {
+					progressBar.stop()
+					resolve()
 				})
-				request.on('error', (err) => {
-					Chalk.write([
-						{text: ' '.repeat(memory.get('IDENTATION'))},
-						{text: ': Error downloading ', color: 'red', style:'italic'},
-						{text: sanitizedFilename, color: 'gray', style:'italic'}
-					])
-					reject(err)
-				})
+				writer.on('error', reject)
 			})
 		})
 		super.add('log', async (memory) => {
