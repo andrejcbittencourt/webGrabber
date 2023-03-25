@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
+import Chalk from '../classes/wrappers/Chalk.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -30,12 +31,16 @@ export const getGrabList = () => {
 	return grabList
 }
 
+export const displayError = (error) => {
+	Chalk.write([{text:error.message, color:'red', style:'bold'}])
+}
+
 export const sanitizeString = (string) => {
 	// remove all non-alphanumeric characters and slashes
 	return string.replace(/[^a-zA-Z0-9-_.:?@(), +!#$%&*;|'"=<>^]/g, '').trim()
 }
 
-export const interpolation = (params, memory) => {
+export const interpolation = (params, brain) => {
 	// for each param
 	for (const [key, value] of Object.entries(params)) {
 		// if it's a string
@@ -48,10 +53,10 @@ export const interpolation = (params, memory) => {
 					// remove trailing and leading spaces
 					variable.trim()
 					// if it's an array or object
-					if (typeof memory.get(variable) === 'object' || Array.isArray(memory.get(variable)))
-						params[key] = memory.get(variable)
+					if (typeof brain.recall(variable) === 'object' || Array.isArray(brain.recall(variable)))
+						params[key] = brain.recall(variable)
 					else
-						params[key] = params[key].replace(m, memory.get(variable))
+						params[key] = params[key].replace(m, brain.recall(variable))
 				})
 			}
 		}

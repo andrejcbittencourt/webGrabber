@@ -8,8 +8,8 @@ class Action {
 		this.#action = action
 	}
 
-	async run(memory, page) {
-		await this.#action(memory, page)
+	async run(brain, page) {
+		await this.#action(brain, page)
 	}
 }
 
@@ -28,16 +28,16 @@ export class ActionList {
 		return this.#list[name] ? true : false
 	}
 
-	async run(name, memory, page) {
+	async run(name, brain, page) {
 
 		Chalk.write([
-			{text: ' '.repeat(memory.get('IDENTATION'))},
+			{text: ' '.repeat(brain.recall('IDENTATION'))},
 			{text: 'Running action :', color: 'blue', style: 'bold'},
 			{text: name, color: 'whiteBright'}
 		])
-		if(memory.get('PARAMS'))
-			memory.set('PARAMS', interpolation(memory.get('PARAMS'), memory))
-		await this.#list[name].run(memory, page)
+		if(brain.recall('PARAMS'))
+			brain.learn('PARAMS', interpolation(brain.recall('PARAMS'), brain))
+		await this.#list[name].run(brain, page)
 
 	}
 
@@ -54,18 +54,10 @@ export class ActionListContainer {
 		this.#container.push(actionList)
 	}
 
-	isEmpty() {
-		return this.#container.length === 0 ? true : false
-	}
-
-	clear() {
-		this.#container = []
-	}
-
-	async run(name, memory, page) {
+	async run(name, brain, page) {
 		for (const actionList of this.#container) {
 			if(actionList.has(name)) {
-				await actionList.run(name, memory, page)
+				await actionList.run(name, brain, page)
 				return
 			}
 		}
