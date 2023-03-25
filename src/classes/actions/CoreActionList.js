@@ -25,50 +25,50 @@ export default class CoreActionList extends ActionList {
 	}
 
 	load() {
-		super.add('setVariable', async (memory) => {
-			const { key, value } = memory.get('PARAMS')
+		super.add('setVariable', async (brain) => {
+			const { key, value } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Setting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			])
-			memory.set(key, value)
+			brain.learn(key, value)
 		})
-		super.add('transferVariable', async (memory) => {
-			const { from, index, to } = memory.get('PARAMS')
-			const value = memory.get(from)
+		super.add('transferVariable', async (brain) => {
+			const { from, index, to } = brain.recall('PARAMS')
+			const value = brain.recall(from)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Transferring variable ', color: 'white', style:'italic'},
 				{text: from, color: 'gray', style:'italic'},
 				{text: ' to ', color: 'white', style:'italic'},
 				{text: to, color: 'gray', style:'italic'}
 			])
-			memory.set(to, index !== undefined ? value[index] : value)
+			brain.learn(to, index !== undefined ? value[index] : value)
 		})
-		super.add('getVariable', async (memory) => {
-			const { key, index } = memory.get('PARAMS')
-			const value = memory.get(key)
+		super.add('getVariable', async (brain) => {
+			const { key, index } = brain.recall('PARAMS')
+			const value = brain.recall(key)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Getting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			])
-			memory.set('INPUT', index !== undefined ? value[index] : value)
+			brain.learn('INPUT', index !== undefined ? value[index] : value)
 		})
-		super.add('deleteVariable', async (memory) => {
-			const { key } = memory.get('PARAMS')
+		super.add('deleteVariable', async (brain) => {
+			const { key } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Deleting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			])
-			memory.delete(key)
+			brain.delete(key)
 		})
-		super.add('puppeteer', async (memory, page) => {
-			const { func, func2, ...params } = memory.get('PARAMS')
+		super.add('puppeteer', async (brain, page) => {
+			const { func, func2, ...params } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Puppeteer ', color: 'white', style:'italic'},
 				{text: func, color: 'gray', style:'italic'},
 				{text: func2 ? '.' + func2 : '', color: 'gray', style:'italic'}
@@ -78,34 +78,34 @@ export default class CoreActionList extends ActionList {
 				result = await page[func][func2](...Object.values(params))
 			else
 				result = await page[func](...Object.values(params))
-			memory.set('INPUT', result)
+			brain.learn('INPUT', result)
 		})
-		super.add('robotjs', async (memory) => {
-			const { func, ...params } = memory.get('PARAMS')
+		super.add('robotjs', async (brain) => {
+			const { func, ...params } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Robotjs ', color: 'white', style:'italic'},
 				{text: func, color: 'gray', style:'italic'}
 			])
 			const result = await robot[func](...Object.values(params))
-			memory.set('INPUT', result)
+			brain.learn('INPUT', result)
 		})
-		super.add('countStart', async (memory) => {
-			const { key, value } = memory.get('PARAMS')
+		super.add('countStart', async (brain) => {
+			const { key, value } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Starting count ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'},
 				{text: ' with value ', color: 'white', style:'italic'},
 				{text: value?value:0, color: 'gray', style:'italic'}
 			])
 			if(!value)
-				memory.set(key, 0)
+				brain.learn(key, 0)
 			else
-				memory.set(key, value)
+				brain.learn(key, value)
 		})
-		super.add('userInput', async (memory) => {
-			const { query } = memory.get('PARAMS')
+		super.add('userInput', async (brain) => {
+			const { query } = brain.recall('PARAMS')
 			const rl = readline.createInterface({
 				input: process.stdin,
 				output: process.stdout
@@ -115,109 +115,109 @@ export default class CoreActionList extends ActionList {
 			
 			await (async() => {
 				try {
-					const input = await prompt(' '.repeat(memory.get('IDENTATION')) + query)
-					memory.set('INPUT', input)
+					const input = await prompt(' '.repeat(brain.recall('IDENTATION')) + query)
+					brain.learn('INPUT', input)
 					rl.close()
 				} catch (e) {
 					throw new Error(e)
 				}
 			})()
 		})
-		super.add('getExtension', async (memory) => {
-			const { string } = memory.get('PARAMS')
+		super.add('getExtension', async (brain) => {
+			const { string } = brain.recall('PARAMS')
 			const extension = path.extname(string)
-			memory.set('INPUT', extension)
+			brain.learn('INPUT', extension)
 		})
-		super.add('countIncrement', async (memory) => {
-			const { key } = memory.get('PARAMS')
-			const count = memory.get(key) + 1
+		super.add('countIncrement', async (brain) => {
+			const { key } = brain.recall('PARAMS')
+			const count = brain.recall(key) + 1
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Incrementing count ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'},
 				{text: ' to ', color: 'white', style:'italic'},
 				{text: count, color: 'gray', style:'italic'}
 			])
-			memory.set(key, count)
+			brain.learn(key, count)
 		})
-		super.add('countDecrement', async (memory) => {
-			const { key } = memory.get('PARAMS')
-			const count = memory.get(key) - 1
+		super.add('countDecrement', async (brain) => {
+			const { key } = brain.recall('PARAMS')
+			const count = brain.recall(key) - 1
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Decrementing count ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'},
 				{text: ' to ', color: 'white', style:'italic'},
 				{text: count, color: 'gray', style:'italic'}
 			])
-			memory.set(key, count)
+			brain.learn(key, count)
 		})
-		super.add('sleep', async (memory) => {
-			const { ms } = memory.get('PARAMS')
+		super.add('sleep', async (brain) => {
+			const { ms } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Sleeping ', color: 'white', style:'italic'},
 				{text: ms, color: 'gray', style:'italic'},
 				{text: ' ms', color: 'white', style:'italic'}
 			])
 			await new Promise(resolve => setTimeout(resolve, ms))
 		})
-		super.add('setCurrentDir', async (memory) => {
-			let { dir } = memory.get('PARAMS')
+		super.add('setCurrentDir', async (brain) => {
+			let { dir } = brain.recall('PARAMS')
 			dir = sanitizeString(dir)
-			if(!fs.existsSync(path.join(memory.get('CURRENT_DIR'), dir)))
+			if(!fs.existsSync(path.join(brain.recall('CURRENT_DIR'), dir)))
 				throw new Error(`Directory ${dir} does not exist`)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Setting current dir to ', color: 'white', style:'italic'},
 				{text: dir, color: 'gray', style:'italic'}
 			])
-			memory.set('CURRENT_DIR', path.join(memory.get('CURRENT_DIR'), dir))
+			brain.learn('CURRENT_DIR', path.join(brain.recall('CURRENT_DIR'), dir))
 		})
-		super.add('resetCurrentDir', async (memory) => {
-			memory.set('CURRENT_DIR', path.join(__dirname, '../../resources'))
+		super.add('resetCurrentDir', async (brain) => {
+			brain.learn('CURRENT_DIR', path.join(__dirname, '../../resources'))
 		})
-		super.add('setCookiesDir', async (memory) => {
-			memory.set('COOKIES_DIR', path.join(__dirname, '../../cookies'))
+		super.add('setCookiesDir', async (brain) => {
+			brain.learn('COOKIES_DIR', path.join(__dirname, '../../cookies'))
 		})
-		super.add('backToParentDir', async (memory) => {
-			if(memory.get('CURRENT_DIR') === path.join(__dirname, '../../resources'))
+		super.add('backToParentDir', async (brain) => {
+			if(brain.recall('CURRENT_DIR') === path.join(__dirname, '../../resources'))
 				return
-			memory.set('CURRENT_DIR', memory.get('CURRENT_DIR').split('/').slice(0, -1).join('/'))
+			brain.learn('CURRENT_DIR', brain.recall('CURRENT_DIR').split('/').slice(0, -1).join('/'))
 		})
-		super.add('sanitizeString', async (memory) => {
-			const { string } = memory.get('PARAMS')
-			memory.set('INPUT', sanitizeString(string))
+		super.add('sanitizeString', async (brain) => {
+			const { string } = brain.recall('PARAMS')
+			brain.learn('INPUT', sanitizeString(string))
 		})
-		super.add('random', async (memory) => {
-			const { min, max } = memory.get('PARAMS')
+		super.add('random', async (brain) => {
+			const { min, max } = brain.recall('PARAMS')
 			const minNumber = Number(min)
 			const maxNumber = Number(max)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Generating random number between ', color: 'white', style:'italic'},
 				{text: minNumber, color: 'gray', style:'italic'},
 				{text: ' and ', color: 'white', style:'italic'},
 				{text: maxNumber, color: 'gray', style:'italic'}
 			])
-			memory.set('INPUT', Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber)
+			brain.learn('INPUT', Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber)
 		})
-		super.add('uuid', async (memory) => {
+		super.add('uuid', async (brain) => {
 			const uuid = uuidv4()
-			memory.set('INPUT', uuid)
+			brain.learn('INPUT', uuid)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Generating uuid ', color: 'white', style:'italic'},
 				{text: uuid, color: 'gray', style:'italic'}
 			])
 		})
-		super.add('screenshot', async (memory, page) => {
-			const { name, type, fullPage } = memory.get('PARAMS')
+		super.add('screenshot', async (brain, page) => {
+			const { name, type, fullPage } = brain.recall('PARAMS')
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
-			const filePath = path.join(memory.get('CURRENT_DIR'), filename)
+			const filePath = path.join(brain.recall('CURRENT_DIR'), filename)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Taking screenshot ', color: 'white', style:'italic'},
 				{text: name, color: 'gray', style:'italic'}
 			])
@@ -227,13 +227,13 @@ export default class CoreActionList extends ActionList {
 				fullPage: fullPage ? fullPage : true
 			})
 		})
-		super.add('screenshotElement', async (memory, page) => {
-			const { name, type, selector } = memory.get('PARAMS')
+		super.add('screenshotElement', async (brain, page) => {
+			const { name, type, selector } = brain.recall('PARAMS')
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
-			const filePath = path.join(memory.get('CURRENT_DIR'), filename)
+			const filePath = path.join(brain.recall('CURRENT_DIR'), filename)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Taking screenshot of element ', color: 'white', style:'italic'},
 				{text: name, color: 'gray', style:'italic'}
 			])
@@ -256,27 +256,27 @@ export default class CoreActionList extends ActionList {
 				},
 			})
 		})
-		super.add('replaceString', async (memory) => {
-			const { string, search, replace } = memory.get('PARAMS')
-			memory.set('INPUT', string.replace(search, replace))
+		super.add('replaceString', async (brain) => {
+			const { string, search, replace } = brain.recall('PARAMS')
+			brain.learn('INPUT', string.replace(search, replace))
 		})
-		super.add('matchFromString', async (memory) => {
-			const { regex, string } = memory.get('PARAMS')
+		super.add('matchFromString', async (brain) => {
+			const { regex, string } = brain.recall('PARAMS')
 			const regexMatch = new RegExp(regex, 'g')
 			const match = regexMatch.exec(string)
 			if(match)
-				memory.set('INPUT', match[0])
+				brain.learn('INPUT', match[0])
 			else
-				memory.set('INPUT', '')
+				brain.learn('INPUT', '')
 		})
-		super.add('matchFromSelector', async (memory, page) => {
-			const { selector, regex } = memory.get('PARAMS')
+		super.add('matchFromSelector', async (brain, page) => {
+			const { selector, regex } = brain.recall('PARAMS')
 			let html = ''
 			try {
 				html = await page.$eval(selector, el => el.innerHTML)
 			} catch(e) {
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': No element found', color: 'gray', style:'italic'}
 				])
 			}
@@ -287,15 +287,15 @@ export default class CoreActionList extends ActionList {
 				matches.push(match[0])
 				match = regexMatch.exec(html)
 			}
-			memory.set('INPUT', matches)
+			brain.learn('INPUT', matches)
 		})
-		super.add('elementExists', async (memory, page) => {
-			const { selector } = memory.get('PARAMS')
+		super.add('elementExists', async (brain, page) => {
+			const { selector } = brain.recall('PARAMS')
 			const element = await page.$(selector)
-			memory.set('INPUT', element ? true : false)
+			brain.learn('INPUT', element ? true : false)
 		})
-		super.add('getChildren', async (memory, page) => {
-			const { selectorParent, selectorChild, attribute } = memory.get('PARAMS')
+		super.add('getChildren', async (brain, page) => {
+			const { selectorParent, selectorChild, attribute } = brain.recall('PARAMS')
 			const parents = await page.$$(selectorParent)
 			const result = []
 			for(const parent of parents) {
@@ -311,10 +311,10 @@ export default class CoreActionList extends ActionList {
 					result.push(children)
 				}
 			}
-			memory.set('INPUT', result)
+			brain.learn('INPUT', result)
 		})
-		super.add('getElements', async (memory, page) => {
-			const { selector, attribute } = memory.get('PARAMS')
+		super.add('getElements', async (brain, page) => {
+			const { selector, attribute } = brain.recall('PARAMS')
 			let content = []
 			const elements = await page.$$(selector)
 			for(let i = 0; i < elements.length; i++) {
@@ -324,22 +324,22 @@ export default class CoreActionList extends ActionList {
 				else
 					content.push(await page.evaluate((element) => element.textContent, element))
 			}
-			memory.set('INPUT', content)
+			brain.learn('INPUT', content)
 		})
-		super.add('appendToVariable', async (memory) => {
-			const { key, value } = memory.get('PARAMS')
-			let content = memory.get(key)
+		super.add('appendToVariable', async (brain) => {
+			const { key, value } = brain.recall('PARAMS')
+			let content = brain.recall(key)
 			if(content === undefined)
 				content = []
 			content.push(value)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Appending to variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			])
-			memory.set(key, content)
+			brain.learn(key, content)
 		})
-		super.add('login', async (memory, page) => {
+		super.add('login', async (brain, page) => {
 			const { 
 				url,
 				usernameSelector, 
@@ -348,37 +348,37 @@ export default class CoreActionList extends ActionList {
 				password, 
 				submitSelector,
 				cookiesFile
-			} = memory.get('PARAMS')
-			const cookiesDir = memory.get('COOKIES_DIR')
+			} = brain.recall('PARAMS')
+			const cookiesDir = brain.recall('COOKIES_DIR')
 			if(fs.existsSync(`${cookiesDir}/${cookiesFile}.cookies.json`)) {
 				const cookies = JSON.parse(fs.readFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`))
 				await page.setCookie(...cookies)
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Cookies loaded', style:'italic'}
 				])
 			} else {
-				memory.set('PARAMS', {url: url, func: 'goto', options: {waitUntil: WAITUNTIL}})
-				await this.run('puppeteer', memory, page)
+				brain.learn('PARAMS', {url: url, func: 'goto', options: {waitUntil: WAITUNTIL}})
+				await brain.perform('puppeteer', page)
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Page loaded', style:'italic'}
 				])
 				await page.waitForSelector(usernameSelector, { visible: true })
-				memory.set('PARAMS', {selector: usernameSelector, text: username})
-				await this.run('type', memory, page)
+				brain.learn('PARAMS', {selector: usernameSelector, text: username})
+				await brain.perform('type', page)
 				await page.waitForSelector(passwordSelector, { visible: true })
-				memory.set('PARAMS', {selector: passwordSelector, text: password, secret: true})
-				await this.run('type', memory, page)
+				brain.learn('PARAMS', {selector: passwordSelector, text: password, secret: true})
+				await brain.perform('type', page)
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Credentials entered', style:'italic'}
 				])
 				await page.waitForSelector(submitSelector, { visible: true })
-				memory.set('PARAMS', {selector: submitSelector})
-				await this.run('click', memory, page)
+				brain.learn('PARAMS', {selector: submitSelector})
+				await brain.perform('click', page)
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Login submitted', style:'italic'}
 				])
 				await page.waitForNavigation({
@@ -388,115 +388,115 @@ export default class CoreActionList extends ActionList {
 				fs.writeFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`, JSON.stringify(cookies), (err) => {
 					if(err) throw err
 					Chalk.write([
-						{text: ' '.repeat(memory.get('IDENTATION'))},
+						{text: ' '.repeat(brain.recall('IDENTATION'))},
 						{text: ': Cookies saved', style:'italic'}
 					])
 				})
 			}
 		})
-		super.add('createDir', async (memory) => {
-			let { dir } = memory.get('PARAMS')
+		super.add('createDir', async (brain) => {
+			let { dir } = brain.recall('PARAMS')
 			dir = sanitizeString(dir)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Creating directory ', color: 'white', style:'italic'},
 				{text: dir, color: 'gray', style:'italic'}
 			])
-			if(!fs.existsSync(`${memory.get('CURRENT_DIR')}/${dir}`))
-				fs.mkdirSync(`${memory.get('CURRENT_DIR')}/${dir}`)
+			if(!fs.existsSync(`${brain.recall('CURRENT_DIR')}/${dir}`))
+				fs.mkdirSync(`${brain.recall('CURRENT_DIR')}/${dir}`)
 		})
-		super.add('type', async (memory, page) => {
-			const { selector, text, secret = false } = memory.get('PARAMS')
+		super.add('type', async (brain, page) => {
+			const { selector, text, secret = false } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Typing ', color: 'white', style:'italic'},
 				{text: secret ? '•••••' : text, color: 'gray', style:'italic'},
 			])
 			await page.waitForSelector(selector, { visible: true })
 			await page.type(selector, text)
 		})
-		super.add('if', async (memory, page) => {
-			const { condition, actions } = memory.get('PARAMS')
+		super.add('if', async (brain, page) => {
+			const { condition, actions } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Condition: ', style:'italic'},
 				{text: condition, style:'bold'}
 			])
 			if(eval(condition)) {
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Condition is true', style:'italic'}
 				])
-				memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+				brain.learn('IDENTATION', brain.recall('IDENTATION') + TABSIZE)
 				for(let i = 0; i < actions.length; i++) {
 					const action = actions[i]
-					memory.set('PARAMS', action.params)
-					await this.run(action.name, memory, page)
+					brain.learn('PARAMS', action.params)
+					await brain.perform(action.name, page)
 				}
-				memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+				brain.learn('IDENTATION', brain.recall('IDENTATION') - TABSIZE)
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': End of if', style:'italic'}
 				])
 			} else {
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Condition is false', style:'italic'}
 				])
 			}
 		})
-		super.add('ifElse', async (memory, page) => {
-			const { condition, actions, elseActions } = memory.get('PARAMS')
+		super.add('ifElse', async (brain, page) => {
+			const { condition, actions, elseActions } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Condition: ', style:'italic'},
 				{text: condition, style:'bold'}
 			])
 			if(eval(condition)) {
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Condition is true', style:'italic'}
 				])
-				memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+				brain.learn('IDENTATION', brain.recall('IDENTATION') + TABSIZE)
 				for(let i = 0; i < actions.length; i++) {
 					const action = actions[i]
-					memory.set('PARAMS', action.params)
-					await this.run(action.name, memory, page)
+					brain.learn('PARAMS', action.params)
+					await brain.perform(action.name, page)
 				}
-				memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+				brain.learn('IDENTATION', brain.recall('IDENTATION') - TABSIZE)
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': End of if', style:'italic'}
 				])
 			} else {
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Condition is false', style:'italic'}
 				])
-				memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+				brain.learn('IDENTATION', brain.recall('IDENTATION') + TABSIZE)
 				for(let i = 0; i < elseActions.length; i++) {
 					const action = elseActions[i]
-					memory.set('PARAMS', action.params)
-					await this.run(action.name, memory, page)
+					brain.learn('PARAMS', action.params)
+					await brain.perform(action.name, page)
 				}
-				memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+				brain.learn('IDENTATION', brain.recall('IDENTATION') - TABSIZE)
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': End of if', style:'italic'}
 				])
 			}
 		})
-		super.add('createFile', async (memory) => {
-			const { filename } = memory.get('PARAMS')
+		super.add('createFile', async (brain) => {
+			const { filename } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Creating file ', style:'italic'},
-				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, style:'bold'}
+				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, style:'bold'}
 			])
-			fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, '')
+			fs.appendFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, '')
 		})
-		super.add('click', async (memory, page) => {
-			const { selector, attribute, text } = memory.get('PARAMS')
+		super.add('click', async (brain, page) => {
+			const { selector, attribute, text } = brain.recall('PARAMS')
 			if(attribute || text) {
 				const elements = await page.$$(selector)
 				for(let i = 0; i < elements.length; i++) {
@@ -520,8 +520,8 @@ export default class CoreActionList extends ActionList {
 				await page.click(selector)
 			}
 		})
-		super.add('clickAll', async (memory, page) => {
-			const { selector } = memory.get('PARAMS')
+		super.add('clickAll', async (brain, page) => {
+			const { selector } = brain.recall('PARAMS')
 			const elements = await page.$$(selector)
 			for(let i = 0; i < elements.length; i++) {
 				const element = elements[i]
@@ -533,111 +533,111 @@ export default class CoreActionList extends ActionList {
 				await element.click()
 			}
 		})
-		super.add('readFromText', async (memory) => {
-			const { filename, breakLine = false } = memory.get('PARAMS')
+		super.add('readFromText', async (brain) => {
+			const { filename, breakLine = false } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Reading from file ', style:'italic'},
-				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			])
-			const content = fs.readFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, 'utf8')
+			const content = fs.readFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, 'utf8')
 			if(breakLine) {
-				// add to memory using an array
-				memory.set('INPUT', content.split('\n'))
+				// add to brain using an array
+				brain.learn('INPUT', content.split('\n'))
 			} else {
-				// add to memory using a string
-				memory.set('INPUT', content)
+				// add to brain using a string
+				brain.learn('INPUT', content)
 			}
 		})
-		super.add('fileExists', async (memory) => {
-			const { filename } = memory.get('PARAMS')
+		super.add('fileExists', async (brain) => {
+			const { filename } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Checking if file exists ', style:'italic'},
-				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			])
-			const exists = fs.existsSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`)
-			memory.set('INPUT', exists)
+			const exists = fs.existsSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`)
+			brain.learn('INPUT', exists)
 		})
-		super.add('deleteFile', async (memory) => {
-			const { filename } = memory.get('PARAMS')
+		super.add('deleteFile', async (brain) => {
+			const { filename } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Deleting file ', style:'italic'},
-				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			])
-			if(fs.existsSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`))
-				fs.unlinkSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`)
+			if(fs.existsSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`))
+				fs.unlinkSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`)
 		})
-		super.add('deleteFolder', async (memory) => {
-			const { foldername } = memory.get('PARAMS')
+		super.add('deleteFolder', async (brain) => {
+			const { foldername } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Deleting folder ', style:'italic'},
-				{text: `${memory.get('CURRENT_DIR')}/${foldername}`, color: 'gray', style:'italic'}
+				{text: `${brain.recall('CURRENT_DIR')}/${foldername}`, color: 'gray', style:'italic'}
 			])
-			if(fs.existsSync(`${memory.get('CURRENT_DIR')}/${foldername}`))
-				fs.rmdirSync(`${memory.get('CURRENT_DIR')}/${foldername}`, { recursive: true })
+			if(fs.existsSync(`${brain.recall('CURRENT_DIR')}/${foldername}`))
+				fs.rmdirSync(`${brain.recall('CURRENT_DIR')}/${foldername}`, { recursive: true })
 		})
-		super.add('listFolders', async (memory) => {
+		super.add('listFolders', async (brain) => {
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Listing folders ', style:'italic'},
-				{text: `${memory.get('CURRENT_DIR')}`, color: 'gray', style:'italic'}
+				{text: `${brain.recall('CURRENT_DIR')}`, color: 'gray', style:'italic'}
 			])
-			const folders = fs.readdirSync(memory.get('CURRENT_DIR'), { withFileTypes: true })
+			const folders = fs.readdirSync(brain.recall('CURRENT_DIR'), { withFileTypes: true })
 				.filter(dirent => dirent.isDirectory())
 				.map(dirent => dirent.name)
-			memory.set('INPUT', folders)
+			brain.learn('INPUT', folders)
 		})
-		super.add('checkStringInFile', async (memory) => {
-			const { filename, string } = memory.get('PARAMS')
+		super.add('checkStringInFile', async (brain) => {
+			const { filename, string } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Checking if string is in file ', style:'italic'},
-				{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			])
-			const content = fs.readFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, 'utf8')
-			memory.set('INPUT', content.includes(string))
+			const content = fs.readFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, 'utf8')
+			brain.learn('INPUT', content.includes(string))
 		})
-		super.add('saveToText', async (memory) => {
-			const { key, filename } = memory.get('PARAMS')
-			const content = memory.get(key)
+		super.add('saveToText', async (brain) => {
+			const { key, filename } = brain.recall('PARAMS')
+			const content = brain.recall(key)
 			if(content) {
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Saving ', color: 'white', style:'italic'},
-					{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+					{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 				])
 				if(Array.isArray(content))
-					fs.writeFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
+					fs.writeFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
 				else
-					fs.writeFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content)
+					fs.writeFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, content)
 			}
 		})
-		super.add('appendToText', async (memory) => {
-			const { key, filename } = memory.get('PARAMS')
-			const content = memory.get(key)
+		super.add('appendToText', async (brain) => {
+			const { key, filename } = brain.recall('PARAMS')
+			const content = brain.recall(key)
 			if(content) {
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: ': Appending to ', color: 'white', style:'italic'},
-					{text: `${memory.get('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+					{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 				])
 				if(Array.isArray(content))
-					fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
+					fs.appendFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
 				else
-					fs.appendFileSync(`${memory.get('CURRENT_DIR')}/${filename}.txt`, content+'\n')
+					fs.appendFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, content+'\n')
 			}
 		})
-		super.add('download', async (memory) => {
-			const { url, filename, host } = memory.get('PARAMS')
+		super.add('download', async (brain) => {
+			const { url, filename, host } = brain.recall('PARAMS')
 			const name = filename ?? url.split('/').pop()
 			const sanitizedFilename = sanitizeString(name)
 			const needsHost = !url.startsWith('http')
 
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Downloading ', color: 'white', style:'italic'},
 				{text: name, color: 'gray', style:'italic'}
 			])
@@ -647,7 +647,7 @@ export default class CoreActionList extends ActionList {
 				responseType: 'stream'
 			})
 
-			const writer = fs.createWriteStream(`${memory.get('CURRENT_DIR')}/${sanitizedFilename}`)
+			const writer = fs.createWriteStream(`${brain.recall('CURRENT_DIR')}/${sanitizedFilename}`)
 
 			const progressBar = new cliProgress.SingleBar({
 				format: ' {bar} {percentage}% | {value}/{total} MB',
@@ -676,68 +676,68 @@ export default class CoreActionList extends ActionList {
 				writer.on('error', reject)
 			})
 		})
-		super.add('log', async (memory) => {
-			const { text, color, background } = memory.get('PARAMS')
+		super.add('log', async (brain) => {
+			const { text, color, background } = brain.recall('PARAMS')
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: `: ${text}`, color, background, style:'italic'}
 			])
 		})
-		super.add('forEach', async (memory, page) => {
-			const { key, actions } = memory.get('PARAMS')
-			const value = memory.get(key)
+		super.add('forEach', async (brain, page) => {
+			const { key, actions } = brain.recall('PARAMS')
+			const value = brain.recall(key)
 			const valueLength = value.length
-			memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+			brain.learn('IDENTATION', brain.recall('IDENTATION') + TABSIZE)
 			for(let i = 0; i < value.length; i++) {
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: `: ${key}[${i+1}/${valueLength}]`, color:'yellow', style:'italic'},
 					{text: `: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
 				])
-				memory.set('INPUT', value[i])
+				brain.learn('INPUT', value[i])
 				for(let action of actions) {
-					memory.set('PARAMS', action.params)
-					await this.run(action.name, memory, page)
+					brain.learn('PARAMS', action.params)
+					await brain.perform(action.name, page)
 				}
 			}
-			memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+			brain.learn('IDENTATION', brain.recall('IDENTATION') - TABSIZE)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': End of forEach', color:'yellow', style:'italic'}
 			])
 		})
-		super.add('for', async (memory, page) => {
-			const { from, until, step, actions } = memory.get('PARAMS')
-			memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+		super.add('for', async (brain, page) => {
+			const { from, until, step, actions } = brain.recall('PARAMS')
+			brain.learn('IDENTATION', brain.recall('IDENTATION') + TABSIZE)
 			for(let i = from; i <= until; i+=step) {
 				Chalk.write([
-					{text: ' '.repeat(memory.get('IDENTATION'))},
+					{text: ' '.repeat(brain.recall('IDENTATION'))},
 					{text: `: [${i}/${until}]`, color:'yellow', style:'italic'}
 				])
-				memory.set('INPUT', i)
+				brain.learn('INPUT', i)
 				for(let action of actions) {
-					memory.set('PARAMS', action.params)
-					await this.run(action.name, memory, page)
+					brain.learn('PARAMS', action.params)
+					await brain.perform(action.name, page)
 				}
 			}
-			memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+			brain.learn('IDENTATION', brain.recall('IDENTATION') - TABSIZE)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': End of for loop', color:'yellow', style:'italic'}
 			])
 		})
-		super.add('while', async (memory, page) => {
-			const { condition, actions } = memory.get('PARAMS')
-			memory.set('IDENTATION', memory.get('IDENTATION') + TABSIZE)
+		super.add('while', async (brain, page) => {
+			const { condition, actions } = brain.recall('PARAMS')
+			brain.learn('IDENTATION', brain.recall('IDENTATION') + TABSIZE)
 			while(eval(condition)) {
 				for(let action of actions) {
-					memory.set('PARAMS', action.params)
-					await this.run(action.name, memory, page)
+					brain.learn('PARAMS', action.params)
+					await brain.perform(action.name, page)
 				}
 			}
-			memory.set('IDENTATION', memory.get('IDENTATION') - TABSIZE)
+			brain.learn('IDENTATION', brain.recall('IDENTATION') - TABSIZE)
 			Chalk.write([
-				{text: ' '.repeat(memory.get('IDENTATION'))},
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': End of while loop', color:'yellow', style:'italic'}
 			])
 		})
