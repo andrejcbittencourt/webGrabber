@@ -23,7 +23,7 @@ class Brain {
 		return this.#memory.recall(key)
 	}
 	forget(key) {
-		delete this.#memory.forget(key)
+		this.#memory.forget(key)
 	}
 	train(actions) {
 		this.#muscleMemory.train(actions)
