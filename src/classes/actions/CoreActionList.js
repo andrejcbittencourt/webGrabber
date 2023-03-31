@@ -554,9 +554,9 @@ export default class CoreActionList extends ActionList {
 			Chalk.write([
 				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Checking if file exists ', style:'italic'},
-				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
+				{text: `${brain.recall('CURRENT_DIR')}/${filename}`, color: 'gray', style:'italic'}
 			])
-			const exists = fs.existsSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`)
+			const exists = fs.existsSync(`${brain.recall('CURRENT_DIR')}/${filename}`)
 			brain.learn('INPUT', exists)
 		})
 		super.add('deleteFile', async (brain) => {
