@@ -12,7 +12,7 @@ export default class Puppeteer {
 	#executablePath
 
 	constructor(options) {
-		this.#headless = options?.headless ?? true
+		this.#headless = options?.headless ?? 'new'
 		this.#stealth = options?.stealth ?? true
 		this.#adblocker = options?.adblocker ?? true
 		this.#viewport = options?.viewport ?? null
