@@ -1,12 +1,10 @@
 import 'dotenv/config'
 import Grabber from './src/classes/Grabber.js'
+import custom from './custom.js'
 
 const main = async () => {
-	const grabber = new Grabber()
-	// add custom actions here
-	// grabber.addCustomAction('myCustomAction', async (brain, page) => {
-	// 	// do something
-	// })
+	let grabber = new Grabber()
+	grabber = custom(grabber)
 	await grabber.grab()
 }
 
