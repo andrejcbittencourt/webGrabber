@@ -7,7 +7,6 @@ import { dirname } from 'path'
 import { ActionList } from './Actions.js'
 import Chalk from '../wrappers/Chalk.js'
 import { sanitizeString } from '../../utils/utils.js'
-import robot from 'robotjs'
 import readline from 'readline'
 import axios from 'axios'
 import cliProgress from 'cli-progress'
@@ -78,16 +77,6 @@ export default class CoreActionList extends ActionList {
 				result = await page[func][func2](...Object.values(params))
 			else
 				result = await page[func](...Object.values(params))
-			brain.learn('INPUT', result)
-		})
-		super.add('robotjs', async (brain) => {
-			const { func, ...params } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('IDENTATION'))},
-				{text: ': Robotjs ', color: 'white', style:'italic'},
-				{text: func, color: 'gray', style:'italic'}
-			])
-			const result = await robot[func](...Object.values(params))
 			brain.learn('INPUT', result)
 		})
 		super.add('countStart', async (brain) => {
