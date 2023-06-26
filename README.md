@@ -66,7 +66,7 @@ npm run start hello-world
 A full list of actions can be found in [Actions](src/classes/actions/README.md)
 
 ## Custom Actions
-An example of how to add custom actions is found in the [app](app.js)
+An example of how to add custom actions is found in the [custom](custom.js) file
 
 ## Environment Variables
 Environment variables can be set in a *.env* file in the root of the project<br>
