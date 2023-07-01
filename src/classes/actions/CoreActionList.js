@@ -62,7 +62,7 @@ export default class CoreActionList extends ActionList {
 				{text: ': Deleting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			])
-			brain.delete(key)
+			brain.forget(key)
 		})
 		super.add('puppeteer', async (brain, page) => {
 			const { func, func2, ...params } = brain.recall('PARAMS')
