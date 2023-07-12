@@ -116,16 +116,16 @@ export default class Grabber {
 			this.#brain.train(this.#coreActionList)
 			this.#brain.train(this.#customActionList)
 			Chalk.write([{text:'Actions loaded', color:'green', style:'bold'}])
-			await this.#brain.perform('setCookiesDir', this.#puppeteer.page)
+			await this.#brain.perform('setCookiesDir')
 			for(const grab of this.#grabList.list) {
 				const argv = process.argv.slice(2)[0]
 				if(argv && argv !== grab.name)
 					continue
 				Chalk.write([{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}])
-				await this.#brain.perform('resetCurrentDir', this.#puppeteer.page)
+				await this.#brain.perform('resetCurrentDir')
 				this.#brain.learn('PARAMS', { dir: grab.name })
-				await this.#brain.perform('createDir', this.#puppeteer.page)
-				await this.#brain.perform('setCurrentDir', this.#puppeteer.page)
+				await this.#brain.perform('createDir')
+				await this.#brain.perform('setCurrentDir')
 				this.#brain.learn('IDENTATION', 0)
 				for(const action of grab.actions) {
 					this.#brain.learn('PARAMS', action.params || {})
