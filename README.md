@@ -15,7 +15,7 @@ If you have trouble with chromium on Mac, you can try to install it using homebr
 brew install chromium --no-quarantine
 ```
 
-Or you can add the executable path to Chrome in the options passed to Grabber:
+Or you can add the executable path to Chrome in the options passed to Puppeteer through Grabber using the [options](src/config/options.js) file:
 
 ```js
 const grabber = new Grabber({
@@ -66,7 +66,7 @@ npm run start hello-world
 A full list of actions can be found in [Actions](src/classes/actions/README.md)
 
 ## Custom Actions
-An example of how to add custom actions is found in the [custom](custom.js) file
+An example of how to add custom actions is found in the [custom](src/config/custom.js) file
 
 ## Environment Variables
 Environment variables can be set in a *.env* file in the root of the project<br>
