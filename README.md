@@ -18,9 +18,9 @@ brew install chromium --no-quarantine
 Or you can add the executable path to Chrome in the options passed to Puppeteer through Grabber using the [options](src/config/options.js) file:
 
 ```js
-const grabber = new Grabber({
+export default {
   executablePath: '/path/to/Chrome'
-})
+}
 ```
 
 ## Usage
