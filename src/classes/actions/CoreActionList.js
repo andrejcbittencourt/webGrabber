@@ -79,20 +79,6 @@ export default class CoreActionList extends ActionList {
 				result = await page[func](...Object.values(params))
 			brain.learn('INPUT', result)
 		})
-		super.add('countStart', async (brain) => {
-			const { key, value } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('IDENTATION'))},
-				{text: ': Starting count ', color: 'white', style:'italic'},
-				{text: key, color: 'gray', style:'italic'},
-				{text: ' with value ', color: 'white', style:'italic'},
-				{text: value?value:0, color: 'gray', style:'italic'}
-			])
-			if(!value)
-				brain.learn(key, 0)
-			else
-				brain.learn(key, value)
-		})
 		super.add('userInput', async (brain) => {
 			const { query } = brain.recall('PARAMS')
 			const rl = readline.createInterface({
@@ -116,6 +102,20 @@ export default class CoreActionList extends ActionList {
 			const { string } = brain.recall('PARAMS')
 			const extension = path.extname(string)
 			brain.learn('INPUT', extension)
+		})
+		super.add('countStart', async (brain) => {
+			const { key, value } = brain.recall('PARAMS')
+			Chalk.write([
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
+				{text: ': Starting count ', color: 'white', style:'italic'},
+				{text: key, color: 'gray', style:'italic'},
+				{text: ' with value ', color: 'white', style:'italic'},
+				{text: value?value:0, color: 'gray', style:'italic'}
+			])
+			if(!value)
+				brain.learn(key, 0)
+			else
+				brain.learn(key, value)
 		})
 		super.add('countIncrement', async (brain) => {
 			const { key } = brain.recall('PARAMS')
@@ -152,7 +152,7 @@ export default class CoreActionList extends ActionList {
 			await new Promise(resolve => setTimeout(resolve, ms))
 		})
 		super.add('setCurrentDir', async (brain) => {
-			let { dir } = brain.recall('PARAMS')
+			let { dir, useBaseDir = false } = brain.recall('PARAMS')
 			dir = sanitizeString(dir)
 			if(!fs.existsSync(path.join(brain.recall('CURRENT_DIR'), dir)))
 				throw new Error(`Directory ${dir} does not exist`)
@@ -161,16 +161,19 @@ export default class CoreActionList extends ActionList {
 				{text: ': Setting current dir to ', color: 'white', style:'italic'},
 				{text: dir, color: 'gray', style:'italic'}
 			])
-			brain.learn('CURRENT_DIR', path.join(brain.recall('CURRENT_DIR'), dir))
+			brain.learn('CURRENT_DIR', path.join(useBaseDir ? brain.recall('BASE_DIR') : brain.recall('CURRENT_DIR'), dir))
+		})
+		super.add('setBaseDir', async (brain) => {
+			const { dir } = brain.recall('PARAMS')
+			brain.learn('BASE_DIR', path.join(__dirname, `../../resources/${dir}`))
+			if(!fs.existsSync(brain.recall('BASE_DIR')))
+				fs.mkdirSync(brain.recall('BASE_DIR'))
 		})
 		super.add('resetCurrentDir', async (brain) => {
-			brain.learn('CURRENT_DIR', path.join(__dirname, '../../resources'))
-		})
-		super.add('setCookiesDir', async (brain) => {
-			brain.learn('COOKIES_DIR', path.join(__dirname, '../../cookies'))
+			brain.learn('CURRENT_DIR', brain.recall('BASE_DIR'))
 		})
 		super.add('backToParentDir', async (brain) => {
-			if(brain.recall('CURRENT_DIR') === path.join(__dirname, '../../resources'))
+			if(brain.recall('CURRENT_DIR') === brain.recall('BASE_DIR'))
 				return
 			brain.learn('CURRENT_DIR', brain.recall('CURRENT_DIR').split('/').slice(0, -1).join('/'))
 		})
@@ -336,45 +339,65 @@ export default class CoreActionList extends ActionList {
 				passwordSelector, 
 				password, 
 				submitSelector,
-				cookiesFile
+				cookieName
 			} = brain.recall('PARAMS')
-			const cookiesDir = brain.recall('COOKIES_DIR')
-			if(fs.existsSync(`${cookiesDir}/${cookiesFile}.cookies.json`)) {
-				const cookies = JSON.parse(fs.readFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`))
-				await page.setCookie(...cookies)
+			const cookiesDir = path.join(brain.recall('BASE_DIR'), 'cookies')
+			if(fs.existsSync(`${cookiesDir}/cookies.json`)) {
 				Chalk.write([
 					{text: ' '.repeat(brain.recall('IDENTATION'))},
-					{text: ': Cookies loaded', style:'italic'}
+					{text: ': Loading cookies', style:'italic'}
 				])
-			} else {
-				brain.learn('PARAMS', {url: url, func: 'goto', options: {waitUntil: WAITUNTIL}})
-				await brain.perform('puppeteer', page)
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('IDENTATION'))},
-					{text: ': Page loaded', style:'italic'}
-				])
-				await page.waitForSelector(usernameSelector, { visible: true })
-				brain.learn('PARAMS', {selector: usernameSelector, text: username})
-				await brain.perform('type', page)
-				await page.waitForSelector(passwordSelector, { visible: true })
-				brain.learn('PARAMS', {selector: passwordSelector, text: password, secret: true})
-				await brain.perform('type', page)
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('IDENTATION'))},
-					{text: ': Credentials entered', style:'italic'}
-				])
-				await page.waitForSelector(submitSelector, { visible: true })
-				brain.learn('PARAMS', {selector: submitSelector})
-				await brain.perform('click', page)
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('IDENTATION'))},
-					{text: ': Login submitted', style:'italic'}
-				])
-				await page.waitForNavigation({
-					waitUntil: WAITUNTIL
-				})
-				const cookies = await page.cookies()
-				fs.writeFileSync(`${cookiesDir}/${cookiesFile}.cookies.json`, JSON.stringify(cookies), (err) => {
+				const cookies = JSON.parse(fs.readFileSync(`${cookiesDir}/cookies.json`))
+				const accessToken = cookieName ? cookies.find(cookie => cookie.name === cookieName) : cookies[0]
+				if(new Date(accessToken.expires * 1000) > new Date()) {
+					await page.setCookie(...cookies)
+					Chalk.write([
+						{text: ' '.repeat(brain.recall('IDENTATION'))},
+						{text: ': Cookies loaded', style:'italic'}
+					])
+					return
+				} else {
+					fs.unlinkSync(`${cookiesDir}/cookies.json`)
+					Chalk.write([
+						{text: ' '.repeat(brain.recall('IDENTATION'))},
+						{text: ': Cookies expired', style:'italic'}
+					])
+				}
+			}
+			brain.learn('PARAMS', {url: url, func: 'goto', options: {waitUntil: WAITUNTIL}})
+			await brain.perform('puppeteer', page)
+			Chalk.write([
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
+				{text: ': Page loaded', style:'italic'}
+			])
+			await page.waitForSelector(usernameSelector, { visible: true })
+			brain.learn('PARAMS', {selector: usernameSelector, text: username})
+			await brain.perform('type', page)
+			await page.waitForSelector(passwordSelector, { visible: true })
+			brain.learn('PARAMS', {selector: passwordSelector, text: password, secret: true})
+			await brain.perform('type', page)
+			Chalk.write([
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
+				{text: ': Credentials entered', style:'italic'}
+			])
+			await page.waitForSelector(submitSelector, { visible: true })
+			brain.learn('PARAMS', {selector: submitSelector})
+			await brain.perform('click', page)
+			Chalk.write([
+				{text: ' '.repeat(brain.recall('IDENTATION'))},
+				{text: ': Login submitted', style:'italic'}
+			])
+			await page.waitForNavigation({
+				waitUntil: WAITUNTIL
+			})
+			const cookies = await page.cookies()
+			if(cookies.length > 0) {
+				// check if cookies dir exists
+				if(!fs.existsSync(cookiesDir)){
+					brain.learn('PARAMS', {dir: 'cookies', useBaseDir: true})
+					await brain.perform('createDir', page)
+				}
+				fs.writeFileSync(`${cookiesDir}/cookies.json`, JSON.stringify(cookies), (err) => {
 					if(err) throw err
 					Chalk.write([
 						{text: ' '.repeat(brain.recall('IDENTATION'))},
@@ -384,15 +407,16 @@ export default class CoreActionList extends ActionList {
 			}
 		})
 		super.add('createDir', async (brain) => {
-			let { dir } = brain.recall('PARAMS')
+			let { dir, useBaseDir = false } = brain.recall('PARAMS')
 			dir = sanitizeString(dir)
 			Chalk.write([
 				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Creating directory ', color: 'white', style:'italic'},
 				{text: dir, color: 'gray', style:'italic'}
 			])
-			if(!fs.existsSync(`${brain.recall('CURRENT_DIR')}/${dir}`))
-				fs.mkdirSync(`${brain.recall('CURRENT_DIR')}/${dir}`)
+			const dirPath = path.join(useBaseDir ? brain.recall('BASE_DIR') : brain.recall('CURRENT_DIR'), dir)
+			if(!fs.existsSync(dirPath))
+				fs.mkdirSync(dirPath)
 		})
 		super.add('type', async (brain, page) => {
 			const { selector, text, secret = false } = brain.recall('PARAMS')
