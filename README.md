@@ -84,7 +84,7 @@ The following variable names are reserved and should be used in the config files
 - *PARAMS*
 - *IDENTATION*
 - *CURRENT_DIR*
-- *COOKIES_DIR*
+- *BASE_DIR*
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

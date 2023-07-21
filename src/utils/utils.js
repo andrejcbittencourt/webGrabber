@@ -32,7 +32,7 @@ export const getGrabList = () => {
 }
 
 export const displayError = (error) => {
-	Chalk.write([{text:error.message, color:'red', style:'bold'}])
+	Chalk.write([{text: `ERROR: ${error.message}`, color: 'red', style: 'bold'}])
 }
 
 export const sanitizeString = (string) => {
