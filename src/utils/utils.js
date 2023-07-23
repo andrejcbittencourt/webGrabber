@@ -49,9 +49,7 @@ export const interpolation = (params, brain) => {
 			const match = value.match(regex)
 			if (match) {
 				match.forEach(m => {
-					const variable = m.match(/{{(.*?)}}/)[1]
-					// remove trailing and leading spaces
-					variable.trim()
+					const variable = m.match(/{{(.*?)}}/)[1].trim()
 					// if it's an array or object
 					if (typeof brain.recall(variable) === 'object' || Array.isArray(brain.recall(variable)))
 						params[key] = brain.recall(variable)
@@ -59,6 +57,13 @@ export const interpolation = (params, brain) => {
 						params[key] = params[key].replace(m, brain.recall(variable))
 				})
 			}
+		} else if (Array.isArray(value)) { // if it's an array
+			params[key] = value.map(item => {
+				if (typeof item === 'string' || Array.isArray(item)) {
+					return interpolation({temp: item}, brain).temp
+				}
+				return item
+			})
 		}
 	}
 	return params
