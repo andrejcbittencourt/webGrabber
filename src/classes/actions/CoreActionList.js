@@ -34,7 +34,7 @@ export default class CoreActionList extends ActionList {
 			brain.learn(key, value)
 		})
 		super.add('transferVariable', async (brain) => {
-			const { from, index, to } = brain.recall('PARAMS')
+			const { from, index, key, to } = brain.recall('PARAMS')
 			const value = brain.recall(from)
 			Chalk.write([
 				{text: ' '.repeat(brain.recall('IDENTATION'))},
@@ -43,7 +43,12 @@ export default class CoreActionList extends ActionList {
 				{text: ' to ', color: 'white', style:'italic'},
 				{text: to, color: 'gray', style:'italic'}
 			])
-			brain.learn(to, index !== undefined ? value[index] : value)
+			if(index !== undefined)
+				brain.learn(to, value[index])
+			else if(key !== undefined)
+				brain.learn(to, value[key])
+			else
+				brain.learn(to, value)
 		})
 		super.add('getVariable', async (brain) => {
 			const { key, index } = brain.recall('PARAMS')
