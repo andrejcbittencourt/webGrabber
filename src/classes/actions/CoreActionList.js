@@ -33,9 +33,21 @@ export default class CoreActionList extends ActionList {
 			])
 			brain.learn(key, value)
 		})
+		super.add('scrollWaitClick', async (brain, page) => {
+			const { selector, ms = 2000 } = brain.recall('PARAMS')
+			// scroll to element
+			await page.evaluate((selector) => {
+				const element = document.querySelector(selector)
+				element.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'center'})
+			}, selector)
+			// wait for 2 seconds
+			await page.waitForTimeout(ms)
+			// Find the button and click it
+			await page.click(selector)
+		})
 		super.add('transferVariable', async (brain) => {
 			const { from, index, key, to } = brain.recall('PARAMS')
-			const value = brain.recall(from)
+			let value = brain.recall(from)
 			Chalk.write([
 				{text: ' '.repeat(brain.recall('IDENTATION'))},
 				{text: ': Transferring variable ', color: 'white', style:'italic'},
@@ -44,11 +56,12 @@ export default class CoreActionList extends ActionList {
 				{text: to, color: 'gray', style:'italic'}
 			])
 			if(index !== undefined)
-				brain.learn(to, value[index])
-			else if(key !== undefined)
-				brain.learn(to, value[key])
-			else
-				brain.learn(to, value)
+				value = value[index]
+			else if(key !== undefined) {
+				value = typeof value === 'string' ? JSON.parse(value) : value
+				value = value[key]
+			}
+			brain.learn(to, value)
 		})
 		super.add('getVariable', async (brain) => {
 			const { key, index } = brain.recall('PARAMS')
