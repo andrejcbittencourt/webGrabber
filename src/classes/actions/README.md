@@ -31,10 +31,10 @@
 - **readFromText(filename)**: Reads the contents of a text file.
 - **replaceString(string, search, replace)**: Replaces a given string with another string.
 - **resetCurrentDir()**: Resets the current working directory to its default value.
-- **robotjs**: A proxy action that enables direct interaction with keyboard and mouse input emulation through the RobotJS library.
 - **saveToText(key, filename)**: Saves a given string to a text file in the current path.
 - **screenshot(name, type)**: Takes a screenshot of the current page.
 - **screenshotElement(selector, name, type)**: Takes a screenshot of a specified page element.
+- **scrollWaitClick(selector, ms)**: Scrolls to a given page element and waits a specified amount of time before clicking on it.
 - **sanitizeString(string)**: Removes any unwanted characters or formatting from a given string.
 - **setCurrentDir(dir)**: Sets the current working directory to a given directory path.
 - **setCookiesDir()**: Sets the directory where cookies are stored.
