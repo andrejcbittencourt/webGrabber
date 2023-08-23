@@ -31,7 +31,7 @@ export class ActionList {
 	async run(name, brain, page) {
 
 		Chalk.write([
-			{text: ' '.repeat(brain.recall('IDENTATION'))},
+			{text: ' '.repeat(brain.recall('INDENTATION'))},
 			{text: 'Running action :', color: 'blue', style: 'bold'},
 			{text: name, color: 'whiteBright'}
 		])
