@@ -124,7 +124,7 @@ export default class Grabber {
 				this.#brain.learn('PARAMS', { dir: grab.name })
 				await this.#brain.perform('setBaseDir')
 				await this.#brain.perform('resetCurrentDir')
-				this.#brain.learn('IDENTATION', 0)
+				this.#brain.learn('INDENTATION', 0)
 				for(const action of grab.actions) {
 					this.#brain.learn('PARAMS', action.params || {})
 					await this.#brain.perform(action.name, this.#puppeteer.page)
