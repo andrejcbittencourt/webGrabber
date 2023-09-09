@@ -116,8 +116,8 @@ export default class Grabber {
 			this.#brain.train(this.#coreActionList)
 			this.#brain.train(this.#customActionList)
 			Chalk.write([{text:'Actions loaded', color:'green', style:'bold'}])
+			const argv = process.argv.slice(2)[0]
 			for(const grab of this.#grabList.list) {
-				const argv = process.argv.slice(2)[0]
 				if(argv && argv !== grab.name)
 					continue
 				Chalk.write([{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}])
