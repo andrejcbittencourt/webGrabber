@@ -6,6 +6,7 @@ import CoreActionList from './actions/CoreActionList.js'
 import CustomActionList from './actions/CustomActionList.js'
 import { getGrabList, displayError } from '../utils/utils.js'
 import Chalk from './wrappers/Chalk.js'
+import _ from 'lodash'
 
 class Brain {
 	#memory
@@ -56,9 +57,9 @@ class Memory {
 	}
 
 	learn(key, value) {
-		// if value is an object then don't reference
+		// if value is an object then clone it
 		if(typeof value === 'object')
-			this.#memory[key] = JSON.parse(JSON.stringify(value))
+			this.#memory[key] = _.cloneDeep(value)
 		else
 			this.#memory[key] = value
 	}
