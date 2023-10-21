@@ -16,29 +16,27 @@ export class ActionList {
 	#list
 
 	constructor() {
-		this.#list = {}
+		this.#list = new Map()
 	}
 
 	add(name, action) {
-		this.#list[name] = new Action(action)
+		this.#list.set(name, new Action(action))
 	}
 
 	has(name) {
-		return this.#list[name] ? true : false
+		return this.#list.has(name)
 	}
 
 	async run(name, brain, page) {
-
 		displayText(brain, [
 			{text: 'Running action :', color: 'blue', style: 'bold'},
 			{text: name, color: 'whiteBright'}
 		])
 		if(brain.recall('PARAMS'))
 			brain.learn('PARAMS', interpolation(brain.recall('PARAMS'), brain))
-		await this.#list[name].run(brain, page)
+		await this.#list.get(name).run(brain, page)
 
 	}
-
 }
 
 export class ActionListContainer {
@@ -53,13 +51,8 @@ export class ActionListContainer {
 	}
 
 	async run(name, brain, page) {
-		for (const actionList of this.#container) {
-			if(actionList.has(name)) {
-				await actionList.run(name, brain, page)
-				return
-			}
-		}
-		throw new Error(`Action ${name} not found`)
+		const actionList = this.#container.find(list => list.has(name))
+		if(!actionList) throw new Error(`Action ${name} not found`)
+		await actionList.run(name, brain, page)
 	}
-
 }
