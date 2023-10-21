@@ -99,24 +99,27 @@ export default class Grabber {
 		}
 	}
 
+	async init() {
+		// for each process.env add to memory
+		for(const [key, value] of Object.entries(process.env)) {
+			// if starts with GRABBER_ add to memory but remove GRABBER_
+			if(key.startsWith('GRABBER_'))
+				this.#brain.learn(key.replace('GRABBER_', ''), value)
+		}
+		await this.#puppeteer.launch()
+		getGrabList().forEach(grab => this.#grabList.add(grab))
+		// if grabList is empty then throw error
+		if(this.#grabList.isEmpty())
+			throw new Error('No grabs found')
+		Chalk.write([{text:'Grab configs loaded', color:'green', style:'bold'}])
+		this.#brain.train(this.#coreActionList)
+		this.#brain.train(this.#customActionList)
+		Chalk.write([{text:'Actions loaded', color:'green', style:'bold'}])
+	}
+
 	async grab() {
 		try {
-			// for each process.env add to memory
-			for(const [key, value] of Object.entries(process.env)) {
-				// if starts with GRABBER_ add to memory but remove GRABBER_
-				if(key.startsWith('GRABBER_'))
-					this.#brain.learn(key.replace('GRABBER_', ''), value)
-			}
 			Chalk.write([{text:'Grabber started', color:'green', style:'bold'}])
-			await this.#puppeteer.launch()
-			getGrabList().forEach(grab => this.#grabList.add(grab))
-			// if grabList is empty then throw error
-			if(this.#grabList.isEmpty())
-				throw new Error('No grabs found')
-			Chalk.write([{text:'Grab configs loaded', color:'green', style:'bold'}])
-			this.#brain.train(this.#coreActionList)
-			this.#brain.train(this.#customActionList)
-			Chalk.write([{text:'Actions loaded', color:'green', style:'bold'}])
 			const argv = process.argv.slice(2)[0]
 			for(const grab of this.#grabList.list) {
 				if(argv && argv !== grab.name)

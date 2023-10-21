@@ -6,6 +6,7 @@ import options from './src/config/options.js'
 const main = async () => {
 	let grabber = new Grabber(options)
 	grabber = customize(grabber)
+	await grabber.init()
 	await grabber.grab()
 }
 
