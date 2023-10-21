@@ -17,22 +17,22 @@ class Brain {
 	#muscleMemory
 
 	constructor() {
-		this.#memory = {}
+		this.#memory = new Map()
 		this.#muscleMemory = new ActionListContainer()
 	}
 
 	learn(key, value) {
 		// if value is an object then clone it
 		if(typeof value === 'object')
-			this.#memory[key] = cloneDeep(value)
+			this.#memory.set(key, cloneDeep(value))
 		else
-			this.#memory[key] = value
+			this.#memory.set(key, value)
 	}
 	recall(key) {
-		return this.#memory[key]
+		return this.#memory.get(key)
 	}
 	forget(key) {
-		delete this.#memory[key]
+		this.#memory.delete(key)
 	}
 	train(actions) {
 		this.#muscleMemory.add(actions)
