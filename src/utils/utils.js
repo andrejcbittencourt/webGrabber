@@ -36,6 +36,12 @@ export const displayError = (error) => {
 	displayText(null, [{text: `ERROR: ${error.message}`, color: 'red', style: 'bold'}])
 }
 
+export const displayErrorAndExit = (error) => {
+	displayError(error)
+	// eslint-disable-next-line no-undef
+	process.exit(1)
+}
+
 export const displayText = (brain, textData) => {
 	if(!brain)
 		Chalk.write(textData)
