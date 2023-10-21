@@ -4,8 +4,7 @@ import Puppeteer from './wrappers/Puppeteer.js'
 import { ActionListContainer } from './actions/Actions.js'
 import CoreActionList from './actions/CoreActionList.js'
 import CustomActionList from './actions/CustomActionList.js'
-import { getGrabList, displayError } from '../utils/utils.js'
-import Chalk from './wrappers/Chalk.js'
+import { getGrabList, displayError, displayText } from '../utils/utils.js'
 import cloneDeep from 'lodash/cloneDeep.js'
 
 class Brain {
@@ -100,31 +99,36 @@ export default class Grabber {
 	}
 
 	async init() {
-		// for each process.env add to memory
-		for(const [key, value] of Object.entries(process.env)) {
-			// if starts with GRABBER_ add to memory but remove GRABBER_
-			if(key.startsWith('GRABBER_'))
-				this.#brain.learn(key.replace('GRABBER_', ''), value)
+		try {
+			// for each process.env add to memory
+			for(const [key, value] of Object.entries(process.env)) {
+				// if starts with GRABBER_ add to memory but remove GRABBER_
+				if(key.startsWith('GRABBER_'))
+					this.#brain.learn(key.replace('GRABBER_', ''), value)
+			}
+			await this.#puppeteer.launch()
+			getGrabList().forEach(grab => this.#grabList.add(grab))
+			// if grabList is empty then throw error
+			if(this.#grabList.isEmpty())
+				throw new Error('No grabs found')
+			displayText(this.#brain, [{text:'Grab configs loaded', color:'green', style:'bold'}])
+			this.#brain.train(this.#coreActionList)
+			this.#brain.train(this.#customActionList)
+			displayText(this.#brain, [{text:'Actions loaded', color:'green', style:'bold'}])
+		} catch (error) {
+			displayError(error)
+			process.exit(1)
 		}
-		await this.#puppeteer.launch()
-		getGrabList().forEach(grab => this.#grabList.add(grab))
-		// if grabList is empty then throw error
-		if(this.#grabList.isEmpty())
-			throw new Error('No grabs found')
-		Chalk.write([{text:'Grab configs loaded', color:'green', style:'bold'}])
-		this.#brain.train(this.#coreActionList)
-		this.#brain.train(this.#customActionList)
-		Chalk.write([{text:'Actions loaded', color:'green', style:'bold'}])
 	}
 
 	async grab() {
 		try {
-			Chalk.write([{text:'Grabber started', color:'green', style:'bold'}])
+			displayText(this.#brain, [{text:'Grabber started', color:'green', style:'bold'}])
 			const argv = process.argv.slice(2)[0]
 			for(const grab of this.#grabList.list) {
 				if(argv && argv !== grab.name)
 					continue
-				Chalk.write([{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}])
+				displayText(this.#brain, [{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}])
 				this.#brain.learn('PARAMS', { dir: grab.name })
 				await this.#brain.perform('setBaseDir')
 				await this.#brain.perform('resetCurrentDir')
@@ -138,6 +142,6 @@ export default class Grabber {
 			displayError(error)
 		}
 		await this.#puppeteer.close()
-		Chalk.write([{text:'Grabber closed', color:'green', style:'bold'}])
+		displayText(this.#brain, [{text:'Grabber closed', color:'green', style:'bold'}])
 	}
 }

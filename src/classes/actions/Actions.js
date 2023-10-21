@@ -1,5 +1,4 @@
-import Chalk from '../wrappers/Chalk.js'
-import { interpolation } from '../../utils/utils.js'
+import { interpolation, displayText } from '../../utils/utils.js'
 
 class Action {
 	#action
@@ -30,8 +29,7 @@ export class ActionList {
 
 	async run(name, brain, page) {
 
-		Chalk.write([
-			{text: ' '.repeat(brain.recall('INDENTATION'))},
+		displayText(brain, [
 			{text: 'Running action :', color: 'blue', style: 'bold'},
 			{text: name, color: 'whiteBright'}
 		])

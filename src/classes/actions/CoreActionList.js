@@ -5,15 +5,18 @@ import { v4 as uuidv4 } from 'uuid'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { ActionList } from './Actions.js'
-import Chalk from '../wrappers/Chalk.js'
-import { sanitizeString } from '../../utils/utils.js'
+import { 
+	sanitizeString, 
+	incrementIndentation, 
+	decrementIndentation, 
+	displayText 
+} from '../../utils/utils.js'
 import readline from 'readline'
 import axios from 'axios'
 import cliProgress from 'cli-progress'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const TABSIZE = 2
 const WAITUNTIL = 'networkidle0'
 
 export default class CoreActionList extends ActionList {
@@ -26,8 +29,7 @@ export default class CoreActionList extends ActionList {
 	load() {
 		super.add('setVariable', async (brain) => {
 			const { key, value } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Setting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			])
@@ -48,8 +50,7 @@ export default class CoreActionList extends ActionList {
 		super.add('transferVariable', async (brain) => {
 			const { from, index, key, to } = brain.recall('PARAMS')
 			let value = brain.recall(from)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Transferring variable ', color: 'white', style:'italic'},
 				{text: from, color: 'gray', style:'italic'},
 				{text: ' to ', color: 'white', style:'italic'},
@@ -66,8 +67,7 @@ export default class CoreActionList extends ActionList {
 		super.add('getVariable', async (brain) => {
 			const { key, index } = brain.recall('PARAMS')
 			const value = brain.recall(key)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Getting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			])
@@ -75,8 +75,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('deleteVariable', async (brain) => {
 			const { key } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Deleting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			])
@@ -84,8 +83,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('puppeteer', async (brain, page) => {
 			const { func, func2, ...params } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Puppeteer ', color: 'white', style:'italic'},
 				{text: func, color: 'gray', style:'italic'},
 				{text: func2 ? '.' + func2 : '', color: 'gray', style:'italic'}
@@ -123,8 +121,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('countStart', async (brain) => {
 			const { key, value } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Starting count ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'},
 				{text: ' with value ', color: 'white', style:'italic'},
@@ -138,8 +135,7 @@ export default class CoreActionList extends ActionList {
 		super.add('countIncrement', async (brain) => {
 			const { key } = brain.recall('PARAMS')
 			const count = brain.recall(key) + 1
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Incrementing count ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'},
 				{text: ' to ', color: 'white', style:'italic'},
@@ -150,8 +146,7 @@ export default class CoreActionList extends ActionList {
 		super.add('countDecrement', async (brain) => {
 			const { key } = brain.recall('PARAMS')
 			const count = brain.recall(key) - 1
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Decrementing count ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'},
 				{text: ' to ', color: 'white', style:'italic'},
@@ -161,8 +156,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('sleep', async (brain) => {
 			const { ms } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Sleeping ', color: 'white', style:'italic'},
 				{text: ms, color: 'gray', style:'italic'},
 				{text: ' ms', color: 'white', style:'italic'}
@@ -174,8 +168,7 @@ export default class CoreActionList extends ActionList {
 			dir = sanitizeString(dir)
 			if(!fs.existsSync(path.join(brain.recall('CURRENT_DIR'), dir)))
 				throw new Error(`Directory ${dir} does not exist`)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Setting current dir to ', color: 'white', style:'italic'},
 				{text: dir, color: 'gray', style:'italic'}
 			])
@@ -203,8 +196,7 @@ export default class CoreActionList extends ActionList {
 			const { min, max } = brain.recall('PARAMS')
 			const minNumber = Number(min)
 			const maxNumber = Number(max)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Generating random number between ', color: 'white', style:'italic'},
 				{text: minNumber, color: 'gray', style:'italic'},
 				{text: ' and ', color: 'white', style:'italic'},
@@ -215,8 +207,7 @@ export default class CoreActionList extends ActionList {
 		super.add('uuid', async (brain) => {
 			const uuid = uuidv4()
 			brain.learn('INPUT', uuid)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Generating uuid ', color: 'white', style:'italic'},
 				{text: uuid, color: 'gray', style:'italic'}
 			])
@@ -226,8 +217,7 @@ export default class CoreActionList extends ActionList {
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
 			const filePath = path.join(brain.recall('CURRENT_DIR'), filename)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Taking screenshot ', color: 'white', style:'italic'},
 				{text: name, color: 'gray', style:'italic'}
 			])
@@ -242,8 +232,7 @@ export default class CoreActionList extends ActionList {
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
 			const filePath = path.join(brain.recall('CURRENT_DIR'), filename)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Taking screenshot of element ', color: 'white', style:'italic'},
 				{text: name, color: 'gray', style:'italic'}
 			])
@@ -285,8 +274,7 @@ export default class CoreActionList extends ActionList {
 			try {
 				html = await page.$eval(selector, el => el.innerHTML)
 			} catch(e) {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: ': No element found', color: 'gray', style:'italic'}
 				])
 			}
@@ -342,8 +330,7 @@ export default class CoreActionList extends ActionList {
 			if(content === undefined)
 				content = []
 			content.push(value)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Appending to variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
 			])
@@ -359,34 +346,31 @@ export default class CoreActionList extends ActionList {
 				submitSelector,
 				cookieName
 			} = brain.recall('PARAMS')
-			brain.learn('INDENTATION', brain.recall('INDENTATION') + TABSIZE)
+			incrementIndentation(brain)
 			const cookiesDir = path.join(brain.recall('BASE_DIR'), 'cookies')
 			if(fs.existsSync(`${cookiesDir}/cookies.json`)) {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: ': Loading cookies', style:'italic'}
 				])
 				const cookies = JSON.parse(fs.readFileSync(`${cookiesDir}/cookies.json`))
 				const accessToken = cookieName ? cookies.find(cookie => cookie.name === cookieName) : cookies[0]
 				if(new Date(accessToken.expires * 1000) > new Date()) {
 					await page.setCookie(...cookies)
-					Chalk.write([
-						{text: ' '.repeat(brain.recall('INDENTATION'))},
+					displayText(brain, [
 						{text: ': Cookies loaded', style:'italic'}
 					])
+					decrementIndentation(brain)
 					return
 				} else {
 					fs.unlinkSync(`${cookiesDir}/cookies.json`)
-					Chalk.write([
-						{text: ' '.repeat(brain.recall('INDENTATION'))},
+					displayText(brain, [
 						{text: ': Cookies expired', style:'italic'}
 					])
 				}
 			}
 			brain.learn('PARAMS', {url: url, func: 'goto', options: {waitUntil: WAITUNTIL}})
 			await brain.perform('puppeteer', page)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Page loaded', style:'italic'}
 			])
 			await page.waitForSelector(usernameSelector, { visible: true })
@@ -395,15 +379,13 @@ export default class CoreActionList extends ActionList {
 			await page.waitForSelector(passwordSelector, { visible: true })
 			brain.learn('PARAMS', {selector: passwordSelector, text: password, secret: true})
 			await brain.perform('type', page)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Credentials entered', style:'italic'}
 			])
 			await page.waitForSelector(submitSelector, { visible: true })
 			brain.learn('PARAMS', {selector: submitSelector})
 			await brain.perform('click', page)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Login submitted', style:'italic'}
 			])
 			await page.waitForNavigation({
@@ -418,19 +400,17 @@ export default class CoreActionList extends ActionList {
 				}
 				fs.writeFileSync(`${cookiesDir}/cookies.json`, JSON.stringify(cookies), (err) => {
 					if(err) throw err
-					Chalk.write([
-						{text: ' '.repeat(brain.recall('INDENTATION'))},
+					displayText(brain, [
 						{text: ': Cookies saved', style:'italic'}
 					])
 				})
 			}
-			brain.learn('INDENTATION', brain.recall('INDENTATION') - TABSIZE)
+			decrementIndentation(brain)
 		})
 		super.add('createDir', async (brain) => {
 			let { dir, useBaseDir = false } = brain.recall('PARAMS')
 			dir = sanitizeString(dir)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Creating directory ', color: 'white', style:'italic'},
 				{text: dir, color: 'gray', style:'italic'}
 			])
@@ -440,8 +420,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('type', async (brain, page) => {
 			const { selector, text, secret = false } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Typing ', color: 'white', style:'italic'},
 				{text: secret ? '•••••' : text, color: 'gray', style:'italic'},
 			])
@@ -450,79 +429,69 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('if', async (brain, page) => {
 			const { condition, actions } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Condition: ', style:'italic'},
 				{text: condition, style:'bold'}
 			])
 			if(eval(condition)) {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: ': Condition is true', style:'italic'}
 				])
-				brain.learn('INDENTATION', brain.recall('INDENTATION') + TABSIZE)
+				incrementIndentation(brain)
 				for(let i = 0; i < actions.length; i++) {
 					const action = actions[i]
 					brain.learn('PARAMS', action.params)
 					await brain.perform(action.name, page)
 				}
-				brain.learn('INDENTATION', brain.recall('INDENTATION') - TABSIZE)
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				decrementIndentation(brain)
+				displayText(brain, [
 					{text: ': End of if', style:'italic'}
 				])
 			} else {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: ': Condition is false', style:'italic'}
 				])
 			}
 		})
 		super.add('ifElse', async (brain, page) => {
 			const { condition, actions, elseActions } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Condition: ', style:'italic'},
 				{text: condition, style:'bold'}
 			])
 			if(eval(condition)) {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: ': Condition is true', style:'italic'}
 				])
-				brain.learn('INDENTATION', brain.recall('INDENTATION') + TABSIZE)
+				incrementIndentation(brain)
 				for(let i = 0; i < actions.length; i++) {
 					const action = actions[i]
 					brain.learn('PARAMS', action.params)
 					await brain.perform(action.name, page)
 				}
-				brain.learn('INDENTATION', brain.recall('INDENTATION') - TABSIZE)
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				decrementIndentation(brain)
+				displayText(brain, [
 					{text: ': End of if', style:'italic'}
 				])
 			} else {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: ': Condition is false', style:'italic'}
 				])
-				brain.learn('INDENTATION', brain.recall('INDENTATION') + TABSIZE)
+				incrementIndentation(brain)
 				for(let i = 0; i < elseActions.length; i++) {
 					const action = elseActions[i]
 					brain.learn('PARAMS', action.params)
 					await brain.perform(action.name, page)
 				}
-				brain.learn('INDENTATION', brain.recall('INDENTATION') - TABSIZE)
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				decrementIndentation(brain)
+				displayText(brain, [
 					{text: ': End of if', style:'italic'}
 				])
 			}
 		})
 		super.add('createFile', async (brain) => {
 			const { filename } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Creating file ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, style:'bold'}
 			])
@@ -568,8 +537,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('readFromText', async (brain) => {
 			const { filename, breakLine = false } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Reading from file ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			])
@@ -584,8 +552,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('fileExists', async (brain) => {
 			const { filename } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Checking if file exists ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}`, color: 'gray', style:'italic'}
 			])
@@ -594,8 +561,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('deleteFile', async (brain) => {
 			const { filename } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Deleting file ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			])
@@ -604,8 +570,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('deleteFolder', async (brain) => {
 			const { foldername } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Deleting folder ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${foldername}`, color: 'gray', style:'italic'}
 			])
@@ -613,8 +578,7 @@ export default class CoreActionList extends ActionList {
 				fs.rmdirSync(`${brain.recall('CURRENT_DIR')}/${foldername}`, { recursive: true })
 		})
 		super.add('listFolders', async (brain) => {
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Listing folders ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}`, color: 'gray', style:'italic'}
 			])
@@ -625,8 +589,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('checkStringInFile', async (brain) => {
 			const { filename, string } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Checking if string is in file ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 			])
@@ -637,8 +600,7 @@ export default class CoreActionList extends ActionList {
 			const { key, filename } = brain.recall('PARAMS')
 			const content = brain.recall(key)
 			if(content) {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: ': Saving ', color: 'white', style:'italic'},
 					{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 				])
@@ -652,8 +614,7 @@ export default class CoreActionList extends ActionList {
 			const { key, filename } = brain.recall('PARAMS')
 			const content = brain.recall(key)
 			if(content) {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: ': Appending to ', color: 'white', style:'italic'},
 					{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
 				])
@@ -669,8 +630,7 @@ export default class CoreActionList extends ActionList {
 			const sanitizedFilename = sanitizeString(name)
 			const needsHost = !url.startsWith('http')
 
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: ': Downloading ', color: 'white', style:'italic'},
 				{text: name, color: 'gray', style:'italic'}
 			])
@@ -711,8 +671,7 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('log', async (brain) => {
 			const { text, color, background } = brain.recall('PARAMS')
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			displayText(brain, [
 				{text: `: ${text}`, color, background, style:'italic'}
 			])
 		})
@@ -720,10 +679,9 @@ export default class CoreActionList extends ActionList {
 			const { key, actions } = brain.recall('PARAMS')
 			const value = brain.recall(key)
 			const valueLength = value.length
-			brain.learn('INDENTATION', brain.recall('INDENTATION') + TABSIZE)
+			incrementIndentation(brain)
 			for(let i = 0; i < value.length; i++) {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: `: ${key}[${i+1}/${valueLength}]`, color:'yellow', style:'italic'},
 					{text: `: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
 				])
@@ -733,18 +691,16 @@ export default class CoreActionList extends ActionList {
 					await brain.perform(action.name, page)
 				}
 			}
-			brain.learn('INDENTATION', brain.recall('INDENTATION') - TABSIZE)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			decrementIndentation(brain)
+			displayText(brain, [
 				{text: ': End of forEach', color:'yellow', style:'italic'}
 			])
 		})
 		super.add('for', async (brain, page) => {
 			const { from, until, step, actions } = brain.recall('PARAMS')
-			brain.learn('INDENTATION', brain.recall('INDENTATION') + TABSIZE)
+			incrementIndentation(brain)
 			for(let i = from; i <= until; i+=step) {
-				Chalk.write([
-					{text: ' '.repeat(brain.recall('INDENTATION'))},
+				displayText(brain, [
 					{text: `: [${i}/${until}]`, color:'yellow', style:'italic'}
 				])
 				brain.learn('INPUT', i)
@@ -753,24 +709,22 @@ export default class CoreActionList extends ActionList {
 					await brain.perform(action.name, page)
 				}
 			}
-			brain.learn('INDENTATION', brain.recall('INDENTATION') - TABSIZE)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			decrementIndentation(brain)
+			displayText(brain, [
 				{text: ': End of for loop', color:'yellow', style:'italic'}
 			])
 		})
 		super.add('while', async (brain, page) => {
 			const { condition, actions } = brain.recall('PARAMS')
-			brain.learn('INDENTATION', brain.recall('INDENTATION') + TABSIZE)
+			incrementIndentation(brain)
 			while(eval(condition)) {
 				for(let action of actions) {
 					brain.learn('PARAMS', action.params)
 					await brain.perform(action.name, page)
 				}
 			}
-			brain.learn('INDENTATION', brain.recall('INDENTATION') - TABSIZE)
-			Chalk.write([
-				{text: ' '.repeat(brain.recall('INDENTATION'))},
+			decrementIndentation(brain)
+			displayText(brain, [
 				{text: ': End of while loop', color:'yellow', style:'italic'}
 			])
 		})
