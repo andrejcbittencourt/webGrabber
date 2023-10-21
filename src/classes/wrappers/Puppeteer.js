@@ -24,7 +24,7 @@ export default class Puppeteer {
 			puppeteer.use(StealthPlugin())
 		if (this.#adblocker === true)
 			puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
-		const launchOptions = { headless: this.#headless }
+		const launchOptions = { headless: this.#headless, timeout: 0 }
 		if (this.#executablePath !== null)
 			launchOptions.executablePath = this.#executablePath
 		this.#browser = await puppeteer.launch(launchOptions)
