@@ -4,7 +4,12 @@ import Puppeteer from './wrappers/Puppeteer.js'
 import { ActionListContainer } from './actions/Actions.js'
 import CoreActionList from './actions/CoreActionList.js'
 import CustomActionList from './actions/CustomActionList.js'
-import { getGrabList, displayError, displayText } from '../utils/utils.js'
+import { 
+	getGrabList, 
+	displayError, 
+	displayErrorAndExit, 
+	displayText 
+} from '../utils/utils.js'
 import cloneDeep from 'lodash/cloneDeep.js'
 
 class Brain {
@@ -12,47 +17,8 @@ class Brain {
 	#muscleMemory
 
 	constructor() {
-		this.#memory = new Memory()
-		this.#muscleMemory = new MuscleMemory()
-	}
-
-	learn(key, value) {
-		this.#memory.learn(key, value)
-	}
-	recall(key) {
-		return this.#memory.recall(key)
-	}
-	forget(key) {
-		this.#memory.forget(key)
-	}
-	train(actions) {
-		this.#muscleMemory.train(actions)
-	}
-	async perform(name, page) {
-		await this.#muscleMemory.perform(name, this, page)
-	}
-}
-
-class MuscleMemory {
-	#memory
-
-	constructor() {
-		this.#memory = new ActionListContainer()
-	}
-
-	train(actions) {
-		this.#memory.add(actions)
-	}
-	async perform(name, brain, page) {
-		await this.#memory.run(name, brain, page)
-	}
-}
-
-class Memory {
-	#memory
-
-	constructor() {
 		this.#memory = {}
+		this.#muscleMemory = new ActionListContainer()
 	}
 
 	learn(key, value) {
@@ -67,6 +33,12 @@ class Memory {
 	}
 	forget(key) {
 		delete this.#memory[key]
+	}
+	train(actions) {
+		this.#muscleMemory.add(actions)
+	}
+	async perform(name, page) {
+		await this.#muscleMemory.run(name, this, page)
 	}
 }
 
@@ -93,8 +65,7 @@ export default class Grabber {
 				throw new Error(`Action ${name} already exists`)
 			this.#customActionList.add(name, action)
 		} catch (error) {
-			displayError(error)
-			process.exit(1)
+			displayErrorAndExit(error)
 		}
 	}
 
@@ -116,8 +87,7 @@ export default class Grabber {
 			this.#brain.train(this.#customActionList)
 			displayText(this.#brain, [{text:'Actions loaded', color:'green', style:'bold'}])
 		} catch (error) {
-			displayError(error)
-			process.exit(1)
+			displayErrorAndExit(error)
 		}
 	}
 
