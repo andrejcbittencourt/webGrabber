@@ -17,7 +17,7 @@ export const getGrabList = () => {
 		if(file !== '.gitkeep' && file !== '.DS_Store') {
 			try {
 				let doc
-				// if file has .yml extension
+				// if file has .yml or .yaml extension
 				if(file.split('.').pop() === 'yml' || file.split('.').pop() === 'yaml')
 					doc = yaml.load(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
 				// if file has .json extension
@@ -25,7 +25,7 @@ export const getGrabList = () => {
 					doc = fs.readFileSync(path.join(__dirname, `/../grabs/${file}`))
 				grabList.push(doc)
 			} catch (e) {
-				console.log(e)
+				displayErrorAndExit(e)
 			}
 		}
 	})
