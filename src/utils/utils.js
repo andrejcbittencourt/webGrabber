@@ -21,8 +21,8 @@ export const getGrabList = () => {
 				if(file.split('.').pop() === 'yml' || file.split('.').pop() === 'yaml')
 					doc = yaml.load(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
 				// if file has .json extension
-				else 
-					doc = fs.readFileSync(path.join(__dirname, `/../grabs/${file}`))
+				else
+					doc = JSON.parse(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
 				grabList.push(doc)
 			} catch (e) {
 				displayErrorAndExit(e)
