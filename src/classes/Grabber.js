@@ -8,7 +8,8 @@ import {
 	getGrabList, 
 	displayError, 
 	displayErrorAndExit, 
-	displayText 
+	displayText,
+	resetIndentation
 } from '../utils/utils.js'
 import cloneDeep from 'lodash/cloneDeep.js'
 
@@ -102,7 +103,7 @@ export default class Grabber {
 				this.#brain.learn('PARAMS', { dir: grab.name })
 				await this.#brain.perform('setBaseDir')
 				await this.#brain.perform('resetCurrentDir')
-				this.#brain.learn('INDENTATION', 0)
+				resetIndentation(this.#brain)
 				for(const action of grab.actions) {
 					this.#brain.learn('PARAMS', action.params || {})
 					await this.#brain.perform(action.name, this.#puppeteer.page)
