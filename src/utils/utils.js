@@ -8,6 +8,7 @@ import Chalk from '../classes/wrappers/Chalk.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const TABSIZE = 2
+const INDENTKEY = 'INDENTATION'
 
 // get all grab configs from grabs folder
 export const getGrabList = () => {
@@ -47,17 +48,21 @@ export const displayText = (brain, textData) => {
 		Chalk.write(textData)
 	else
 		Chalk.write([
-			{text: ' '.repeat(brain.recall('INDENTATION'))},
+			{text: ' '.repeat(brain.recall(INDENTKEY))},
 			...textData
 		])
 }
 
+export const resetIndentation = (brain) => {
+	brain.learn(INDENTKEY, 0)
+}
+
 export const incrementIndentation = (brain) => {
-	brain.learn('INDENTATION', brain.recall('INDENTATION') + TABSIZE)
+	brain.learn(INDENTKEY, brain.recall(INDENTKEY) + TABSIZE)
 }
 
 export const decrementIndentation = (brain) => {
-	brain.learn('INDENTATION', brain.recall('INDENTATION') - TABSIZE)
+	brain.learn(INDENTKEY, brain.recall(INDENTKEY) - TABSIZE)
 }
 
 export const sanitizeString = (string) => {
