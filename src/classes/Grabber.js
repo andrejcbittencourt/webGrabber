@@ -83,10 +83,10 @@ export default class Grabber {
 			// if grabList is empty then throw error
 			if(this.#grabList.isEmpty())
 				throw new Error('No grabs found')
-			displayText(this.#brain, [{text:'Grab configs loaded', color:'green', style:'bold'}])
+			displayText([{text:'Grab configs loaded', color:'green', style:'bold'}])
 			this.#brain.train(this.#coreActionList)
 			this.#brain.train(this.#customActionList)
-			displayText(this.#brain, [{text:'Actions loaded', color:'green', style:'bold'}])
+			displayText([{text:'Actions loaded', color:'green', style:'bold'}])
 		} catch (error) {
 			displayErrorAndExit(error)
 		}
@@ -94,12 +94,12 @@ export default class Grabber {
 
 	async grab() {
 		try {
-			displayText(this.#brain, [{text:'Grabber started', color:'green', style:'bold'}])
+			displayText([{text:'Grabber started', color:'green', style:'bold'}])
 			const argv = process.argv.slice(2)[0]
 			for(const grab of this.#grabList.list) {
 				if(argv && argv !== grab.name)
 					continue
-				displayText(this.#brain, [{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}])
+				displayText([{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}])
 				this.#brain.learn('PARAMS', { dir: grab.name })
 				await this.#brain.perform('setBaseDir')
 				await this.#brain.perform('resetCurrentDir')
@@ -113,6 +113,6 @@ export default class Grabber {
 			displayError(error)
 		}
 		await this.#puppeteer.close()
-		displayText(this.#brain, [{text:'Grabber closed', color:'green', style:'bold'}])
+		displayText([{text:'Grabber closed', color:'green', style:'bold'}])
 	}
 }

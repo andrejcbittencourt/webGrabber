@@ -28,10 +28,10 @@ export class ActionList {
 	}
 
 	async run(name, brain, page) {
-		displayText(brain, [
+		displayText([
 			{text: 'Running action :', color: 'blue', style: 'bold'},
 			{text: name, color: 'whiteBright'}
-		])
+		], brain)
 		if(brain.recall('PARAMS'))
 			brain.learn('PARAMS', interpolation(brain.recall('PARAMS'), brain))
 		await this.#list.get(name).run(brain, page)
