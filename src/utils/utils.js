@@ -15,26 +15,26 @@ export const getGrabList = () => {
 	const files = fs.readdirSync(path.join(__dirname, '/../grabs'))
 	const grabList = []
 	files.forEach(file => {
-		if(file !== '.gitkeep' && file !== '.DS_Store') {
-			try {
-				let doc
-				// if file has .yml or .yaml extension
-				if(file.split('.').pop() === 'yml' || file.split('.').pop() === 'yaml')
-					doc = yaml.load(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
-				// if file has .json extension
-				else
-					doc = JSON.parse(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
-				grabList.push(doc)
-			} catch (e) {
-				displayErrorAndExit(e)
-			}
+		if(file === '.gitkeep' || file === '.DS_Store') return
+		try {
+			let doc
+			// if file has .yml or .yaml extension
+			if(file.split('.').pop() === 'yml' || file.split('.').pop() === 'yaml')
+				doc = yaml.load(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
+			// if file has .json extension
+			else if(file.split('.').pop() === 'json')
+				doc = JSON.parse(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
+			else return
+			grabList.push(doc)
+		} catch (e) {
+			displayErrorAndExit(e)
 		}
 	})
 	return grabList
 }
 
 export const displayError = (error) => {
-	displayText(null, [{text: `ERROR: ${error.message}`, color: 'red', style: 'bold'}])
+	displayText([{text: `ERROR: ${error.message}`, color: 'red', style: 'bold'}])
 }
 
 export const displayErrorAndExit = (error) => {
@@ -43,7 +43,7 @@ export const displayErrorAndExit = (error) => {
 	process.exit(1)
 }
 
-export const displayText = (brain, textData) => {
+export const displayText = (textData, brain) => {
 	if(!brain)
 		Chalk.write(textData)
 	else
@@ -71,24 +71,22 @@ export const sanitizeString = (string) => {
 }
 
 export const interpolation = (params, brain) => {
-	// for each param
-	for (const [key, value] of Object.entries(params)) {
-		// if it's a string
+	const newParams = {...params}
+	for (const [key, value] of Object.entries(newParams)) {
 		if (typeof value === 'string') {
 			const regex = /{{(.*?)}}/g
 			const match = value.match(regex)
 			if (match) {
 				match.forEach(m => {
 					const variable = m.match(/{{(.*?)}}/)[1].trim()
-					// if it's an array or object
 					if (typeof brain.recall(variable) === 'object' || Array.isArray(brain.recall(variable)))
-						params[key] = brain.recall(variable)
+						newParams[key] = brain.recall(variable)
 					else
-						params[key] = params[key].replace(m, brain.recall(variable))
+						newParams[key] = newParams[key].replace(m, brain.recall(variable))
 				})
 			}
-		} else if (Array.isArray(value)) { // if it's an array
-			params[key] = value.map(item => {
+		} else if (Array.isArray(value)) {
+			newParams[key] = value.map(item => {
 				if (typeof item === 'string' || Array.isArray(item)) {
 					return interpolation({temp: item}, brain).temp
 				}
@@ -96,5 +94,5 @@ export const interpolation = (params, brain) => {
 			})
 		}
 	}
-	return params
+	return newParams
 }

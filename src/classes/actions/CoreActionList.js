@@ -29,10 +29,10 @@ export default class CoreActionList extends ActionList {
 	load() {
 		super.add('setVariable', async (brain) => {
 			const { key, value } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Setting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
-			])
+			], brain)
 			brain.learn(key, value)
 		})
 		super.add('scrollWaitClick', async (brain, page) => {
@@ -50,12 +50,12 @@ export default class CoreActionList extends ActionList {
 		super.add('transferVariable', async (brain) => {
 			const { from, index, key, to } = brain.recall('PARAMS')
 			let value = brain.recall(from)
-			displayText(brain, [
+			displayText([
 				{text: ': Transferring variable ', color: 'white', style:'italic'},
 				{text: from, color: 'gray', style:'italic'},
 				{text: ' to ', color: 'white', style:'italic'},
 				{text: to, color: 'gray', style:'italic'}
-			])
+			], brain)
 			if(index !== undefined)
 				value = value[index]
 			else if(key !== undefined) {
@@ -67,27 +67,27 @@ export default class CoreActionList extends ActionList {
 		super.add('getVariable', async (brain) => {
 			const { key, index } = brain.recall('PARAMS')
 			const value = brain.recall(key)
-			displayText(brain, [
+			displayText([
 				{text: ': Getting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
-			])
+			], brain)
 			brain.learn('INPUT', index !== undefined ? value[index] : value)
 		})
 		super.add('deleteVariable', async (brain) => {
 			const { key } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Deleting variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
-			])
+			], brain)
 			brain.forget(key)
 		})
 		super.add('puppeteer', async (brain, page) => {
 			const { func, func2, ...params } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Puppeteer ', color: 'white', style:'italic'},
 				{text: func, color: 'gray', style:'italic'},
 				{text: func2 ? '.' + func2 : '', color: 'gray', style:'italic'}
-			])
+			], brain)
 			let result
 			if(func2)
 				result = await page[func][func2](...Object.values(params))
@@ -121,12 +121,12 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('countStart', async (brain) => {
 			const { key, value } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Starting count ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'},
 				{text: ' with value ', color: 'white', style:'italic'},
 				{text: value?value:0, color: 'gray', style:'italic'}
-			])
+			], brain)
 			if(!value)
 				brain.learn(key, 0)
 			else
@@ -135,32 +135,32 @@ export default class CoreActionList extends ActionList {
 		super.add('countIncrement', async (brain) => {
 			const { key } = brain.recall('PARAMS')
 			const count = brain.recall(key) + 1
-			displayText(brain, [
+			displayText([
 				{text: ': Incrementing count ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'},
 				{text: ' to ', color: 'white', style:'italic'},
 				{text: count, color: 'gray', style:'italic'}
-			])
+			], brain)
 			brain.learn(key, count)
 		})
 		super.add('countDecrement', async (brain) => {
 			const { key } = brain.recall('PARAMS')
 			const count = brain.recall(key) - 1
-			displayText(brain, [
+			displayText([
 				{text: ': Decrementing count ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'},
 				{text: ' to ', color: 'white', style:'italic'},
 				{text: count, color: 'gray', style:'italic'}
-			])
+			], brain)
 			brain.learn(key, count)
 		})
 		super.add('sleep', async (brain) => {
 			const { ms } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Sleeping ', color: 'white', style:'italic'},
 				{text: ms, color: 'gray', style:'italic'},
 				{text: ' ms', color: 'white', style:'italic'}
-			])
+			], brain)
 			await new Promise(resolve => setTimeout(resolve, ms))
 		})
 		super.add('setCurrentDir', async (brain) => {
@@ -168,10 +168,10 @@ export default class CoreActionList extends ActionList {
 			dir = sanitizeString(dir)
 			if(!fs.existsSync(path.join(brain.recall('CURRENT_DIR'), dir)))
 				throw new Error(`Directory ${dir} does not exist`)
-			displayText(brain, [
+			displayText([
 				{text: ': Setting current dir to ', color: 'white', style:'italic'},
 				{text: dir, color: 'gray', style:'italic'}
-			])
+			], brain)
 			brain.learn('CURRENT_DIR', path.join(useBaseDir ? brain.recall('BASE_DIR') : brain.recall('CURRENT_DIR'), dir))
 		})
 		super.add('setBaseDir', async (brain) => {
@@ -196,31 +196,31 @@ export default class CoreActionList extends ActionList {
 			const { min, max } = brain.recall('PARAMS')
 			const minNumber = Number(min)
 			const maxNumber = Number(max)
-			displayText(brain, [
+			displayText([
 				{text: ': Generating random number between ', color: 'white', style:'italic'},
 				{text: minNumber, color: 'gray', style:'italic'},
 				{text: ' and ', color: 'white', style:'italic'},
 				{text: maxNumber, color: 'gray', style:'italic'}
-			])
+			], brain)
 			brain.learn('INPUT', Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber)
 		})
 		super.add('uuid', async (brain) => {
 			const uuid = uuidv4()
 			brain.learn('INPUT', uuid)
-			displayText(brain, [
+			displayText([
 				{text: ': Generating uuid ', color: 'white', style:'italic'},
 				{text: uuid, color: 'gray', style:'italic'}
-			])
+			], brain)
 		})
 		super.add('screenshot', async (brain, page) => {
 			const { name, type, fullPage } = brain.recall('PARAMS')
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
 			const filePath = path.join(brain.recall('CURRENT_DIR'), filename)
-			displayText(brain, [
+			displayText([
 				{text: ': Taking screenshot ', color: 'white', style:'italic'},
 				{text: name, color: 'gray', style:'italic'}
-			])
+			], brain)
 			await page.screenshot({
 				path: filePath,
 				type: validatedType,
@@ -232,10 +232,10 @@ export default class CoreActionList extends ActionList {
 			const validatedType = ['jpeg', 'png'].includes(type) ? type : 'png'
 			const filename = `${sanitizeString(name)}.${validatedType}`
 			const filePath = path.join(brain.recall('CURRENT_DIR'), filename)
-			displayText(brain, [
+			displayText([
 				{text: ': Taking screenshot of element ', color: 'white', style:'italic'},
 				{text: name, color: 'gray', style:'italic'}
-			])
+			], brain)
 			const elementHandle = await page.$(selector)
 
 			const boxModel = await elementHandle.boxModel()
@@ -274,9 +274,9 @@ export default class CoreActionList extends ActionList {
 			try {
 				html = await page.$eval(selector, el => el.innerHTML)
 			} catch(e) {
-				displayText(brain, [
+				displayText([
 					{text: ': No element found', color: 'gray', style:'italic'}
-				])
+				], brain)
 			}
 			const regexMatch = new RegExp(regex, 'g')
 			const matches = []
@@ -330,10 +330,10 @@ export default class CoreActionList extends ActionList {
 			if(content === undefined)
 				content = []
 			content.push(value)
-			displayText(brain, [
+			displayText([
 				{text: ': Appending to variable ', color: 'white', style:'italic'},
 				{text: key, color: 'gray', style:'italic'}
-			])
+			], brain)
 			brain.learn(key, content)
 		})
 		super.add('login', async (brain, page) => {
@@ -349,45 +349,45 @@ export default class CoreActionList extends ActionList {
 			incrementIndentation(brain)
 			const cookiesDir = path.join(brain.recall('BASE_DIR'), 'cookies')
 			if(fs.existsSync(`${cookiesDir}/cookies.json`)) {
-				displayText(brain, [
+				displayText([
 					{text: ': Loading cookies', style:'italic'}
-				])
+				], brain)
 				const cookies = JSON.parse(fs.readFileSync(`${cookiesDir}/cookies.json`))
 				const accessToken = cookieName ? cookies.find(cookie => cookie.name === cookieName) : cookies[0]
 				if(new Date(accessToken.expires * 1000) > new Date()) {
 					await page.setCookie(...cookies)
-					displayText(brain, [
+					displayText([
 						{text: ': Cookies loaded', style:'italic'}
-					])
+					], brain)
 					decrementIndentation(brain)
 					return
 				} else {
 					fs.unlinkSync(`${cookiesDir}/cookies.json`)
-					displayText(brain, [
+					displayText([
 						{text: ': Cookies expired', style:'italic'}
-					])
+					], brain)
 				}
 			}
 			brain.learn('PARAMS', {url: url, func: 'goto', options: {waitUntil: WAITUNTIL}})
 			await brain.perform('puppeteer', page)
-			displayText(brain, [
+			displayText([
 				{text: ': Page loaded', style:'italic'}
-			])
+			], brain)
 			await page.waitForSelector(usernameSelector, { visible: true })
 			brain.learn('PARAMS', {selector: usernameSelector, text: username})
 			await brain.perform('type', page)
 			await page.waitForSelector(passwordSelector, { visible: true })
 			brain.learn('PARAMS', {selector: passwordSelector, text: password, secret: true})
 			await brain.perform('type', page)
-			displayText(brain, [
+			displayText([
 				{text: ': Credentials entered', style:'italic'}
-			])
+			], brain)
 			await page.waitForSelector(submitSelector, { visible: true })
 			brain.learn('PARAMS', {selector: submitSelector})
 			await brain.perform('click', page)
-			displayText(brain, [
+			displayText([
 				{text: ': Login submitted', style:'italic'}
-			])
+			], brain)
 			await page.waitForNavigation({
 				waitUntil: WAITUNTIL
 			})
@@ -400,9 +400,9 @@ export default class CoreActionList extends ActionList {
 				}
 				fs.writeFileSync(`${cookiesDir}/cookies.json`, JSON.stringify(cookies), (err) => {
 					if(err) throw err
-					displayText(brain, [
+					displayText([
 						{text: ': Cookies saved', style:'italic'}
-					])
+					], brain)
 				})
 			}
 			decrementIndentation(brain)
@@ -410,33 +410,33 @@ export default class CoreActionList extends ActionList {
 		super.add('createDir', async (brain) => {
 			let { dir, useBaseDir = false } = brain.recall('PARAMS')
 			dir = sanitizeString(dir)
-			displayText(brain, [
+			displayText([
 				{text: ': Creating directory ', color: 'white', style:'italic'},
 				{text: dir, color: 'gray', style:'italic'}
-			])
+			], brain)
 			const dirPath = path.join(useBaseDir ? brain.recall('BASE_DIR') : brain.recall('CURRENT_DIR'), dir)
 			if(!fs.existsSync(dirPath))
 				fs.mkdirSync(dirPath)
 		})
 		super.add('type', async (brain, page) => {
 			const { selector, text, secret = false } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Typing ', color: 'white', style:'italic'},
 				{text: secret ? '•••••' : text, color: 'gray', style:'italic'},
-			])
+			], brain)
 			await page.waitForSelector(selector, { visible: true })
 			await page.type(selector, text)
 		})
 		super.add('if', async (brain, page) => {
 			const { condition, actions } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Condition: ', style:'italic'},
 				{text: condition, style:'bold'}
-			])
+			], brain)
 			if(eval(condition)) {
-				displayText(brain, [
+				displayText([
 					{text: ': Condition is true', style:'italic'}
-				])
+				], brain)
 				incrementIndentation(brain)
 				for(let i = 0; i < actions.length; i++) {
 					const action = actions[i]
@@ -444,25 +444,25 @@ export default class CoreActionList extends ActionList {
 					await brain.perform(action.name, page)
 				}
 				decrementIndentation(brain)
-				displayText(brain, [
+				displayText([
 					{text: ': End of if', style:'italic'}
-				])
+				], brain)
 			} else {
-				displayText(brain, [
+				displayText([
 					{text: ': Condition is false', style:'italic'}
-				])
+				], brain)
 			}
 		})
 		super.add('ifElse', async (brain, page) => {
 			const { condition, actions, elseActions } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Condition: ', style:'italic'},
 				{text: condition, style:'bold'}
-			])
+			], brain)
 			if(eval(condition)) {
-				displayText(brain, [
+				displayText([
 					{text: ': Condition is true', style:'italic'}
-				])
+				], brain)
 				incrementIndentation(brain)
 				for(let i = 0; i < actions.length; i++) {
 					const action = actions[i]
@@ -470,13 +470,13 @@ export default class CoreActionList extends ActionList {
 					await brain.perform(action.name, page)
 				}
 				decrementIndentation(brain)
-				displayText(brain, [
+				displayText([
 					{text: ': End of if', style:'italic'}
-				])
+				], brain)
 			} else {
-				displayText(brain, [
+				displayText([
 					{text: ': Condition is false', style:'italic'}
-				])
+				], brain)
 				incrementIndentation(brain)
 				for(let i = 0; i < elseActions.length; i++) {
 					const action = elseActions[i]
@@ -484,17 +484,17 @@ export default class CoreActionList extends ActionList {
 					await brain.perform(action.name, page)
 				}
 				decrementIndentation(brain)
-				displayText(brain, [
+				displayText([
 					{text: ': End of if', style:'italic'}
-				])
+				], brain)
 			}
 		})
 		super.add('createFile', async (brain) => {
 			const { filename } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Creating file ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, style:'bold'}
-			])
+			], brain)
 			fs.appendFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, '')
 		})
 		super.add('click', async (brain, page) => {
@@ -537,10 +537,10 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('readFromText', async (brain) => {
 			const { filename, breakLine = false } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Reading from file ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
-			])
+			], brain)
 			const content = fs.readFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, 'utf8')
 			if(breakLine) {
 				// add to brain using an array
@@ -552,36 +552,36 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('fileExists', async (brain) => {
 			const { filename } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Checking if file exists ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}`, color: 'gray', style:'italic'}
-			])
+			], brain)
 			const exists = fs.existsSync(`${brain.recall('CURRENT_DIR')}/${filename}`)
 			brain.learn('INPUT', exists)
 		})
 		super.add('deleteFile', async (brain) => {
 			const { filename } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Deleting file ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
-			])
+			], brain)
 			if(fs.existsSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`))
 				fs.unlinkSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`)
 		})
 		super.add('deleteFolder', async (brain) => {
 			const { foldername } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Deleting folder ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${foldername}`, color: 'gray', style:'italic'}
-			])
+			], brain)
 			if(fs.existsSync(`${brain.recall('CURRENT_DIR')}/${foldername}`))
 				fs.rmdirSync(`${brain.recall('CURRENT_DIR')}/${foldername}`, { recursive: true })
 		})
 		super.add('listFolders', async (brain) => {
-			displayText(brain, [
+			displayText([
 				{text: ': Listing folders ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}`, color: 'gray', style:'italic'}
-			])
+			], brain)
 			const folders = fs.readdirSync(brain.recall('CURRENT_DIR'), { withFileTypes: true })
 				.filter(dirent => dirent.isDirectory())
 				.map(dirent => dirent.name)
@@ -589,10 +589,10 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('checkStringInFile', async (brain) => {
 			const { filename, string } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: ': Checking if string is in file ', style:'italic'},
 				{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
-			])
+			], brain)
 			const content = fs.readFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, 'utf8')
 			brain.learn('INPUT', content.includes(string))
 		})
@@ -600,10 +600,10 @@ export default class CoreActionList extends ActionList {
 			const { key, filename } = brain.recall('PARAMS')
 			const content = brain.recall(key)
 			if(content) {
-				displayText(brain, [
+				displayText([
 					{text: ': Saving ', color: 'white', style:'italic'},
 					{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
-				])
+				], brain)
 				if(Array.isArray(content))
 					fs.writeFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
 				else
@@ -614,10 +614,10 @@ export default class CoreActionList extends ActionList {
 			const { key, filename } = brain.recall('PARAMS')
 			const content = brain.recall(key)
 			if(content) {
-				displayText(brain, [
+				displayText([
 					{text: ': Appending to ', color: 'white', style:'italic'},
 					{text: `${brain.recall('CURRENT_DIR')}/${filename}.txt`, color: 'gray', style:'italic'}
-				])
+				], brain)
 				if(Array.isArray(content))
 					fs.appendFileSync(`${brain.recall('CURRENT_DIR')}/${filename}.txt`, content.join('\n'))
 				else
@@ -630,10 +630,10 @@ export default class CoreActionList extends ActionList {
 			const sanitizedFilename = sanitizeString(name)
 			const needsHost = !url.startsWith('http')
 
-			displayText(brain, [
+			displayText([
 				{text: ': Downloading ', color: 'white', style:'italic'},
 				{text: name, color: 'gray', style:'italic'}
-			])
+			], brain)
 			const response = await axios({
 				url: needsHost ? `${host}${url}` : url,
 				method: 'GET',
@@ -671,9 +671,9 @@ export default class CoreActionList extends ActionList {
 		})
 		super.add('log', async (brain) => {
 			const { text, color, background } = brain.recall('PARAMS')
-			displayText(brain, [
+			displayText([
 				{text: `: ${text}`, color, background, style:'italic'}
-			])
+			], brain)
 		})
 		super.add('forEach', async (brain, page) => {
 			const { key, actions } = brain.recall('PARAMS')
@@ -681,10 +681,10 @@ export default class CoreActionList extends ActionList {
 			const valueLength = value.length
 			incrementIndentation(brain)
 			for(let i = 0; i < value.length; i++) {
-				displayText(brain, [
+				displayText([
 					{text: `: ${key}[${i+1}/${valueLength}]`, color:'yellow', style:'italic'},
 					{text: `: ${sanitizeString(value[i])}`, color:'white', style:'italic'}
-				])
+				], brain)
 				brain.learn('INPUT', value[i])
 				for(let action of actions) {
 					brain.learn('PARAMS', action.params)
@@ -692,17 +692,17 @@ export default class CoreActionList extends ActionList {
 				}
 			}
 			decrementIndentation(brain)
-			displayText(brain, [
+			displayText([
 				{text: ': End of forEach', color:'yellow', style:'italic'}
-			])
+			], brain)
 		})
 		super.add('for', async (brain, page) => {
 			const { from, until, step, actions } = brain.recall('PARAMS')
 			incrementIndentation(brain)
 			for(let i = from; i <= until; i+=step) {
-				displayText(brain, [
+				displayText([
 					{text: `: [${i}/${until}]`, color:'yellow', style:'italic'}
-				])
+				], brain)
 				brain.learn('INPUT', i)
 				for(let action of actions) {
 					brain.learn('PARAMS', action.params)
@@ -710,9 +710,9 @@ export default class CoreActionList extends ActionList {
 				}
 			}
 			decrementIndentation(brain)
-			displayText(brain, [
+			displayText([
 				{text: ': End of for loop', color:'yellow', style:'italic'}
-			])
+			], brain)
 		})
 		super.add('while', async (brain, page) => {
 			const { condition, actions } = brain.recall('PARAMS')
@@ -724,9 +724,9 @@ export default class CoreActionList extends ActionList {
 				}
 			}
 			decrementIndentation(brain)
-			displayText(brain, [
+			displayText([
 				{text: ': End of while loop', color:'yellow', style:'italic'}
-			])
+			], brain)
 		})
 	}
 }
