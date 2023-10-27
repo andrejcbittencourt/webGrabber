@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+import cloneDeep from 'lodash/cloneDeep.js'
 import GrabList from './GrabList.js'
 import Puppeteer from './wrappers/Puppeteer.js'
 import { ActionListContainer } from './actions/Actions.js'
@@ -11,7 +12,7 @@ import {
 	displayText,
 	resetIndentation
 } from '../utils/utils.js'
-import cloneDeep from 'lodash/cloneDeep.js'
+import constants from '../utils/constants.js'
 
 class Brain {
 	#memory
@@ -75,8 +76,8 @@ export default class Grabber {
 			// for each process.env add to memory
 			for(const [key, value] of Object.entries(process.env)) {
 				// if starts with GRABBER_ add to memory but remove GRABBER_
-				if(key.startsWith('GRABBER_'))
-					this.#brain.learn(key.replace('GRABBER_', ''), value)
+				if(key.startsWith(constants.grabberPrefix))
+					this.#brain.learn(key.replace(constants.grabberPrefix, ''), value)
 			}
 			await this.#puppeteer.launch()
 			getGrabList().forEach(grab => this.#grabList.add(grab))
@@ -100,12 +101,12 @@ export default class Grabber {
 				if(argv && argv !== grab.name)
 					continue
 				displayText([{text:`Grabbing ${grab.name}`, color:'green', style:'bold'}])
-				this.#brain.learn('PARAMS', { dir: grab.name })
+				resetIndentation(this.#brain)
+				this.#brain.learn(constants.paramsKey, { dir: grab.name })
 				await this.#brain.perform('setBaseDir')
 				await this.#brain.perform('resetCurrentDir')
-				resetIndentation(this.#brain)
 				for(const action of grab.actions) {
-					this.#brain.learn('PARAMS', action.params || {})
+					this.#brain.learn(constants.paramsKey, action.params || {})
 					await this.#brain.perform(action.name, this.#puppeteer.page)
 				}
 			}

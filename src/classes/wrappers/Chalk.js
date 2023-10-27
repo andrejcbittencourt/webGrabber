@@ -17,7 +17,7 @@ export default class Chalk {
 			else if(background) tmpText = chalk[background](text)
 			else if(style) tmpText = chalk[style](text)
 			else tmpText = chalk(text)
-			chalkText = chalk(tmpText, chalkText)
+			chalkText = tmpText + chalkText  // Direct concatenation
 		})
 		return chalkText
 	}

@@ -1,28 +1,46 @@
 import yaml from 'js-yaml'
+import Chalk from '../classes/wrappers/Chalk.js'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
-import Chalk from '../classes/wrappers/Chalk.js'
+import constants from './constants.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const TABSIZE = 2
+
 const INDENTKEY = 'INDENTATION'
+const TABSIZE = 2
+
+export const pathJoin = (...paths) => {
+	return path.join(...paths)
+}
+
+export const basePathJoin = (...paths) => {
+	return pathJoin(__dirname, ...paths)
+}
+
+export const fsOperation = (operation, location, ...args) => {
+	const path = pathJoin(location)
+	if (typeof fs[operation] === 'function') {
+		return fs[operation](path, ...args)
+	}
+	throw new Error(`Invalid fs operation: ${operation}`)
+}
 
 // get all grab configs from grabs folder
 export const getGrabList = () => {
-	const files = fs.readdirSync(path.join(__dirname, '/../grabs'))
+	const files = fsOperation(constants.fsMethods.readdir, basePathJoin('/../grabs'), 'utf8')
 	const grabList = []
 	files.forEach(file => {
 		try {
 			let doc
 			// if file has .yml or .yaml extension
 			if(file.split('.').pop() === 'yml' || file.split('.').pop() === 'yaml')
-				doc = yaml.load(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
+				doc = yaml.load(fsOperation(constants.fsMethods.readFile, basePathJoin(`/../grabs/${file}`), 'utf8'))
 			// if file has .json extension
 			else if(file.split('.').pop() === 'json')
-				doc = JSON.parse(fs.readFileSync(path.join(__dirname, `/../grabs/${file}`), 'utf8'))
+				doc = JSON.parse(fsOperation(constants.fsMethods.readFile, basePathJoin(`/../grabs/${file}`), 'utf8'))
 			else return
 			grabList.push(doc)
 		} catch (e) {
