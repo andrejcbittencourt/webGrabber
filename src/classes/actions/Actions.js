@@ -1,4 +1,5 @@
 import { interpolation, displayText } from '../../utils/utils.js'
+import constants from '../../utils/constants.js'
 
 class Action {
 	#action
@@ -32,10 +33,9 @@ export class ActionList {
 			{text: 'Running action :', color: 'blue', style: 'bold'},
 			{text: name, color: 'whiteBright'}
 		], brain)
-		if(brain.recall('PARAMS'))
-			brain.learn('PARAMS', interpolation(brain.recall('PARAMS'), brain))
+		if(brain.recall(constants.paramsKey))
+			brain.learn(constants.paramsKey, interpolation(brain.recall(constants.paramsKey), brain))
 		await this.#list.get(name).run(brain, page)
-
 	}
 }
 
