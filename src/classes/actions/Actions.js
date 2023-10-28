@@ -30,7 +30,7 @@ export class ActionList {
 
 	async run(name, brain, page) {
 		displayText([
-			{text: 'Running action :', color: 'blue', style: 'bold'},
+			{text: 'Running action : ', color: 'blue', style: 'bold'},
 			{text: name, color: 'whiteBright'}
 		], brain)
 		if(brain.recall(constants.paramsKey))

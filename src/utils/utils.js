@@ -30,17 +30,17 @@ export const fsOperation = (operation, location, ...args) => {
 
 // get all grab configs from grabs folder
 export const getGrabList = () => {
-	const files = fsOperation(constants.fsMethods.readdir, basePathJoin('/../grabs'), 'utf8')
+	const files = fsOperation(constants.fsMethods.readdir, basePathJoin('../grabs'), 'utf8')
 	const grabList = []
 	files.forEach(file => {
 		try {
 			let doc
 			// if file has .yml or .yaml extension
 			if(file.split('.').pop() === 'yml' || file.split('.').pop() === 'yaml')
-				doc = yaml.load(fsOperation(constants.fsMethods.readFile, basePathJoin(`/../grabs/${file}`), 'utf8'))
+				doc = yaml.load(fsOperation(constants.fsMethods.readFile, basePathJoin(`../grabs/${file}`), 'utf8'))
 			// if file has .json extension
 			else if(file.split('.').pop() === 'json')
-				doc = JSON.parse(fsOperation(constants.fsMethods.readFile, basePathJoin(`/../grabs/${file}`), 'utf8'))
+				doc = JSON.parse(fsOperation(constants.fsMethods.readFile, basePathJoin(`../grabs/${file}`), 'utf8'))
 			else return
 			grabList.push(doc)
 		} catch (e) {
