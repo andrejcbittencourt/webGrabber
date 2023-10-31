@@ -93,7 +93,3 @@ The following variable names are reserved and should be used in the config files
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
