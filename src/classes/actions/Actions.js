@@ -29,11 +29,14 @@ export class ActionList {
 	}
 
 	async run(name, brain, page) {
-		displayText([
-			{text: 'Running action : ', color: 'blue', style: 'bold'},
-			{text: name, color: 'whiteBright'}
-		], brain)
-		if(brain.recall(constants.paramsKey))
+		displayText(
+			[
+				{ text: 'Running action : ', color: 'blue', style: 'bold' },
+				{ text: name, color: 'whiteBright' },
+			],
+			brain,
+		)
+		if (brain.recall(constants.paramsKey))
 			brain.learn(constants.paramsKey, interpolation(brain.recall(constants.paramsKey), brain))
 		await this.#list.get(name).run(brain, page)
 	}
@@ -51,8 +54,8 @@ export class ActionListContainer {
 	}
 
 	async run(name, brain, page) {
-		const actionList = this.#container.find(list => list.has(name))
-		if(!actionList) throw new Error(`Action ${name} not found`)
+		const actionList = this.#container.find((list) => list.has(name))
+		if (!actionList) throw new Error(`Action ${name} not found`)
 		await actionList.run(name, brain, page)
 	}
 }

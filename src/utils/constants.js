@@ -1,9 +1,9 @@
 export default {
-	paramsKey : 'PARAMS',
-	currentDirKey : 'CURRENT_DIR',
-	baseDirKey : 'BASE_DIR',
-	inputKey : 'INPUT',
-	grabberPrefix : 'GRABBER_',
+	paramsKey: 'PARAMS',
+	currentDirKey: 'CURRENT_DIR',
+	baseDirKey: 'BASE_DIR',
+	inputKey: 'INPUT',
+	grabberPrefix: 'GRABBER_',
 	fsMethods: {
 		access: 'accessSync',
 		appendFile: 'appendFileSync',
@@ -49,5 +49,5 @@ export default {
 		write: 'writeSync',
 		writev: 'writevSync',
 		createWriteStream: 'createWriteStream',
-	}
+	},
 }

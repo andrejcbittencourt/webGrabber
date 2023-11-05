@@ -20,16 +20,13 @@ export default class Puppeteer {
 	}
 
 	async launch() {
-		if (this.#stealth === true)
-			puppeteer.use(StealthPlugin())
-		if (this.#adblocker === true)
-			puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
+		if (this.#stealth === true) puppeteer.use(StealthPlugin())
+		if (this.#adblocker === true) puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
 		const launchOptions = { headless: this.#headless, timeout: 0 }
-		if (this.#executablePath)
-			launchOptions.executablePath = this.#executablePath
+		if (this.#executablePath) launchOptions.executablePath = this.#executablePath
 		this.#browser = await puppeteer.launch(launchOptions)
 		this.#page = await this.#browser.newPage()
-		if(this.#viewport !== undefined && this.#viewport !== null)
+		if (this.#viewport !== undefined && this.#viewport !== null)
 			await this.#page.setViewport(this.#viewport)
 	}
 
