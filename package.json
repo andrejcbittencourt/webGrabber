@@ -1,6 +1,6 @@
 {
   "name": "@andrejcbittencourt/webgrabber",
-  "version": "3.5.5",
+  "version": "3.5.6",
   "description": "Config based web scraper & browser automation",
   "main": "app.js",
   "type": "module",
@@ -23,7 +23,7 @@
     "dotenv": "^16.3.1",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
-    "puppeteer": "^21.5.2",
+    "puppeteer": "^21.6.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-adblocker": "^2.13.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
@@ -33,6 +33,6 @@
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
-    "prettier": "^3.1.0"
+    "prettier": "^3.1.1"
   }
 }
