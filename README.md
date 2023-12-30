@@ -56,6 +56,9 @@ actions:
       text: "Hello World!"
 ```
 
+## Running the Application
+
+### Local Mode
 Run the app and all the grabs in the *src/grabs* directory will be executed: 
 ```bash
 npm run start
@@ -65,6 +68,21 @@ Run a specific grab:
 ```bash
 npm run start hello-world
 ```
+
+### Server Mode
+Run the app in server mode to start an HTTP server and receive grab configurations via API requests.
+In server mode, the application exposes an HTTP POST endpoint to accept JSON payloads for grab configurations.
+```bash
+npm run start:server
+```
+
+#### Endpoint Details
+- **Endpoint**: `/grab`
+- **Method**: POST
+- **Payload**: The endpoint expects a JSON payload containing the grab configuration.
+- **Server Port**: The server runs on the port specified in the `PORT` environment variable, with a default fallback to port 3000 if not set.
+
+Send a POST request with a JSON payload to this endpoint to trigger the grab process.
 
 ## Actions
 A full list of actions can be found in [Actions](src/classes/actions/README.md)
