@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import cloneDeep from 'lodash/cloneDeep.js'
 import GrabList from './GrabList.js'
 import Puppeteer from './wrappers/Puppeteer.js'
