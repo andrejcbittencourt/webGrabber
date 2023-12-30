@@ -60,7 +60,6 @@ export const displayError = (error) => {
 
 export const displayErrorAndExit = (error) => {
 	displayError(error)
-	// eslint-disable-next-line no-undef
 	process.exit(1)
 }
 

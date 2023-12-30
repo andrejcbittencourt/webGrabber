@@ -1,7 +1,6 @@
-// eslint-disable-next-line no-unused-vars
-export default (grabber) => {
+export default (_grabber) => {
 	// add custom actions here
-	// grabber.addCustomAction('myCustomAction', async (brain, page) => {
+	// _grabber.addCustomAction('myCustomAction', async (brain, page) => {
 	// 	// do something
 	// })
 }
