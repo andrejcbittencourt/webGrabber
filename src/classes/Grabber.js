@@ -67,7 +67,7 @@ export default class Grabber {
 		}
 	}
 
-	async init() {
+	async init(payload = null) {
 		try {
 			// for each process.env add to memory
 			for (const [key, value] of Object.entries(process.env)) {
@@ -76,9 +76,16 @@ export default class Grabber {
 					this.#brain.learn(key.replace(constants.grabberPrefix, ''), value)
 			}
 			await this.#puppeteer.launch()
-			getGrabList().forEach((grab) => this.#grabList.add(grab))
+			// get grab from payload or from file
+			if (payload) {
+				// Initialize grab list from payload
+				this.#grabList.add(payload)
+			} else {
+				// Use the predefined grab list
+				getGrabList().forEach((grab) => this.#grabList.add(grab))
+			}
 			// if grabList is empty then throw error
-			if (this.#grabList.isEmpty()) throw new Error('No grabs found')
+			if (this.#grabList.isEmpty()) throw new Error('No grabs found nor provided')
 			displayText([{ text: 'Grab configs loaded', color: 'green', style: 'bold' }])
 			this.#brain.train(this.#coreActionList)
 			this.#brain.train(this.#customActionList)
