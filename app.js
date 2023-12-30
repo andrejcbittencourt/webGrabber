@@ -14,7 +14,7 @@ const main = async () => {
 
 		app.post('/grab', async (req, res) => {
 			try {
-				let grabber = new Grabber(options)
+				const grabber = new Grabber(options)
 				customize(grabber)
 				await grabber.init(req.body)
 				await grabber.grab()
@@ -28,7 +28,7 @@ const main = async () => {
 		const port = process.env.PORT || 3000
 		app.listen(port, () => console.log(`Server running on port ${port}`))
 	} else {
-		let grabber = new Grabber(options)
+		const grabber = new Grabber(options)
 		customize(grabber)
 		await grabber.init()
 		await grabber.grab()
