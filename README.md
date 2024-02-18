@@ -13,10 +13,10 @@ npm install
 
 ## Chromium on Mac
 
-If you have trouble with chromium on Mac, you can try to install it using homebrew with no quarantine option:
+If you have trouble with chromium on Mac, you can try to install it using:
 
 ```bash
-brew install chromium --no-quarantine
+npx puppeteer browsers install chrome
 ```
 
 Or you can add the executable path to Chrome in the options passed to Puppeteer through Grabber using the [options](src/config/options.js) file:
