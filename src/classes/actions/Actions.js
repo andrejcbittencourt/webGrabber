@@ -21,7 +21,9 @@ export class ActionList {
 	}
 
 	add(name, action) {
-		this.#list.set(name, new Action(action))
+		if (!this.#list.has(name)) {
+			this.#list.set(name, new Action(action))
+		}
 	}
 
 	has(name) {
