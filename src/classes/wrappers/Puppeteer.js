@@ -7,7 +7,6 @@ export default class Puppeteer {
 	#stealth
 	#adblocker
 	#viewport
-	#page
 	#browser
 	#executablePath
 
@@ -25,9 +24,6 @@ export default class Puppeteer {
 		const launchOptions = { headless: this.#headless, timeout: 0 }
 		if (this.#executablePath) launchOptions.executablePath = this.#executablePath
 		this.#browser = await puppeteer.launch(launchOptions)
-		this.#page = await this.#browser.newPage()
-		if (this.#viewport !== undefined && this.#viewport !== null)
-			await this.#page.setViewport(this.#viewport)
 	}
 
 	async close() {
@@ -35,6 +31,11 @@ export default class Puppeteer {
 	}
 
 	get page() {
-		return this.#page
+		return (async () => {
+			const page = await this.#browser.newPage()
+			if (this.#viewport !== undefined && this.#viewport !== null)
+				await page.setViewport(this.#viewport)
+			return page
+		})()
 	}
 }

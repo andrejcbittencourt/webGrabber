@@ -36,6 +36,15 @@ class Brain {
 	train(actions) {
 		this.#muscleMemory.add(actions)
 	}
+	mimic(muscleMemory) {
+		this.#muscleMemory = muscleMemory
+	}
+	clone() {
+		const brain = new Brain()
+		this.#memory.forEach((value, key) => brain.learn(key, value))
+		brain.mimic(this.#muscleMemory)
+		return brain
+	}
 	async perform(name, page) {
 		await this.#muscleMemory.run(name, this, page)
 	}
@@ -67,7 +76,7 @@ export default class Grabber {
 		}
 	}
 
-	async init(payload = null) {
+	async init() {
 		try {
 			// for each process.env add to memory
 			for (const [key, value] of Object.entries(process.env)) {
@@ -77,16 +86,6 @@ export default class Grabber {
 			}
 			await this.#puppeteer.launch()
 			// get grab from payload or from file
-			if (payload) {
-				// Initialize grab list from payload
-				this.#grabList.add(payload)
-			} else {
-				// Use the predefined grab list
-				getGrabList().forEach((grab) => this.#grabList.add(grab))
-			}
-			// if grabList is empty then throw error
-			if (this.#grabList.isEmpty()) throw new Error('No grabs found nor provided')
-			displayText([{ text: 'Grab configs loaded', color: 'green', style: 'bold' }])
 			this.#brain.train(this.#coreActionList)
 			this.#brain.train(this.#customActionList)
 			displayText([{ text: 'Actions loaded', color: 'green', style: 'bold' }])
@@ -95,26 +94,41 @@ export default class Grabber {
 		}
 	}
 
-	async grab() {
+	async loadGrabList() {
+		try {
+			getGrabList().forEach((grab) => this.#grabList.add(grab))
+			// if grabList is empty then throw error
+			if (this.#grabList.isEmpty()) throw new Error('No grabs found nor provided')
+			displayText([{ text: 'Grab configs loaded', color: 'green', style: 'bold' }])
+		} catch (error) {
+			displayErrorAndExit(error)
+		}
+	}
+
+	async grab(payload = null) {
+		const page = await this.#puppeteer.page
+		const brain = payload ? this.#brain.clone() : this.#brain
+		const grabList = payload ? this.#grabList.clone(payload) : this.#grabList
 		try {
 			displayText([{ text: 'Grabber started', color: 'green', style: 'bold' }])
 			const argv = process.argv.slice(2)[0]
-			for (const grab of this.#grabList.list) {
-				if (argv && argv !== grab.name) continue
+			for (const grab of grabList.list) {
+				if (argv && argv !== grab.name && !payload) continue
 				displayText([{ text: `Grabbing ${grab.name}`, color: 'green', style: 'bold' }])
-				resetIndentation(this.#brain)
-				this.#brain.learn(constants.paramsKey, { dir: grab.name })
-				await this.#brain.perform('setBaseDir')
-				await this.#brain.perform('resetCurrentDir')
+				resetIndentation(brain)
+				brain.learn(constants.paramsKey, { dir: grab.name })
+				await brain.perform('setBaseDir')
+				await brain.perform('resetCurrentDir')
 				for (const action of grab.actions) {
-					this.#brain.learn(constants.paramsKey, action.params || {})
-					await this.#brain.perform(action.name, this.#puppeteer.page)
+					brain.learn(constants.paramsKey, action.params || {})
+					await brain.perform(action.name, page)
 				}
 			}
 		} catch (error) {
 			displayError(error)
 		}
-		await this.#puppeteer.close()
+		await page.close()
+		if (!payload) await this.#puppeteer.close()
 		displayText([{ text: 'Grabber closed', color: 'green', style: 'bold' }])
 	}
 }
