@@ -128,7 +128,10 @@ export default class Grabber {
 			displayError(error)
 		}
 		await page.close()
-		if (!payload) await this.#puppeteer.close()
-		displayText([{ text: 'Grabber closed', color: 'green', style: 'bold' }])
+		displayText([{ text: 'Grabber finished', color: 'green', style: 'bold' }])
+		if (!payload) {
+			await this.#puppeteer.close()
+			displayText([{ text: 'Grabber closed', color: 'green', style: 'bold' }])
+		}
 	}
 }
