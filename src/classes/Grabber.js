@@ -57,9 +57,9 @@ export default class Grabber {
 	#customActionList
 	#brain
 
-	constructor(options) {
+	constructor(puppeteerOptions) {
 		this.#brain = new Brain()
-		this.#puppeteer = new Puppeteer(options)
+		this.#puppeteer = new Puppeteer(puppeteerOptions)
 		this.#grabList = new GrabList()
 		this.#coreActionList = new CoreActionList()
 		this.#customActionList = new CustomActionList()
