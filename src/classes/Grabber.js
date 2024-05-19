@@ -23,8 +23,7 @@ class Brain {
 
 	learn(key, value) {
 		// if value is an object then clone it
-		if (typeof value === 'object') this.#memory.set(key, cloneDeep(value))
-		else this.#memory.set(key, value)
+		this.#memory.set(key, typeof value === 'object' ? cloneDeep(value) : value)
 	}
 	recall(key) {
 		return this.#memory.get(key)
