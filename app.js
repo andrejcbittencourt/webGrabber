@@ -16,7 +16,7 @@ const startServerMode = async () => {
 	const port = process.env.PORT || 3000
 
 	// Define the root route with a welcome message
-	app.get('/', (req, res) => {
+	app.get('/', (_, res) => {
 		const welcomePage = `
 			<!DOCTYPE html>
 			<html lang="en">
@@ -101,13 +101,9 @@ const startServerMode = async () => {
 // Determine the mode based on the command-line argument
 const argv = process.argv.slice(2)[0]
 
-const grabber = new Grabber(options)
+const grabber = new Grabber()
 customize(grabber)
-await grabber.init()
+await grabber.init(options)
 
-if (argv === 'server') {
-	await startServerMode()
-} else {
-	await grabber.loadGrabList()
-	await grabber.grab()
-}
+if (argv === 'server') await startServerMode()
+else await grabber.grab()

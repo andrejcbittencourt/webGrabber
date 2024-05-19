@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer-extra'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 
-export default class Puppeteer {
+class Puppeteer {
 	#headless
 	#stealth
 	#adblocker
@@ -26,16 +26,35 @@ export default class Puppeteer {
 		this.#browser = await puppeteer.launch(launchOptions)
 	}
 
+	get viewport() {
+		return this.#viewport
+	}
+
+	get browser() {
+		return this.#browser
+	}
+
 	async close() {
 		await this.#browser.close()
 	}
+}
 
-	get page() {
-		return (async () => {
-			const page = await this.#browser.newPage()
-			if (this.#viewport !== undefined && this.#viewport !== null)
-				await page.setViewport(this.#viewport)
-			return page
-		})()
+export default class PuppeteerPageFactory {
+	static #puppeteer
+
+	static async init(options) {
+		this.#puppeteer = new Puppeteer(options)
+		await this.#puppeteer.launch()
+	}
+
+	static async create() {
+		const page = await this.#puppeteer.browser.newPage()
+		const viewport = this.#puppeteer.viewport
+		if (viewport) await page.setViewport(viewport)
+		return page
+	}
+
+	static async close() {
+		await this.#puppeteer.close()
 	}
 }

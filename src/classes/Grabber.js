@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep.js'
-import GrabList from './GrabList.js'
-import Puppeteer from './wrappers/Puppeteer.js'
+import GrabListFactory from './GrabList.js'
+import PuppeteerPageFactory from './wrappers/Puppeteer.js'
 import { ActionListContainer } from './actions/Actions.js'
 import CoreActionList from './actions/CoreActionList.js'
 import CustomActionList from './actions/CustomActionList.js'
@@ -19,7 +19,6 @@ class Brain {
 
 	constructor() {
 		this.#memory = new Map()
-		this.#muscleMemory = new ActionListContainer()
 	}
 
 	learn(key, value) {
@@ -33,34 +32,39 @@ class Brain {
 	forget(key) {
 		this.#memory.delete(key)
 	}
-	train(actions) {
-		this.#muscleMemory.add(actions)
+	sync(memories) {
+		memories.forEach((value, key) => this.learn(key, value))
 	}
-	mimic(muscleMemory) {
-		this.#muscleMemory = muscleMemory
-	}
-	clone() {
-		const brain = new Brain()
-		this.#memory.forEach((value, key) => brain.learn(key, value))
-		brain.mimic(this.#muscleMemory)
-		return brain
+	mimic(actions) {
+		this.#muscleMemory = actions
 	}
 	async perform(name, page) {
 		await this.#muscleMemory.run(name, this, page)
 	}
 }
 
+class BrainFactory {
+	static #memories
+	static #actions
+
+	static init(memories, actions) {
+		this.#memories = memories
+		this.#actions = actions
+	}
+
+	static async create() {
+		const brain = new Brain()
+		brain.sync(this.#memories)
+		brain.mimic(this.#actions)
+		return brain
+	}
+}
+
 export default class Grabber {
-	#grabList
-	#puppeteer
 	#coreActionList
 	#customActionList
-	#brain
 
-	constructor(puppeteerOptions) {
-		this.#brain = new Brain()
-		this.#puppeteer = new Puppeteer(puppeteerOptions)
-		this.#grabList = new GrabList()
+	constructor() {
 		this.#coreActionList = new CoreActionList()
 		this.#customActionList = new CustomActionList()
 	}
@@ -76,29 +80,31 @@ export default class Grabber {
 		}
 	}
 
-	async init() {
+	async init(puppeteerOptions) {
 		try {
 			// for each process.env add to memory
+			const memories = new Map()
 			for (const [key, value] of Object.entries(process.env)) {
 				// if starts with GRABBER_ add to memory but remove GRABBER_
 				if (key.startsWith(constants.grabberPrefix))
-					this.#brain.learn(key.replace(constants.grabberPrefix, ''), value)
+					memories.set(key.replace(constants.grabberPrefix, ''), value)
 			}
-			await this.#puppeteer.launch()
-			// get grab from payload or from file
-			this.#brain.train(this.#coreActionList)
-			this.#brain.train(this.#customActionList)
-			displayText([{ text: 'Actions loaded', color: 'green', style: 'bold' }])
+			const actions = new ActionListContainer()
+			actions.add(this.#coreActionList)
+			actions.add(this.#customActionList)
+			BrainFactory.init(memories, actions)
+			await PuppeteerPageFactory.init(puppeteerOptions)
+			displayText([{ text: 'Grabber initialized', color: 'green', style: 'bold' }])
 		} catch (error) {
 			displayErrorAndExit(error)
 		}
 	}
 
-	async loadGrabList() {
+	async loadGrabList(grabList) {
 		try {
-			getGrabList().forEach((grab) => this.#grabList.add(grab))
+			getGrabList().forEach((grab) => grabList.add(grab))
 			// if grabList is empty then throw error
-			if (this.#grabList.isEmpty()) throw new Error('No grabs found nor provided')
+			if (grabList.isEmpty()) throw new Error('No grabs found nor provided')
 			displayText([{ text: 'Grab configs loaded', color: 'green', style: 'bold' }])
 		} catch (error) {
 			displayErrorAndExit(error)
@@ -106,11 +112,13 @@ export default class Grabber {
 	}
 
 	async grab(payload = null) {
-		const page = await this.#puppeteer.page
-		const brain = payload ? this.#brain.clone() : this.#brain
-		const grabList = payload ? this.#grabList.clone(payload) : this.#grabList
+		const brain = await BrainFactory.create()
+		const page = await PuppeteerPageFactory.create()
+		const grabList = GrabListFactory.create()
+		if(payload) grabList.add(payload)
+		else await this.loadGrabList(grabList)
 		try {
-			displayText([{ text: 'Grabber started', color: 'green', style: 'bold' }])
+			displayText([{ text: 'Grabber running', color: 'green', style: 'bold' }])
 			const argv = process.argv.slice(2)[0]
 			for (const grab of grabList.list) {
 				if (argv && argv !== grab.name && !payload) continue
@@ -130,7 +138,7 @@ export default class Grabber {
 		await page.close()
 		displayText([{ text: 'Grabber finished', color: 'green', style: 'bold' }])
 		if (!payload) {
-			await this.#puppeteer.close()
+			await PuppeteerPageFactory.close()
 			displayText([{ text: 'Grabber closed', color: 'green', style: 'bold' }])
 		}
 	}

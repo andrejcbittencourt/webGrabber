@@ -16,7 +16,7 @@ class Grab {
 	}
 }
 
-export default class GrabList {
+class GrabList {
 	#list
 
 	constructor() {
@@ -34,10 +34,10 @@ export default class GrabList {
 	add(grab) {
 		this.#list.push(new Grab(grab.name, grab.actions))
 	}
+}
 
-	clone(grab) {
-		const clone = new GrabList()
-		clone.add(grab)
-		return clone
+export default class GrabListFactory {
+	static create() {
+		return new GrabList()
 	}
 }
