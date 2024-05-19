@@ -52,7 +52,7 @@ class BrainFactory {
 		this.#actions = actions
 	}
 
-	static async create() {
+	static create() {
 		const brain = new Brain()
 		brain.sync(this.#memories)
 		brain.mimic(this.#actions)
@@ -112,7 +112,7 @@ export default class Grabber {
 	}
 
 	async grab(payload = null) {
-		const brain = await BrainFactory.create()
+		const brain = BrainFactory.create()
 		const page = await PuppeteerPageFactory.create()
 		const grabList = GrabListFactory.create()
 		if(payload) grabList.add(payload)
