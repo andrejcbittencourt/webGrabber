@@ -107,6 +107,7 @@ The following variable names are reserved and should be used in the config files
 - *INDENTATION*
 - *CURRENT_DIR*
 - *BASE_DIR*
+- *PAYLOAD_ID*
 
 ## License
 
