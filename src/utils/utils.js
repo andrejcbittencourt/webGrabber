@@ -9,7 +9,6 @@ import constants from './constants.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const INDENTKEY = 'INDENTATION'
 const TABSIZE = 2
 
 export const pathJoin = (...paths) => {
@@ -65,19 +64,23 @@ export const displayErrorAndExit = (error) => {
 
 export const displayText = (textData, brain) => {
 	if (!brain) Chalk.write(textData)
-	else Chalk.write([{ text: ' '.repeat(brain.recall(INDENTKEY)) }, ...textData])
+	else {
+		const payloadId = brain.recall(constants.payloadIdKey)
+		if(payloadId) textData.unshift({ text: `${payloadId}: `, color: 'red', style: 'bold'})
+		Chalk.write([{ text: ' '.repeat(brain.recall(constants.indentationKey)) }, ...textData])
+	}
 }
 
 export const resetIndentation = (brain) => {
-	brain.learn(INDENTKEY, 0)
+	brain.learn(constants.indentationKey, 0)
 }
 
 export const incrementIndentation = (brain) => {
-	brain.learn(INDENTKEY, brain.recall(INDENTKEY) + TABSIZE)
+	brain.learn(constants.indentationKey, brain.recall(constants.indentationKey) + TABSIZE)
 }
 
 export const decrementIndentation = (brain) => {
-	brain.learn(INDENTKEY, brain.recall(INDENTKEY) - TABSIZE)
+	brain.learn(constants.indentationKey, brain.recall(constants.indentationKey) - TABSIZE)
 }
 
 export const sanitizeString = (string) => {
@@ -110,3 +113,67 @@ export const interpolation = (params, brain) => {
 	}
 	return newParams
 }
+
+export const welcomePage = (port) => `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Welcome to webGrabber</title>
+		<style>
+				body { 
+						font-family: Arial, sans-serif; 
+						margin: 0; 
+						padding: 0; 
+						height: 100vh; 
+						display: flex; 
+						justify-content: center; 
+						align-items: flex-start; 
+						background-color: #f4f4f4;
+				}
+				.card {
+						margin-top: 40px;
+						width: 430px;
+						background-color: #fff;
+						box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+						padding: 20px;
+						border-radius: 8px;
+						text-align: center;
+				}
+				h1 { 
+						color: #4A90E2; 
+						font-size: 24px;
+				}
+				p { 
+						color: #555; 
+						font-size: 16px;
+				}
+				.info {
+						margin-top: 20px; 
+						font-size: 14px; 
+						color: #333;
+				}
+				.code { 
+						background-color: #f5f5f5; 
+						border-left: 3px solid #4A90E2; 
+						padding: 10px; 
+						margin: 10px 0; 
+						word-wrap: break-word;
+				}
+		</style>
+</head>
+<body>
+		<div class="card">
+				<h1>Welcome to webGrabber</h1>
+				<p>The robust, config-based web scraping and automation tool.</p>
+				<div class="info">
+						To run a grab configuration, send a <b>POST</b> request to the following endpoint:
+						<div class="code">http://localhost:${port}/grab</div>
+						Include your grab configuration in the request's JSON payload.<br>
+						Check the documentation for more information.
+				</div>
+		</div>
+</body>
+</html>
+`

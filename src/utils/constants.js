@@ -3,6 +3,8 @@ export default {
 	currentDirKey: 'CURRENT_DIR',
 	baseDirKey: 'BASE_DIR',
 	inputKey: 'INPUT',
+	indentationKey: 'INDENTATION',
+	payloadIdKey: 'PAYLOAD_ID',
 	grabberPrefix: 'GRABBER_',
 	fsMethods: {
 		access: 'accessSync',

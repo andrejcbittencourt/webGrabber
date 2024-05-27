@@ -114,10 +114,12 @@ export default class Grabber {
 		const brain = BrainFactory.create()
 		const page = await PuppeteerPageFactory.create()
 		const grabList = GrabListFactory.create()
-		if(payload) grabList.add(payload)
+		if(payload) {
+			grabList.add(payload.body)
+			brain.learn(constants.payloadIdKey, payload.id)
+		}
 		else await this.loadGrabList(grabList)
 		try {
-			displayText([{ text: 'Grabber running', color: 'green', style: 'bold' }])
 			const argv = process.argv.slice(2)[0]
 			for (const grab of grabList.list) {
 				if (argv && argv !== grab.name && !payload) continue

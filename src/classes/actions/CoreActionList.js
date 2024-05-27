@@ -115,7 +115,7 @@ export default class CoreActionList extends ActionList {
 
 			await (async () => {
 				try {
-					const input = await prompt(' '.repeat(brain.recall('INDENTATION')) + query)
+					const input = await prompt(' '.repeat(brain.recall(constants.indentationKey)) + query)
 					brain.learn(constants.inputKey, input)
 					rl.close()
 				} catch (e) {
