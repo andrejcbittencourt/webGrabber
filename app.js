@@ -26,8 +26,8 @@ const startServerMode = async () => {
 				id: uuidv4(),
 				body: req.body,
 			}
-			await grabber.grab(payload)
-			res.status(200).send(payload.id)
+			const response = await grabber.grab(payload)
+			res.status(200).send(response)
 		} catch (error) {
 			displayError(`Server Error: ${error.message}`)
 			res.status(500).send('Internal Server Error')

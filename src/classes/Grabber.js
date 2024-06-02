@@ -141,6 +141,6 @@ export default class Grabber {
 		if (!payload) {
 			await PuppeteerPageFactory.close()
 			displayText([{ text: 'Grabber closed', color: 'green', style: 'bold' }])
-		}
+		} else return {result: brain.recall(constants.inputKey)}
 	}
 }
