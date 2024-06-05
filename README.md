@@ -2,7 +2,6 @@
   <img src="assets/images/webGrabber.png" alt="webGrabber" width="300" height="300">
 </p>
 
-
 # webGrabber
 
 webGrabber is a config-based web scraper and browser automation tool that makes it easy to extract data from websites and automate repetitive browsing tasks. With its flexible and powerful set of features, including custom actions, memory interpolation, and the ability to run specific grabs, webGrabber is the perfect solution for streamlining your web scraping and browser automation needs. Whether you are a data analyst, researcher, or web developer, webGrabber has something to offer for everyone.
