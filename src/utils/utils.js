@@ -66,7 +66,7 @@ export const displayText = (textData, brain) => {
 	if (!brain) Chalk.write(textData)
 	else {
 		const payloadId = brain.recall(constants.payloadIdKey)
-		if(payloadId) textData.unshift({ text: `${payloadId}: `, color: 'red', style: 'bold'})
+		if (payloadId) textData.unshift({ text: `${payloadId}: `, color: 'red', style: 'bold' })
 		Chalk.write([{ text: ' '.repeat(brain.recall(constants.indentationKey)) }, ...textData])
 	}
 }
