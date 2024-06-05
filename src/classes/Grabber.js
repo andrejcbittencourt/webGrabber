@@ -114,11 +114,10 @@ export default class Grabber {
 		const brain = BrainFactory.create()
 		const page = await PuppeteerPageFactory.create()
 		const grabList = GrabListFactory.create()
-		if(payload) {
+		if (payload) {
 			grabList.add(payload.body)
 			brain.learn(constants.payloadIdKey, payload.id)
-		}
-		else await this.loadGrabList(grabList)
+		} else await this.loadGrabList(grabList)
 		try {
 			const argv = process.argv.slice(2)[0]
 			for (const grab of grabList.list) {
@@ -141,6 +140,6 @@ export default class Grabber {
 		if (!payload) {
 			await PuppeteerPageFactory.close()
 			displayText([{ text: 'Grabber closed', color: 'green', style: 'bold' }])
-		} else return {result: brain.recall(constants.inputKey)}
+		} else return { result: brain.recall(constants.inputKey) }
 	}
 }
