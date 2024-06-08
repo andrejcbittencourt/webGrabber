@@ -120,6 +120,7 @@ export default class Grabber {
 		} else await this.loadGrabList(grabList)
 		try {
 			const argv = process.argv.slice(2)[0]
+			const asyncActions = []
 			for (const grab of grabList.list) {
 				if (argv && argv !== grab.name && !payload) continue
 				displayText([{ text: `Grabbing ${grab.name}`, color: 'green', style: 'bold' }])
@@ -129,8 +130,14 @@ export default class Grabber {
 				await brain.perform('resetCurrentDir')
 				for (const action of grab.actions) {
 					brain.learn(constants.paramsKey, action.params || {})
-					await brain.perform(action.name, page)
+					if(action.await === false)
+						asyncActions.push(brain.perform(action.name, page))
+					else
+						await brain.perform(action.name, page)
 				}
+			}
+			if(asyncActions.length > 0) {
+				await Promise.all(asyncActions)
 			}
 		} catch (error) {
 			displayError(error)
