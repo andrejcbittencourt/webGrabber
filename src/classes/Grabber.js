@@ -130,13 +130,11 @@ export default class Grabber {
 				await brain.perform('resetCurrentDir')
 				for (const action of grab.actions) {
 					brain.learn(constants.paramsKey, action.params || {})
-					if(action.await === false)
-						asyncActions.push(brain.perform(action.name, page))
-					else
-						await brain.perform(action.name, page)
+					if (action['await'] === false) asyncActions.push(brain.perform(action.name, page))
+					else await brain.perform(action.name, page)
 				}
 			}
-			if(asyncActions.length > 0) {
+			if (asyncActions.length > 0) {
 				await Promise.all(asyncActions)
 			}
 		} catch (error) {
