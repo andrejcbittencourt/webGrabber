@@ -1,6 +1,6 @@
 {
   "name": "@andrejcbittencourt/webgrabber",
-  "version": "3.8.8",
+  "version": "3.8.9",
   "description": "Config based web scraper & browser automation",
   "main": "app.js",
   "type": "module",
@@ -18,7 +18,7 @@
   "author": "André Bittencourt",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": "^1.7.3",
     "body-parser": "^1.20.2",
     "chalk": "^5.3.0",
     "cli-progress": "^3.12.0",
