@@ -3,31 +3,24 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 
 class Puppeteer {
-	#headless
-	#stealth
-	#adblocker
-	#viewport
+	#options
 	#browser
-	#executablePath
 
 	constructor(options) {
-		this.#headless = options?.headless ?? 'new'
-		this.#stealth = options?.stealth ?? true
-		this.#adblocker = options?.adblocker ?? true
-		this.#viewport = options?.viewport ?? null
-		this.#executablePath = options?.executablePath ?? null
+		this.#options = options
+		this.#browser = null
 	}
 
 	async launch() {
-		if (this.#stealth === true) puppeteer.use(StealthPlugin())
-		if (this.#adblocker === true) puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
-		const launchOptions = { headless: this.#headless, timeout: 0 }
-		if (this.#executablePath) launchOptions.executablePath = this.#executablePath
-		this.#browser = await puppeteer.launch(launchOptions)
+		if (this.#options.stealth === true) puppeteer.use(StealthPlugin())
+		if (this.#options.adblocker === true) puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
+		delete this.#options.adblocker
+		delete this.#options.stealth
+		this.#browser = await puppeteer.launch(this.#options)
 	}
 
 	get viewport() {
-		return this.#viewport
+		return this.#options.viewport
 	}
 
 	get browser() {
