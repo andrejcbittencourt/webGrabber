@@ -13,6 +13,7 @@ import constants from '../../utils/constants.js'
 import readline from 'readline'
 import axios from 'axios'
 import cliProgress from 'cli-progress'
+import PuppeteerPageFactory from '../wrappers/Puppeteer.js'
 
 const WAITUNTIL = 'networkidle0'
 
@@ -88,6 +89,58 @@ export default class CoreActionList extends ActionList {
 			)
 			brain.forget(key)
 		})
+		super.add('newPage', async (brain) => {
+			const { pageKey } = brain.recall(constants.paramsKey)
+			if (!pageKey) {
+				throw new Error("The 'newPage' action requires a 'pageKey' parameter.")
+			}
+			const pages = brain.recall(constants.pagesKey)
+			const newPage = await PuppeteerPageFactory.create()
+			pages[pageKey] = newPage
+			brain.learn(constants.pagesKey, pages)
+			displayText(
+				[{ text: `New page created with key '${pageKey}'`, color: 'blue', style: 'bold' }],
+				brain,
+			)
+		})
+		super.add('closePage', async (brain) => {
+			const { pageKey } = brain.recall(constants.paramsKey)
+			if (!pageKey) {
+				throw new Error("The 'closePage' action requires a 'pageKey' parameter.")
+			}
+			const pages = brain.recall(constants.pagesKey)
+			const page = pages[pageKey]
+			if (page) {
+				await page.close()
+				delete pages[pageKey]
+				brain.learn(constants.pagesKey, pages)
+				displayText(
+					[{ text: `Page with key '${pageKey}' closed`, color: 'blue', style: 'bold' }],
+					brain,
+				)
+			} else {
+				displayText(
+					[{ text: `Page with key '${pageKey}' not found`, color: 'red', style: 'bold' }],
+					brain,
+				)
+			}
+		})
+		super.add('switchPage', async (brain) => {
+			const { pageKey } = brain.recall(constants.paramsKey)
+			if (!pageKey) {
+				throw new Error("The 'switchPage' action requires a 'pageKey' parameter.")
+			}
+			const pages = brain.recall(constants.pagesKey)
+			const page = pages[pageKey]
+			if (page) {
+				await page.bringToFront()
+				brain.learn(constants.activePageKey, page)
+				displayText(
+					[{ text: `Switched to page with key '${pageKey}'`, color: 'blue', style: 'bold' }],
+					brain,
+				)
+			}
+		})
 		super.add('puppeteer', async (brain, page) => {
 			const { func, func2, ...rest } = brain.recall(constants.paramsKey)
 			displayText(
@@ -98,6 +151,11 @@ export default class CoreActionList extends ActionList {
 				],
 				brain,
 			)
+			if (func === 'newPage') {
+				brain.learn(constants.paramsKey, { pageKey: uuidv4() })
+				await newPage(brain)
+				return
+			}
 			const params = Object.values(rest)
 			brain.learn(
 				constants.inputKey,
@@ -494,7 +552,7 @@ export default class CoreActionList extends ActionList {
 			await page.waitForSelector(selector, { visible: true })
 			await page.type(selector, text)
 		})
-		super.add('if', async (brain, page) => {
+		super.add('if', async (brain) => {
 			const { condition, actions } = brain.recall(constants.paramsKey)
 			displayText(
 				[
@@ -509,7 +567,7 @@ export default class CoreActionList extends ActionList {
 				for (let i = 0; i < actions.length; i++) {
 					const action = actions[i]
 					brain.learn(constants.paramsKey, action.params)
-					await brain.perform(action.name, page)
+					await brain.perform(action.name, brain.recall(constants.activePageKey))
 				}
 				decrementIndentation(brain)
 				displayText([{ text: ': End of if', style: 'italic' }], brain)
@@ -517,7 +575,7 @@ export default class CoreActionList extends ActionList {
 				displayText([{ text: ': Condition is false', style: 'italic' }], brain)
 			}
 		})
-		super.add('ifElse', async (brain, page) => {
+		super.add('ifElse', async (brain) => {
 			const { condition, actions, elseActions } = brain.recall(constants.paramsKey)
 			displayText(
 				[
@@ -532,7 +590,7 @@ export default class CoreActionList extends ActionList {
 				for (let i = 0; i < actions.length; i++) {
 					const action = actions[i]
 					brain.learn(constants.paramsKey, action.params)
-					await brain.perform(action.name, page)
+					await brain.perform(action.name, brain.recall(constants.activePageKey))
 				}
 				decrementIndentation(brain)
 				displayText([{ text: ': End of if', style: 'italic' }], brain)
@@ -542,7 +600,7 @@ export default class CoreActionList extends ActionList {
 				for (let i = 0; i < elseActions.length; i++) {
 					const action = elseActions[i]
 					brain.learn(constants.paramsKey, action.params)
-					await brain.perform(action.name, page)
+					await brain.perform(action.name, brain.recall(constants.activePageKey))
 				}
 				decrementIndentation(brain)
 				displayText([{ text: ': End of if', style: 'italic' }], brain)
@@ -847,7 +905,7 @@ export default class CoreActionList extends ActionList {
 			const { text, color, background } = brain.recall(constants.paramsKey)
 			displayText([{ text: `: ${text}`, color, background, style: 'italic' }], brain)
 		})
-		super.add('forEach', async (brain, page) => {
+		super.add('forEach', async (brain) => {
 			const { key, actions } = brain.recall(constants.paramsKey)
 			const value = brain.recall(key)
 			const valueLength = value.length
@@ -863,13 +921,13 @@ export default class CoreActionList extends ActionList {
 				brain.learn(constants.inputKey, value[i])
 				for (let action of actions) {
 					brain.learn(constants.paramsKey, action.params)
-					await brain.perform(action.name, page)
+					await brain.perform(action.name, brain.recall(constants.activePageKey))
 				}
 			}
 			decrementIndentation(brain)
 			displayText([{ text: ': End of forEach', color: 'yellow', style: 'italic' }], brain)
 		})
-		super.add('for', async (brain, page) => {
+		super.add('for', async (brain) => {
 			const { from, until, step, actions } = brain.recall(constants.paramsKey)
 			incrementIndentation(brain)
 			for (let i = from; i <= until; i += step) {
@@ -877,19 +935,19 @@ export default class CoreActionList extends ActionList {
 				brain.learn(constants.inputKey, i)
 				for (let action of actions) {
 					brain.learn(constants.paramsKey, action.params)
-					await brain.perform(action.name, page)
+					await brain.perform(action.name, brain.recall(constants.activePageKey))
 				}
 			}
 			decrementIndentation(brain)
 			displayText([{ text: ': End of for loop', color: 'yellow', style: 'italic' }], brain)
 		})
-		super.add('while', async (brain, page) => {
+		super.add('while', async (brain) => {
 			const { condition, actions } = brain.recall(constants.paramsKey)
 			incrementIndentation(brain)
 			while (eval(condition)) {
 				for (let action of actions) {
 					brain.learn(constants.paramsKey, action.params)
-					await brain.perform(action.name, page)
+					await brain.perform(action.name, brain.recall(constants.activePageKey))
 				}
 			}
 			decrementIndentation(brain)
