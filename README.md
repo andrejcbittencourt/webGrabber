@@ -123,6 +123,8 @@ The following variable names are reserved and should be used in the config files
 - _CURRENT_DIR_
 - _BASE_DIR_
 - _PAYLOAD_ID_
+- _PAGES_
+- _ACTIVE_PAGE_
 
 ## License
 

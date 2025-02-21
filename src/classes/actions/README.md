@@ -1,9 +1,12 @@
+# Actions
+
 - **appendToText(key, filename)**: Appends a given string to the end of an existing text file.
 - **appendToVariable(key, value)**: Appends a value to the end of an existing variable.
 - **backToParentDir()**: Moves up one level in the directory structure.
 - **checkStringInFile(filename, string)**: Checks if a given string exists in a text file.
 - **click(selector, attribute, text)**: Clicks on a specified page element.
 - **clickAll(selector)**: Clicks on all elements that match a given CSS selector.
+- **closePage(pageKey)**: Closes a browser tab.
 - **countDecrement(key)**: Decrements the value of a count variable by a given amount.
 - **countIncrement(key)**: Increments the value of a count variable by a given amount.
 - **createDir(dir)**: Creates a new directory in the current path.
@@ -26,6 +29,7 @@
 - **log(text, color, background)**: Logs a message to the console.
 - **matchFromSelector(selector, regex)**: Searches for a given pattern in a page element using a CSS selector.
 - **matchFromString(regex, string)**: Searches for a given pattern in a string.
+- **newPage(pageKey)**: Opens a new browser tab.
 - **puppeteer**: A proxy action that enables direct interaction with the headless Chrome browser through the Puppeteer library.
 - **random(min, max)**: Generates a random number.
 - **readFromText(filename)**: Reads the contents of a text file.
@@ -40,6 +44,7 @@
 - **setCookiesDir()**: Sets the directory where cookies are stored.
 - **setVariable(key, value)**: Sets the value of a variable to a given value.
 - **sleep(ms)**: Pauses the execution of the script for a given amount of time.
+- **switchPage(pageKey)**: Switches to a different browser tab.
 - **transferVariable(from, index, to)**: Transfers a value from one variable to another considering the index if an array.
 - **type(selector, text, secret)**: Types a given string or value into a specified field or element on the page.
 - **userInput(query)**: Accepts input from the user.
