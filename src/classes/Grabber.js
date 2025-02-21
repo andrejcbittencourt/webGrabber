@@ -22,8 +22,9 @@ class Brain {
 	}
 
 	learn(key, value) {
-		// if value is an object then clone it
-		this.#memory.set(key, typeof value === 'object' ? cloneDeep(value) : value)
+		if (key === constants.pagesKey || key === constants.activePageKey) this.#memory.set(key, value)
+		else if (typeof value === 'object') this.#memory.set(key, cloneDeep(value))
+		else this.#memory.set(key, value)
 	}
 	recall(key) {
 		return this.#memory.get(key)
@@ -112,13 +113,16 @@ export default class Grabber {
 
 	async grab(payload = null) {
 		const brain = BrainFactory.create()
-		const page = await PuppeteerPageFactory.create()
 		const grabList = GrabListFactory.create()
 		if (payload) {
 			grabList.add(payload.body)
 			brain.learn(constants.payloadIdKey, payload.id)
 		} else await this.loadGrabList(grabList)
 		try {
+			const defaultPage = await PuppeteerPageFactory.create()
+			const pages = { default: defaultPage }
+			brain.learn(constants.pagesKey, pages)
+			brain.learn(constants.activePageKey, defaultPage)
 			const argv = process.argv.slice(2)[0]
 			const asyncActions = []
 			for (const grab of grabList.list) {
@@ -130,8 +134,9 @@ export default class Grabber {
 				await brain.perform('resetCurrentDir')
 				for (const action of grab.actions) {
 					brain.learn(constants.paramsKey, action.params || {})
-					if (action['await'] === false) asyncActions.push(brain.perform(action.name, page))
-					else await brain.perform(action.name, page)
+					const activePage = brain.recall(constants.activePageKey)
+					if (action['await'] === false) asyncActions.push(brain.perform(action.name, activePage))
+					else await brain.perform(action.name, activePage)
 				}
 			}
 			if (asyncActions.length > 0) {
@@ -140,7 +145,10 @@ export default class Grabber {
 		} catch (error) {
 			displayError(error)
 		}
-		await page.close()
+		const pages = brain.recall(constants.pagesKey)
+		for (const key in pages) {
+			await pages[key].close()
+		}
 		displayText([{ text: 'Grabber finished', color: 'green', style: 'bold' }])
 		if (!payload) {
 			await PuppeteerPageFactory.close()
