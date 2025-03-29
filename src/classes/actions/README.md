@@ -1,52 +1,263 @@
 # Actions
 
-- **appendToText(key, filename)**: Appends a given string to the end of an existing text file.
-- **appendToVariable(key, value)**: Appends a value to the end of an existing variable.
-- **backToParentDir()**: Moves up one level in the directory structure.
-- **checkStringInFile(filename, string)**: Checks if a given string exists in a text file.
-- **click(selector, attribute, text)**: Clicks on a specified page element.
-- **clickAll(selector)**: Clicks on all elements that match a given CSS selector.
-- **closePage(pageKey)**: Closes a browser tab.
-- **countDecrement(key)**: Decrements the value of a count variable by a given amount.
-- **countIncrement(key)**: Increments the value of a count variable by a given amount.
-- **createDir(dir)**: Creates a new directory in the current path.
-- **createFile(filename)**: Creates a new file in the current path with a given name.
-- **deleteFile(filename)**: Deletes a file in the current path.
-- **deleteFolder(foldername)**: Deletes a folder in the current path.
-- **download(url, filename, host)**: Downloads a file from a given URL to the current path.
-- **elementExists(selector)**: Checks if a page element exists on the current page.
-- **fileExists(filename)**: Checks if a file exists in the current path.
-- **forEach(key, actions)**: Executes a block of code for each element in an array or list.
-- **for(from, until, step, actions)**: Executes a block of code a specified number of times.
-- **getChildren(selectorParent, selectorChild, attribute)**: Retrieves the child elements of a given parent element.
-- **getElements(selector, attribute)**: Retrieves all elements that match a given CSS selector.
-- **getExtension(string)**: Returns the file extension of a given file path or name.
-- **getVariable(key, index)**: Retrieves the value of a variable and returns it.
-- **if(condition, actions)**: Executes a block of code if a given condition is true.
-- **ifElse(condition, actions, elseActions)**: Executes one block of code if a given condition is true, and another block of code if it is false.
-- **listFolders()**: Lists all folders in a given directory.
-- **login(usernameSelector, username, passwordSelector, password, submitSelector, cookiesFile)**: Logs in to a website using a given set of credentials.
-- **log(text, color, background)**: Logs a message to the console.
-- **matchFromSelector(selector, regex)**: Searches for a given pattern in a page element using a CSS selector.
-- **matchFromString(regex, string)**: Searches for a given pattern in a string.
-- **newPage(pageKey)**: Opens a new browser tab.
-- **puppeteer**: A proxy action that enables direct interaction with the headless Chrome browser through the Puppeteer library.
-- **random(min, max)**: Generates a random number.
-- **readFromText(filename)**: Reads the contents of a text file.
-- **replaceString(string, search, replace)**: Replaces a given string with another string.
-- **resetCurrentDir()**: Resets the current working directory to its default value.
-- **saveToText(key, filename)**: Saves a given string to a text file in the current path.
-- **screenshot(name, type)**: Takes a screenshot of the current page.
-- **screenshotElement(selector, name, type)**: Takes a screenshot of a specified page element.
-- **scrollWaitClick(selector, ms)**: Scrolls to a given page element and waits a specified amount of time before clicking on it.
-- **sanitizeString(string)**: Removes any unwanted characters or formatting from a given string.
-- **setCurrentDir(dir)**: Sets the current working directory to a given directory path.
-- **setCookiesDir()**: Sets the directory where cookies are stored.
-- **setVariable(key, value)**: Sets the value of a variable to a given value.
-- **sleep(ms)**: Pauses the execution of the script for a given amount of time.
-- **switchPage(pageKey)**: Switches to a different browser tab.
-- **transferVariable(from, index, to)**: Transfers a value from one variable to another considering the index if an array.
-- **type(selector, text, secret)**: Types a given string or value into a specified field or element on the page.
-- **userInput(query)**: Accepts input from the user.
-- **uuid()**: Generates a unique identifier.
-- **while(condition, actions)**: Executes a block of code while a given condition is true.
+This document lists all core actions defined in `CoreActionList`,
+along with the parameters.
+
+---
+### `appendToText`
+**Parameters:** `key, filename`
+
+---
+
+### `appendToVariable`
+**Parameters:** `key, value`
+
+---
+
+### `backToParentDir`
+**Parameters:** `None`
+
+---
+
+### `checkStringInFile`
+**Parameters:** `filename, string`
+
+---
+
+### `click`
+**Parameters:** `selector, attribute, text`
+
+---
+
+### `clickAll`
+**Parameters:** `selector`
+
+---
+
+### `closePage`
+**Parameters:** `pageKey`
+
+---
+
+### `countDecrement`
+**Parameters:** `key`
+
+---
+
+### `countIncrement`
+**Parameters:** `key`
+
+---
+
+### `countStart`
+**Parameters:** `key, value`
+
+---
+
+### `createDir`
+**Parameters:** `None`
+
+---
+
+### `createFile`
+**Parameters:** `filename`
+
+---
+
+### `deleteFile`
+**Parameters:** `filename`
+
+---
+
+### `deleteFolder`
+**Parameters:** `foldername`
+
+---
+
+### `deleteVariable`
+**Parameters:** `key`
+
+---
+
+### `download`
+**Parameters:** `url, filename, host`
+
+---
+
+### `elementExists`
+**Parameters:** `selector`
+
+---
+
+### `fileExists`
+**Parameters:** `filename`
+
+---
+
+### `for`
+**Parameters:** `from, until, step, actions`
+
+---
+
+### `forEach`
+**Parameters:** `key, actions`
+
+---
+
+### `getChildren`
+**Parameters:** `selectorParent, selectorChild, attribute`
+
+---
+
+### `getElements`
+**Parameters:** `selector, attribute`
+
+---
+
+### `getExtension`
+**Parameters:** `string`
+
+---
+
+### `getVariable`
+**Parameters:** `key, index`
+
+---
+
+### `if`
+**Parameters:** `condition, actions`
+
+---
+
+### `ifElse`
+**Parameters:** `condition, actions, elseActions`
+
+---
+
+### `listFolders`
+**Parameters:** None
+
+---
+
+### `log`
+**Parameters:** `text, color, background`
+
+---
+
+### `login`
+**Parameters:** `url, usernameSelector, username, passwordSelector, password, submitSelector, cookieName,`
+
+---
+
+### `matchFromSelector`
+**Parameters:** `selector, regex`
+
+---
+
+### `matchFromString`
+**Parameters:** `regex, string`
+
+---
+
+### `newPage`
+**Parameters:** `pageKey`
+
+---
+
+### `puppeteer`
+**Parameters:** `func, func2, ...rest`
+
+---
+
+### `random`
+**Parameters:** `min, max`
+
+---
+
+### `readFromText`
+**Parameters:** `filename, breakLine = false`
+
+---
+
+### `replaceString`
+**Parameters:** `string, search, replace`
+
+---
+
+### `resetCurrentDir`
+**Parameters:** None
+
+---
+
+### `sanitizeString`
+**Parameters:** `string`
+
+---
+
+### `saveToText`
+**Parameters:** `key, filename`
+
+---
+
+### `screenshot`
+**Parameters:** `name, type, fullPage`
+
+---
+
+### `screenshotElement`
+**Parameters:** `name, type, selector`
+
+---
+
+### `scrollWaitClick`
+**Parameters:** `selector, ms = 2000`
+
+---
+
+### `setBaseDir`
+**Parameters:** `dir`
+
+---
+
+### `setCurrentDir`
+**Parameters:** `None`
+
+---
+
+### `setVariable`
+**Parameters:** `key, value`
+
+---
+
+### `sleep`
+**Parameters:** `ms`
+
+---
+
+### `switchPage`
+**Parameters:** `pageKey`
+
+---
+
+### `transferVariable`
+**Parameters:** `from, index, key, to`
+
+---
+
+### `type`
+**Parameters:** `selector, text, secret = false`
+
+---
+
+### `userInput`
+**Parameters:** `query`
+
+---
+
+### `uuid`
+**Parameters:** `None`
+
+---
+
+### `while`
+**Parameters:** `condition, actions`
