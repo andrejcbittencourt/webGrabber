@@ -4,7 +4,7 @@ import Grabber from './src/classes/Grabber.js'
 import customize from './src/config/custom.js'
 import options from './src/config/options.js'
 import { v4 as uuidv4 } from 'uuid'
-import { displayError, displayText } from './src/utils/utils.js'
+import { displayError, displayText, welcomePage } from './src/utils/utils.js'
 
 // Function to start the server
 const startServerMode = async () => {
