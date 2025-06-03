@@ -1,6 +1,5 @@
 import 'dotenv/config'
 import express from 'express'
-import bodyParser from 'body-parser'
 import Grabber from './src/classes/Grabber.js'
 import customize from './src/config/custom.js'
 import options from './src/config/options.js'
@@ -11,7 +10,7 @@ import { displayError, displayText } from './src/utils/utils.js'
 const startServerMode = async () => {
 	// Initialize Express app
 	const app = express()
-	app.use(bodyParser.json())
+	app.use(express.json())
 
 	// Set the default port or use the one from environment variables
 	const port = process.env.PORT || 3000
