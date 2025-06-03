@@ -119,14 +119,22 @@ export default class Grabber {
 			brain.learn(constants.payloadIdKey, payload.id)
 		} else await this.loadGrabList(grabList)
 		try {
-			const defaultPage = await PuppeteerPageFactory.create()
-			const pages = { default: defaultPage }
-			brain.learn(constants.pagesKey, pages)
-			brain.learn(constants.activePageKey, defaultPage)
-			const argv = process.argv.slice(2)[0]
+			const [mode, grabName] = process.argv.slice(2)
+			const helpMode = mode === 'help'
+			if (!helpMode) {
+				const defaultPage = await PuppeteerPageFactory.create()
+				const pages = { default: defaultPage }
+				brain.learn(constants.pagesKey, pages)
+				brain.learn(constants.activePageKey, defaultPage)
+			}
 			const asyncActions = []
 			for (const grab of grabList.list) {
-				if (argv && argv !== grab.name && !payload) continue
+				if (helpMode && grabName === grab.name)
+					displayText([
+						{ text: 'Description : ', color: 'blue', style: 'bold' },
+						{ text: grab.description, color: 'whiteBright' },
+					])
+				if (helpMode || (grabName && grabName !== grab.name && !payload)) continue
 				displayText([{ text: `Grabbing ${grab.name}`, color: 'green', style: 'bold' }])
 				resetIndentation(brain)
 				brain.learn(constants.paramsKey, { dir: grab.name })

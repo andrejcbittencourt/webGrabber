@@ -1,14 +1,20 @@
 class Grab {
 	#name
+	#description
 	#actions
 
-	constructor(name, actions) {
-		this.#name = name
-		this.#actions = actions
+	constructor(grab) {
+		this.#name = grab.name
+		this.#description = grab.description || 'No description provided'
+		this.#actions = grab.actions
 	}
 
 	get name() {
 		return this.#name
+	}
+
+	get description() {
+		return this.#description
 	}
 
 	get actions() {
@@ -32,7 +38,7 @@ class GrabList {
 	}
 
 	add(grab) {
-		this.#list.push(new Grab(grab.name, grab.actions))
+		this.#list.push(new Grab(grab))
 	}
 }
 
