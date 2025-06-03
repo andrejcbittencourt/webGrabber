@@ -151,11 +151,11 @@ export default class CoreActionList extends ActionList {
 				],
 				brain,
 			)
-			if (func === 'newPage') {
-				brain.learn(constants.paramsKey, { pageKey: uuidv4() })
-				await newPage(brain)
-				return
-			}
+                        if (func === 'newPage') {
+                                brain.learn(constants.paramsKey, { pageKey: uuidv4() })
+                                await brain.perform('newPage')
+                                return
+                        }
 			const params = Object.values(rest)
 			brain.learn(
 				constants.inputKey,
