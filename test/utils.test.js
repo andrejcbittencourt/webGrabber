@@ -3,7 +3,7 @@ import assert from 'node:assert'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-const {
+import {
 	pathJoin,
 	basePathJoin,
 	fsOperation,
@@ -13,8 +13,8 @@ const {
 	incrementIndentation,
 	decrementIndentation,
 	displayText,
-} = await import('../src/utils/utils.js')
-const { default: constants } = await import('../src/utils/constants.js')
+} from '../src/utils/utils.js'
+import constants from '../src/utils/constants.js'
 
 class Brain {
 	constructor() {
