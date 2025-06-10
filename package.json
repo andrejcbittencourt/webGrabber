@@ -1,6 +1,6 @@
 {
   "name": "@andrejcbittencourt/webgrabber",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "description": "Config based web scraper & browser automation",
   "main": "app.js",
   "type": "module",
@@ -34,7 +34,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.2",
+    "@types/express": "^5.0.3",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.1",
