@@ -1,6 +1,6 @@
 {
   "name": "@andrejcbittencourt/webgrabber",
-  "version": "4.1.4",
+  "version": "4.1.5",
   "description": "Config based web scraper & browser automation",
   "main": "app.js",
   "type": "module",
